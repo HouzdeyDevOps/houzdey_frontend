@@ -5,8 +5,18 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Airbnb Cereal', 'sans-serif'],
+      },
+    },
   },
-  plugins: [require("flowbite/plugin"), require("daisyui")],
+  daisyui: {
+    themes: ["light", "dark"],
+  },
+  plugins: [
+    require('daisyui'),
+  ],
+ 
 }
 

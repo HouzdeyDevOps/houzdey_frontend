@@ -1,43 +1,75 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 
+/* src/styles/global.css */
+@font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_Lt.otf') format('opentype');
+    font-weight: 300; /* Light */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_Bk.otf') format('opentype');
+    font-weight: 400; /* Book */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_Md.otf') format('opentype');
+    font-weight: 500; /* Medium */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_Bd.otf') format('opentype');
+    font-weight: 700; /* Bold */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_Blk.otf') format('opentype');
+    font-weight: 900; /* Black */
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Airbnb Cereal';
+    src: url('/fonts/AirbnbCereal_W_XBd.otf') format('opentype');
+    font-weight: 800; /* Extra Bold */
+    font-style: normal;
+  }
+  
+  /* Apply the font globally */
+  body {
+    font-family: 'Airbnb Cereal', sans-serif;
+  }
+  
 
-
-html,
-body,
-:root {
-  font-family: "Nunito", sans-serif;
-  font-weight: 500;
-  font-size: medium;
-}
-
+  
 /* Style the scrollbar with Tailwind CSS */
 /* Total scrollbar width */
 ::-webkit-scrollbar {
-    @apply w-2;
+  @apply w-2;
 }
 
 /* Background of the scrollbar except the handle */
 ::-webkit-scrollbar-track {
-    @apply bg-gray-200;
+  @apply bg-gray-200;
 }
 
 /* Scrollbar handle */
 ::-webkit-scrollbar-thumb {
-    @apply bg-[#1f2147] rounded-full transition duration-300 ease-in-out;
+  @apply bg-[#1f2147] rounded-full transition duration-300 ease-in-out;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-700;
+  @apply bg-gray-700;
 }
-
-/* For Firefox */
-html, body {
-    font-family: "Nunito", sans-serif;
-    font-weight: 600;
-  }
