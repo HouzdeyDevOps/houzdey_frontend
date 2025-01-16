@@ -1,0 +1,59 @@
+src/
+├── api/
+│   ├── axiosInstance.ts       # Configures Axios instance (e.g., base URL, interceptors)
+│   ├── queries/
+│   │   ├── index.ts           # Entry point for query exports
+│   │   ├── userQueries.ts     # Queries for user-related data
+│   │   ├── propertyQueries.ts # Queries for property-related data
+│   └── mutations/
+│       ├── index.ts           # Entry point for mutation exports
+│       ├── userMutations.ts   # Mutations for user-related actions
+│       ├── propertyMutations.ts # Mutations for property-related actions
+├── app/
+│   ├── store.ts               # Redux store configuration
+│   ├── queryClient.ts         # TanStack Query client configuration
+│   └── rootReducer.ts         # Combines all Redux slices
+├── components/
+│   ├── common/                # Reusable UI components (e.g., Button, Modal)
+│   ├── layout/                # Layout components (e.g., Navbar, Footer)
+│   └── specific/              # Specific components (e.g., ChatBox, PaymentForm)
+├── features/                  # Feature-based modules
+│   ├── auth/
+│   │   ├── components/        # Auth-specific components (e.g., LoginForm)
+│   ├── properties/
+│   │   ├── components/        # Property-specific components
+│   └── chat/
+│       ├── components/        # Chat-specific components
+│       ├── hooks/             # Custom hooks for chat
+│       ├── slices/            # Redux slices for chat state
+│       ├── chatService.ts     # API service specific to chat
+│       └── chatUtils.ts       # Helper functions for chat
+├── hooks/
+│   ├── useAppDispatch.ts      # Typed Redux dispatch hook
+│   ├── useAppSelector.ts      # Typed Redux selector hook
+│   ├── useIsMobile.ts         # Example custom hook for responsive design
+├── pages/
+│   ├── Home.tsx               # Home/Landing Page
+│   ├── Properties.tsx         # Property Listings Page
+│   ├── Profile.tsx            # User Profile Page
+│   ├── Chat.tsx               # Real-Time Chat Page
+│   └── NotFound.tsx           # 404 Page
+├── routes/
+│   ├── AppRoutes.tsx          # Main application routes
+│   └── ProtectedRoute.tsx     # Wrapper for protected routes
+├── styles/
+│   ├── globals.css            # Global CSS styles
+│   ├── variables.css          # CSS variables (e.g., theme colors)
+│   └── components/            # Component-specific styles
+├── types/
+│   ├── api.d.ts               # API response types
+│   ├── redux.d.ts             # Redux state types
+│   └── general.d.ts           # General/shared types
+├── utils/
+│   ├── logger.ts              # Logging utility
+│   ├── errorHandler.ts        # Handles API or general errors
+│   ├── dateFormatter.ts       # Utility to format dates
+│   └── localStorage.ts        # Wrapper for localStorage operations
+├── App.tsx                    # Main app component
+├── main.tsx                   # Entry point for React application
+└── index.html                 # HTML template

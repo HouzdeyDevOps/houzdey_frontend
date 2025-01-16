@@ -17,7 +17,7 @@ Houzdey is a cutting-edge rental property platform designed to revolutionize the
 
 - **React.js**: For building a dynamic and responsive user interface
 - **Tailwind CSS**: For rapid and customizable styling
-- **Zustand/React Query**: For efficient state management
+- **Redux toolkit/React Query**: For efficient state management
 - **Stream Chat API**: For real-time messaging functionality
 - **Auth0**: For secure authentication and authorization
 

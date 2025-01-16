@@ -6,6 +6,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import theme from "./theme";
 import "./index.css";
+import { Provider } from "react-redux";
+import store from "./store/store";
 
 // Set up a Router instance
 const router = createRouter({
@@ -27,12 +29,14 @@ const rootElement = document.getElementById("app")!;
 
 if (!rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement);
-  // root.render(<RouterProvider router={router} />)
+
   root.render(
     <StrictMode>
       <ChakraProvider theme={theme}>
         <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
+          <Provider store={store}>
+            <RouterProvider router={router} />
+          </Provider>
         </QueryClientProvider>
       </ChakraProvider>
     </StrictMode>
