@@ -11,6 +11,11 @@ export default {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        text: "var(--text-color)",
+      "text-invert": "var(--text-color-invert)",
+      },
+      fontFamily: {
+        sans: ["var(--font-airbnb)"],
       },
     },
   },

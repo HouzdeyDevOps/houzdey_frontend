@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Houzdey Frontend
 
-## Getting Started
+## 🏠 About Houzdey
 
-First, run the development server:
+Houzdey is a cutting-edge rental property platform designed to revolutionize the way tenants find their ideal homes and landlords manage their properties. Our mission is to create a seamless, user-friendly experience for all parties involved in the rental process.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🚀 Features
+
+- **Property Search**: Advanced filters to find the perfect property
+- **Real-time Chat**: Instant communication between tenants and landlords
+- **Interactive Maps**: Visualize property locations with Google Maps integration
+- **User Profiles**: Manage your account, listings, and preferences
+- **Secure Payments**: Integrated Paystack for safe transactions
+- **Responsive Design**: Seamless experience across desktop and mobile devices
+
+## 🛠 Tech Stack
+
+### Frontend
+- Next.js 14 (App Router)
+- TypeScript
+- TanStack Query for server state
+- Redux Toolkit for client state
+- Tailwind CSS for styling
+- Axios for API requests
+
+## 🏗 Getting Started
+
+### Prerequisites
+
+- Node.js (v16 or later)
+- npm or yarn
+
+### Installation
+
+1. Clone the repository:
+   ```
+   git clone https://github.com/houzdey/frontend.git
+   cd frontend
+   ```
+
+2. Install dependencies:
+   ```
+   npm install
+   ```
+   or
+   ```
+   yarn install
+   ```
+
+3. Set up environment variables:
+   Create a `.env` file in the root directory and add the following:
+   ```
+   REACT_APP_API_URL=<backend_api_url>
+   REACT_APP_STREAM_API_KEY=<stream_chat_api_key>
+   REACT_APP_GOOGLE_MAPS_API_KEY=<google_maps_api_key>
+   REACT_APP_AUTH0_DOMAIN=<auth0_domain>
+   REACT_APP_AUTH0_CLIENT_ID=<auth0_client_id>
+   ```
+
+4. Start the development server:
+   ```
+   npm start
+   ```
+   or
+   ```
+   yarn start
+   ```
+
+5. Open `http://localhost:3000` in your browser to view the app.
+
+## 🧪 Testing
+
+Run the test suite with:
+
+```
+npm test
+```
+or
+```
+yarn test
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚢 Deployment
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Build the production-ready app:
+   ```
+   npm run build
+   ```
+   or
+   ```
+   yarn build
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Deploy the contents of the `build` folder to your hosting provider of choice (e.g., Netlify, Vercel, or AWS S3).
 
-## Learn More
+## 🤝 Contributing
 
-To learn more about Next.js, take a look at the following resources:
+We welcome contributions to Houzdey! Please check out our [Contributing Guidelines](CONTRIBUTING.md) for more information on how to get started.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📄 License
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Deploy on Vercel
+## 📞 Support
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+If you encounter any issues or have questions, please file an issue on our [GitHub issue tracker](https://github.com/houzdey/frontend/issues) or contact our support team at support@houzdey.com.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+Built with ❤️ by the Houzdey Team
