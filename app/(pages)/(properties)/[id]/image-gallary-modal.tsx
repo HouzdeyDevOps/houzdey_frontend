@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -48,10 +49,13 @@ export default function ImageGalleryModal({ images, initialIndex, onClose }: Ima
       </button>
 
       <div className="relative max-w-7xl mx-auto px-4">
-        <img
+        <motion.img
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}
-          className="max-h-[85vh] object-contain"
+          className="max-h-[85vh] object-contain rounded-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
         />
         
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">
@@ -60,7 +64,7 @@ export default function ImageGalleryModal({ images, initialIndex, onClose }: Ima
           </span>
           <div className="flex gap-1">
             {images.map((_, index) => (
-              <button
+              <motion.button
                 key={index}
                 onClick={() => setCurrentIndex(index)}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
@@ -72,12 +76,15 @@ export default function ImageGalleryModal({ images, initialIndex, onClose }: Ima
         </div>
       </div>
 
-      <button 
+      <motion.button 
         onClick={nextImage}
         className="absolute right-4 top-1/2 -translate-y-1/2 text-white p-2 hover:bg-white/10 rounded-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
       >
         <ChevronRight className="w-6 h-6" />
-      </button>
+      </motion.button>
     </div>
   );
 }

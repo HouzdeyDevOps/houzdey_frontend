@@ -2,20 +2,12 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  ChevronLeft,
-  Heart,
-  CookingPot,
-  Waves,
-  PawPrint,
-  Wind,
-  Droplets,
-  Refrigerator,
-  Camera,
-} from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/app/components/navbar/Navbar";
 import ImageGalleryModal from "./image-gallary-modal";
+import { getAmenityIcon } from "@/utils/iconUtils";
+import { motion } from "framer-motion";
 
 interface Review {
   id: number;
@@ -48,26 +40,6 @@ interface Property {
   reviews: Review[];
 }
 
-const getAmenityIcon = (icon: string) => {
-  switch (icon) {
-    case "CookingPot":
-      return <CookingPot className="w-5 h-5" />;
-    case "garden":
-      return <Waves className="w-5 h-5" />;
-    case "pets":
-      return <PawPrint className="w-5 h-5" />;
-    case "ac":
-      return <Wind className="w-5 h-5" />;
-    case "water":
-      return <Droplets className="w-5 h-5" />;
-    case "fridge":
-      return <Refrigerator className="w-5 h-5" />;
-    case "security":
-      return <Camera className="w-5 h-5" />;
-    default:
-      return null;
-  }
-};
 
 export default function PropertyDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
@@ -127,40 +99,26 @@ const [selectedImageIndex, setSelectedImageIndex] = useState(0);
     <div className="min-h-screen bg-white">
       <Navbar />
 
+
+      <main className="max-w-7xl mx-auto px-4 py-4">
+
       {/* Back button and title */}
       <div className="max-w-7xl mx-auto px-4 py-4">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 ">
           <Link href="/" className="flex items-center text-gray-600">
             <ChevronLeft className="w-5 h-5" />
             <span>Back</span>
           </Link>
         </div>
 
+  
         {/* Image Gallery */}
-        {/* <div className="grid grid-cols-2 gap-2 mb-8">
-          <div className="col-span-1 aspect-[4/3]">
-            <img
-              src={property.images[0]}
-              alt={property.title}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          </div>
-          <div className="col-span-1 grid grid-cols-2 gap-2">
-            {property.images.slice(1, 5).map((image, index) => (
-              <div key={index} className="aspect-[4/3]">
-                <img
-                  src={image}
-                  alt={`${property.title} ${index + 2}`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-              </div>
-            ))}
-          </div>
-        </div> */}
-
-        {/* Image Gallery */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8">
-          <div
+        <motion.div className="grid grid-cols-1 md:grid-cols-2 gap-2 mb-8"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <motion.div
             className="col-span-1 aspect-[4/3] cursor-pointer"
             onClick={() => {
               setSelectedImageIndex(0);
@@ -172,12 +130,19 @@ const [selectedImageIndex, setSelectedImageIndex] = useState(0);
               alt={property.title}
               className="w-full h-full object-cover rounded-lg hover:opacity-95 transition-opacity"
             />
-          </div>
-          <div className="col-span-1 grid grid-cols-2 gap-2">
+          </motion.div>
+          <motion.div className="col-span-1 grid grid-cols-2 gap-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          >
             {property.images.slice(1, 5).map((image, index) => (
-              <div
+              <motion.div
                 key={index}
                 className="relative aspect-[4/3] cursor-pointer group"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
                 onClick={() => {
                   setSelectedImageIndex(index + 1);
                   setShowGallery(true);
@@ -195,10 +160,10 @@ const [selectedImageIndex, setSelectedImageIndex] = useState(0);
                     </span>
                   </div>
                 )}
-              </div>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Image Gallery Modal */}
         {showGallery && (
@@ -313,6 +278,7 @@ const [selectedImageIndex, setSelectedImageIndex] = useState(0);
           </div>
         </div>
       </div>
+      </main>
     </div>
   );
 }
