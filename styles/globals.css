@@ -4,11 +4,19 @@
 @tailwind components;
 @tailwind utilities;
 
+/* reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --font-airbnb: "Airbnb Cereal", system-ui, -apple-system, BlinkMacSystemFont,
-    "Segoe UI", Roboto, sans-serif;
+  /* , system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif */
+  --font-airbnb: "Airbnb Cereal";
   --text-color: #171717;
   --text-color-invert: #ffffff;
 }
@@ -31,3 +39,4 @@ body {
   font-family: var(--font-airbnb);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+

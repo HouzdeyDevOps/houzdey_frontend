@@ -1,9 +1,12 @@
 import Link from "next/link";
-import React from "react";
+import React, { useState } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
 import Image from "next/image";
+import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 
 const Navbar = () => {
+  const [showCreateListing, setShowCreateListing] = useState(false);
+
   return (
     <div>
       <header className="p-4 border-b">
@@ -38,25 +41,27 @@ const Navbar = () => {
             </div>
           </div>
           <div className="flex gap-4 justify-end items-center">
-            <Link
-              href="/create-listing"
+            <button
+              onClick={() => setShowCreateListing(true)}
               className="px-4 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
             >
               Create listing
-            </Link>
+            </button>
             <Link href="/auth/signup" className="px-4 py-2 font-medium">
               Sign up
             </Link>
           </div>
         </div>
       </header>
-
       {/* Property Type Filters */}
       <nav className="border-b">
         <div className="max-w-7xl mx-auto px-4">
           <ul className="flex gap-8 overflow-x-auto py-4">
             <li>
-              <Link href="/" className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1">
+              <Link
+                href="/"
+                className="text-indigo-600 font-medium border-b-2 border-indigo-600 pb-1"
+              >
                 All
               </Link>
             </li>
@@ -82,6 +87,11 @@ const Navbar = () => {
           </ul>
         </div>
       </nav>
+      {/* Add the modal component: */}
+      <CreateListingModal
+        isOpen={showCreateListing}
+        onClose={() => setShowCreateListing(false)}
+      />
     </div>
   );
 };
