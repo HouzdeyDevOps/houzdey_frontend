@@ -7,6 +7,7 @@ import axios from "axios";
 import { ThemeToggle } from "@/app/components/ThemeToggle";
 import Navbar from "@/app/components/navbar/Navbar";
 import PropertyCard from "@/app/components/properties/propertycard";
+import Loader from "@/components/ui/Loader";
 
 const fetchFeaturedProperties = async () => {
   const { data } = await axios.get("/api/properties/featured");
@@ -73,7 +74,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen">
       <Navbar />
-      
+
       {/* Properties Grid */}
       <section className="max-w-7xl mx-auto p-4 mt-10">
         <div className="flex justify-end mb-4 gap-x-2">
@@ -86,18 +87,16 @@ export default function HomePage() {
           </select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {isLoading ? (
-            <p>Loading properties...</p>
-          ) : (
-            properties?.map((property: any) => (
+        {isLoading ? (
+          <Loader />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {properties?.map((property: any) => (
               <PropertyCard key={property.id} property={property} />
-            ))
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );
 }
-
-
