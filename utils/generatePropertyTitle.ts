@@ -14,7 +14,14 @@ export function generatePropertyTitle(formData: FormData): string {
   return parts.join(' ');
 } 
 
-function generateTitle({ bedrooms, propertyType, estateName, location }) {
+interface GenerateTitleProps {
+    bedrooms: number;
+    propertyType: string;
+    estateName: string;
+    location: string;
+}
+
+function generateTitle({ bedrooms, propertyType, estateName, location }: GenerateTitleProps) {
     let title = `${bedrooms}-Bedroom ${propertyType}`;
     if (estateName) {
       title += ` in ${estateName}`;
