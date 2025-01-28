@@ -14,10 +14,12 @@ const fetchFeaturedProperties = async () => {
 };
 
 export default function HomePage() {
-  // const { data: properties, isLoading } = useQuery(
-  //   ["featuredProperties"],
-  //   fetchFeaturedProperties
-  // );
+  // const { data: properties, isLoading, error } = useQuery({
+  //   queryKey: ["featuredProperties"],
+  //   queryFn: fetchFeaturedProperties,
+  //   suspense: true,
+  //   useErrorBoundary: true,
+  // });
   // dummy data
   const properties = [
     {
