@@ -33,9 +33,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`antialiased transition-colors duration-200`}
+        suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>
         </body>
