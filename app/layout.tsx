@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { AppProviders } from "./providers";
+import CookieConsent from "@/components/CookieConsent";
 
 export const viewport = {
   width: "device-width",
@@ -39,6 +40,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>
+        <CookieConsent />
         </body>
     </html>
   );
