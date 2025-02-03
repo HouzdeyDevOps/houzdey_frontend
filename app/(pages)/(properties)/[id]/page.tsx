@@ -4,7 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import Navbar from "@/app/components/navbar/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import ImageGalleryModal from "./image-gallary-modal";
 import { getAmenityIcon } from "@/utils/iconUtils";
 import { motion } from "framer-motion";
@@ -97,11 +97,10 @@ const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   return (
     <div className="min-h-screen bg-white">
-      <Navbar />
+      <Navbar showSearch={false} showPropertyTypeFilters={false}/>
 
 
-      <main className="max-w-7xl mx-auto px-4 py-4">
-
+      <main className="max-w-7xl mx-auto px-4 py-4 mt-24">
       {/* Back button and title */}
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center gap-2 mb-4 ">

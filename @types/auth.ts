@@ -21,3 +21,17 @@ export interface UserSignInParams {
   email: string;
   password: string;
 }
+
+export interface PersonalInfoModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onBack: () => void;
+  onSubmit: (data: PersonalInfoData) => void;
+}
+
+export interface PersonalInfoData {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  dateOfBirth: string;
+}

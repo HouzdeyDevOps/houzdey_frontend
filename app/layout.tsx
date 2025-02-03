@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "../styles/globals.css";
 import { AppProviders } from "./providers";
 import CookieConsent from "@/components/CookieConsent";
+import Navbar from "@/components/navbar/Navbar";
 
 export const viewport = {
   width: "device-width",
@@ -39,7 +40,9 @@ export default function RootLayout({
         className={`antialiased transition-colors duration-200`}
         suppressHydrationWarning
       >
-        <AppProviders>{children}</AppProviders>
+        <AppProviders>
+          {children}
+        </AppProviders>
         <CookieConsent />
         </body>
     </html>

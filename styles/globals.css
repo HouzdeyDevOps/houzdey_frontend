@@ -88,3 +88,73 @@ body {
   font-family: var(--font-nunito);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
+
+.react-phone-input-2 .flag-dropdown {
+  border-right: none !important;
+}
+
+.react-phone-input-2 .selected-flag:hover,
+.react-phone-input-2 .selected-flag:focus,
+.react-phone-input-2 .selected-flag.open {
+  background-color: transparent !important;
+  border-right: none !important;
+}
+
+.react-phone-input-2 .country-list {
+  border-radius: 0.5rem !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1) !important;
+}
+
+.react-phone-input-2 .country-list .search {
+  padding: 20px !important;
+}
+
+.react-phone-input-2 .country-list .search-box {
+  padding: 8px !important;
+  border-radius: 1.375rem !important;
+  border: 1px solid #e5e7eb !important;
+  margin: 0 !important;
+}
+/* Custom Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  border-radius: 28px !important;
+  z-index: 0 !important;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 50px !important;
+  z-index: 0 !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5146e5a4;
+  border-radius: 50px !important;
+  transition: all 0.2s ease-in-out;
+  z-index: 0 !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(80, 70, 229, 0.5);
+  z-index: 0 !important;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #5146e5a4 transparent;
+}
+
+/* For modals and other containers with dark overlay */
+.modal-scroll::-webkit-scrollbar-thumb {
+  background: rgba(80, 70, 229, 0.4);
+  z-index: 0 !important;
+}
+
+.modal-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(80, 70, 229, 0.6);
+  z-index: 0 !important;
+}
