@@ -27,7 +27,7 @@ export default function SignInModal({
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const dispatch = useDispatch();
 
-  const { mutate: signIn, isLoading } = useMutation({
+  const { mutate: signIn, isPending } = useMutation({
     mutationFn: async (credentials: typeof formData) => {
       // Your API call here
       const response = await fetch("/api/auth/signin", {
