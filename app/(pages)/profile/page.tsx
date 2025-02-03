@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -71,9 +71,10 @@ export default function ProfilePage() {
   }, [searchParams]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navbar showSearch={false} showPropertyTypeFilters={false}/>
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-24">
+    <Suspense fallback={<div>Loading...</div>}>
+      <div className="min-h-screen bg-gray-50">
+        <Navbar showSearch={false} showPropertyTypeFilters={false} />
+        <div className="max-w-7xl mx-auto px-4 py-8 mt-24">
         <div className="flex items-center gap-2 mb-8">
           <Link href="/" className="flex items-center text-gray-600 gap-2">
             <ChevronLeft className="w-5 h-5" />
@@ -135,5 +136,6 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+    </Suspense>
   );
 }
