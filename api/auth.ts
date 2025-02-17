@@ -1,7 +1,17 @@
 import axios from "axios";
 import { AuthError, SignInResponse, UserSignInParams } from "@/@types/auth";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+interface GoogleAuthUrlResponse {
+  auth_url: string;
+  state: string;
+  code_verifier: string;
+}
+
+interface GoogleSignInParams {
+  code: string;
+}
 
 export const authApi = {
   async signup(data: UserSignInParams) {
@@ -147,31 +157,31 @@ export const authApi = {
     }
   },
 
-  // Add to existing authApi object
-  async googleSignIn(token: string): Promise<SignInResponse> {
+  async getGoogleAuthUrl(): Promise<GoogleAuthUrlResponse> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/social/google/auth`);
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to get auth URL");
+    }
+  },
+
+  async googleSignIn({ code }: GoogleSignInParams): Promise<SignInResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/social/google`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
+        `${API_BASE_URL}/users/social/google/callback`,
+        { code: code }
       );
 
+      // Set token in axios defaults
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+      
+      // Store token in localStorage
       localStorage.setItem("token", response.data.access_token);
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
-      }
-      throw new Error("Google sign in failed. Please try again.");
+      throw new Error(error.response?.data?.detail || "Google sign in failed");
     }
   },
 

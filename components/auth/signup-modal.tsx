@@ -20,8 +20,7 @@ import PersonalInfoModal from "./personal-info-modal";
 import { signupSchema } from "@/utils/validationSchema";
 import { RootState } from "@/store/store";
 import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
-import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import GoogleAuthButton from "./GoogleAuthButton";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -40,7 +39,6 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const { mutate: signup, isPending } = useMutation({
     mutationFn: authApi.signup,
@@ -85,38 +83,6 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
       onClose();
     }
   };
-
-  const handleGoogleLogin = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        setIsGoogleLoading(true);
-        setErrorMessage('');
-
-        const result = await authApi.googleSignIn(tokenResponse.access_token);
-
-        dispatch(
-          login({
-            user: result.user,
-            token: result.access_token,
-          })
-        );
-
-        dispatch(closeModal());
-    } catch (error: any) {
-      setErrorMessage(error.message || 'Google sign in failed');
-      setShowError(true);
-    } finally {
-      setIsGoogleLoading(false);
-    }
-  },
-    onError: () => {
-      setErrorMessage("Google sign in failed");
-      setShowError(true);
-    },
-    flow: "implicit",
-    scope: "openid email profile",
-    prompt: "select_account"
-  });
 
   if (!isOpen && currentModal === "signup") return null;
 
@@ -215,23 +181,12 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
                     height={24}
                   />
                 </button>
-                <button
-                  type="button"
-                  className="p-3 border rounded-full hover:bg-gray-50 disabled:opacity-50"
-                  onClick={() => handleGoogleLogin()}
-                  disabled={isGoogleLoading}
-                >
-                  {isGoogleLoading ? (
-                    <div className="w-6 h-6 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin" />
-                  ) : (
-                    <Image
-                      src="/assets/icons/google.png"
-                      alt="Google"
-                      width={24}
-                      height={24}
-                    />
-                  )}
-                </button>
+                <GoogleAuthButton 
+                  onError={(message) => {
+                    setErrorMessage(message);
+                    setShowError(true);
+                  }}
+                />
               </div>
 
               <div className="text-center text-sm my-5">
