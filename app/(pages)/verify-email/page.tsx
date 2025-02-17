@@ -1,11 +1,12 @@
 'use client';
 
+import { Suspense } from 'react';
 import { useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { authApi } from '@/api/auth';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [verificationStatus, setVerificationStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -48,9 +49,13 @@ export default function VerifyEmailPage() {
           <div className="text-center">
             <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto" />
             <h2 className="mt-4 text-xl font-semibold text-gray-900">Email Verified!</h2>
-            <p className="mt-2 text-gray-600">
-              Your email has been successfully verified. Redirecting you to login...
-            </p>
+            <p className="mt-2 text-gray-600">Your email has been successfully verified. You can now sign in to your account.</p>
+            <button
+              onClick={() => router.push('/')}
+              className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              Go to Homepage
+            </button>
           </div>
         )}
 
@@ -60,13 +65,26 @@ export default function VerifyEmailPage() {
             <h2 className="mt-4 text-xl font-semibold text-gray-900">Verification Failed</h2>
             <p className="mt-2 text-red-600">{errorMessage}</p>
             <button
-              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              onClick={() => router.push('/')}
+              className="mt-6 w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors"
             >
-              Go to Login
+              Go to Homepage
             </button>
           </div>
         )}
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 } 
