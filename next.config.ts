@@ -1,35 +1,25 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/disbboeb4/image/upload/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        port: '',
+        pathname: '/a/**', 
+      },
+    ],
+  },
+  // other config options here
 };
 
 export default nextConfig;
 
 
-// import type { NextConfig } from "next";
-
-// const nextConfig: NextConfig = {
-//   output: 'standalone',
-//   experimental: {
-//     optimizeCss: false,
-//   },
-//   images: {
-//     domains: ['images.unsplash.com'],
-//   },
-//   webpack: (config) => {
-//     config.resolve.fallback = { fs: false };
-//     config.experiments = {
-//       ...config.experiments,
-//       topLevelAwait: true,
-//     };
-//     // Add CSS handling
-//     config.module.rules.push({
-//       test: /\.css$/,
-//       use: ['style-loader', 'css-loader'],
-//     });
-//     return config;
-//   },
-// };
-
-// export default nextConfig;
