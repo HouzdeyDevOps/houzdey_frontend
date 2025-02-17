@@ -3,8 +3,8 @@ import { ChevronLeft, EllipsisVertical } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
-import {Notificationsdata } from "@/app/components/Notification_Item/Notifications"
-import NotificationsCard from "@/app/components/Notification_Item/Notificationscards"
+import {Notificationsdata } from "@/components/Notification_Item/Notifications"
+import NotificationsCard from "@/components/Notification_Item/Notificationscards"
 
 
 

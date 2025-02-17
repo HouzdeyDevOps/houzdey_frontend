@@ -1,11 +1,24 @@
-// store/store.ts
 import { configureStore } from "@reduxjs/toolkit";
 import userAuthSlice from "./slices/userAuthSlice";
+import authModalSlice from "./slices/authModalSlice";
+import { authMiddleware, initializeAuth } from './middleware/authMiddleware';
+
+const preloadedState = {
+  userAuth: {
+    user: null,
+    isAuthenticated: false,
+    token: initializeAuth()
+  }
+};
 
 export const store = configureStore({
   reducer: {
-    [userAuthSlice.name]: userAuthSlice.reducer, // Add other slices as needed
+    [userAuthSlice.name]: userAuthSlice.reducer, 
+    [authModalSlice.name]: authModalSlice.reducer,
   },
+  preloadedState,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().prepend(authMiddleware.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
