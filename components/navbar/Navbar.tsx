@@ -8,6 +8,11 @@ import CreateListingModal from "../properties/create-listing-modal/create-listin
 import SignUpModal from "../auth/signup-modal";
 import PropertyTypeNav from "./PropertyTypeNav";
 import FilterModal from "../properties/filter-modal";
+import { useDispatch, useSelector } from "react-redux";
+import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
+import ProfileDropdown from "./ProfileDropdown";
+import { RootState } from "@/store/store";
+import SignInModal from "../auth/signin-modal";
 
 const Navbar = ({
   showSearch,
@@ -20,7 +25,14 @@ const Navbar = ({
   const [showSignUp, setShowSignUp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
+  const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.userAuth.user);
+  const currentModal = useSelector(
+    (state: RootState) => state.authModal.currentModal
+  );
 
+  console.log(user)
+  
   return (
     <div>
       {/* nav bar */}
@@ -66,19 +78,32 @@ const Navbar = ({
                 </div>
               </div>
             )}
+
             <div className="flex gap-4 justify-end items-center">
               <button
-                onClick={() => setShowCreateListing(true)}
+                onClick={
+                  user
+                    ? () => setShowCreateListing(true)
+                    : () => dispatch(setCurrentModal("signup"))
+                }
                 className="px-4 py-3 font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
               >
                 Create listing
               </button>
-              <button
-                onClick={() => setShowSignUp(true)}
-                className="px-4 py-2 font-bold hover:text-indigo-600"
-              >
-                Sign up
-              </button>
+
+              {user ? (
+                <ProfileDropdown />
+              ) : (
+                <button
+                  onClick={() => {
+                    dispatch(closeModal());
+                    dispatch(setCurrentModal("signup"));
+                  }}
+                  className="px-4 py-2 font-bold hover:text-indigo-600"
+                >
+                  Sign up
+                </button>
+              )}
             </div>
           </div>
         </header>
@@ -97,7 +122,20 @@ const Navbar = ({
           isOpen={showCreateListing}
           onClose={() => setShowCreateListing(false)}
         />
-        <SignUpModal isOpen={showSignUp} onClose={() => setShowSignUp(false)} />
+        <SignUpModal
+          isOpen={currentModal === "signup"}
+          onClose={() => {
+            dispatch(closeModal());
+          }}
+        />
+
+        <SignInModal
+          isOpen={currentModal === "signin"}
+          onClose={() => {
+            dispatch(closeModal());
+          }}
+          onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
+        />
         <FilterModal
           isOpen={showFilters}
           onClose={() => setShowFilters(false)}

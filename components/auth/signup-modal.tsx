@@ -1,18 +1,27 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import SuccessModal from "./success-modal";
 import LoadingModal from "./loading-modal";
 import ExitModal from "./exit-modal";
 import ErrorModal from "./error-modal";
-import { Eye, EyeOff } from "lucide-react";
-import PersonalInfoModal from "./personal-info-modal";
-import VerificationCodeModal from "./verification-code-modal";
 import { PersonalInfoData } from "@/@types/auth";
 import SignInModal from "./signin-modal";
+import { useMutation } from "@tanstack/react-query";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "@/store/slices/userAuthSlice";
+import { z } from "zod";
+import { authApi } from "@/api/auth";
+import VerificationCodeModal from "./verification-code-modal";
+import PersonalInfoModal from "./personal-info-modal";
+import { signupSchema } from "@/utils/validationSchema";
+import { RootState } from "@/store/store";
+import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
+import { useGoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -20,91 +29,106 @@ interface SignUpModalProps {
 }
 
 export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
+  const dispatch = useDispatch();
+  const currentModal = useSelector(
+    (state: RootState) => state.authModal.currentModal
+  );
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [showError, setShowError] = useState(false);
-  const [showExit, setShowExit] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [step, setStep] = useState(1);
-  const [showVerification, setShowVerification] = useState(false);
-  const [showPersonalInfo, setShowPersonalInfo] = useState(false);
-  const [showSignIn, setShowSignIn] = useState(false);
+  const [showError, setShowError] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  if (!isOpen) return null;
+  const { mutate: signup, isPending } = useMutation({
+    mutationFn: authApi.signup,
+    onSuccess: () => {
+      dispatch(setCurrentModal("verification"));
+    },
+    onError: (error: Error) => {
+      setErrorMessage(error.message);
+      setShowError(true);
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-
     try {
-      // Simulate API call to send verification code
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(false);
-      setShowVerification(true);
+      const validatedData = signupSchema.parse(formData);
+      signup(validatedData);
     } catch (error) {
-      setIsLoading(false);
-      setErrorMessage("Failed to send verification code. Please try again.");
-      setShowError(true);
+      if (error instanceof z.ZodError) {
+        setErrorMessage(error.errors[0].message);
+        setShowError(true);
+      }
     }
   };
 
-  const handleVerification = async (code: string) => {
-    setIsLoading(true);
-    try {
-      // Verify code
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(false);
-      setShowVerification(false);
-      setShowPersonalInfo(true);
-    } catch (error) {
-      setIsLoading(false);
-      setErrorMessage("Invalid verification code. Please try again.");
-      setShowError(true);
-    }
+  const handleVerification = () => {
+    dispatch(setCurrentModal("personalInfo"));
   };
 
-  const handlePersonalInfo = async (data: PersonalInfoData) => {
-    setIsLoading(true);
-    try {
-      // Submit personal info
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setIsLoading(false);
-      setShowSuccess(true);
-    } catch (error) {
-      setIsLoading(false);
-      setErrorMessage("Failed to save personal information. Please try again.");
-      setShowError(true);
-    }
+  const handlePersonalInfoSuccess = () => {
+    dispatch(setCurrentModal("success"));
   };
 
   const handleSwitchToSignIn = () => {
-    setShowSignIn(true);
+    dispatch(setCurrentModal("signin"));
+  };
+  console.log(currentModal);
+
+  const handleCloseModal = () => {
+    if (currentModal === "signup") {
+      dispatch(closeModal());
+      onClose();
+    }
   };
 
-  const handleSwitchToSignUp = () => {
-    setShowSignIn(false);
-  };
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      try {
+        setIsGoogleLoading(true);
+        setErrorMessage('');
+
+        const result = await authApi.googleSignIn(tokenResponse.access_token);
+
+        dispatch(
+          login({
+            user: result.user,
+            token: result.access_token,
+          })
+        );
+
+        dispatch(closeModal());
+    } catch (error: any) {
+      setErrorMessage(error.message || 'Google sign in failed');
+      setShowError(true);
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  },
+    onError: () => {
+      setErrorMessage("Google sign in failed");
+      setShowError(true);
+    },
+    flow: "implicit",
+    scope: "openid email profile",
+    prompt: "select_account"
+  });
+
+  if (!isOpen && currentModal === "signup") return null;
 
   return (
     <>
-      {showSignIn ? (
-        <SignInModal
-          isOpen={showSignIn}
-          onClose={onClose}
-          onSwitchToSignUp={handleSwitchToSignUp}
-        />
-      ) : (
+      {currentModal === "signup" && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="bg-white rounded-xl w-full max-w-lg mx-4 p-6">
             <div className="flex items-center justify-center mb-8 relative">
               <h2 className="text-2xl font-semibold">Sign up</h2>
               <button
-                onClick={onClose}
+                onClick={handleCloseModal}
                 className="p-2 hover:bg-gray-100 rounded-full absolute right-0"
               >
                 <X className="w-5 h-5" />
@@ -157,58 +181,76 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
                 </div>
               </div>
 
-              <div className="text-center">
-                <p className="text-gray-600 mb-6">Or continue with</p>
-                <div className="flex justify-center gap-4">
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
-                    <Image
-                      src="/assets/icons/facebook.png"
-                      alt="Facebook"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
-                    <Image
-                      src="/assets/icons/apple.png"
-                      alt="Apple"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
+              <div className="relative text-center">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300"></div>
+                </div>
+                <div className="relative">
+                  <span className="px-2 text-gray-500 bg-white">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex justify-center gap-4 my-5">
+                <button
+                  type="button"
+                  className="p-3 border rounded-full hover:bg-gray-50"
+                >
+                  <Image
+                    src="/assets/icons/facebook.png"
+                    alt="Facebook"
+                    width={24}
+                    height={24}
+                  />
+                </button>
+                <button
+                  type="button"
+                  className="p-3 border rounded-full hover:bg-gray-50"
+                >
+                  <Image
+                    src="/assets/icons/apple.png"
+                    alt="Apple"
+                    width={24}
+                    height={24}
+                  />
+                </button>
+                <button
+                  type="button"
+                  className="p-3 border rounded-full hover:bg-gray-50 disabled:opacity-50"
+                  onClick={() => handleGoogleLogin()}
+                  disabled={isGoogleLoading}
+                >
+                  {isGoogleLoading ? (
+                    <div className="w-6 h-6 border-2 border-gray-300 border-t-indigo-600 rounded-full animate-spin" />
+                  ) : (
                     <Image
                       src="/assets/icons/google.png"
                       alt="Google"
                       width={24}
                       height={24}
                     />
-                  </button>
-                </div>
+                  )}
+                </button>
               </div>
 
-              <div className="text-center text-gray-600">
-                Already have an account?{" "}
+              <div className="text-center text-sm my-5">
+                <span className="text-gray-600">Already have an account?</span>{" "}
                 <button
-                  type="button"
                   onClick={handleSwitchToSignIn}
-                  className="text-indigo-600 hover:text-indigo-700"
+                  className="text-indigo-600 hover:text-indigo-700 font-medium"
                 >
                   Login
                 </button>
               </div>
+
+              {/* divider */}
+              <div className="border-b border-gray-300" />
+
               <button
                 type="submit"
                 className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition-colors"
+                disabled={isPending}
               >
                 Continue
               </button>
@@ -217,37 +259,53 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         </div>
       )}
 
-      {/* Modals */}
-      <LoadingModal isOpen={isLoading} />
-      <SuccessModal
-        isOpen={showSuccess}
+      <SignInModal
+        isOpen={currentModal === "signin"}
         onClose={() => {
-          setShowSuccess(false);
-          onClose();
+          dispatch(closeModal());
         }}
+        onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
+      />
+
+      <VerificationCodeModal
+        isOpen={currentModal === "verification"}
+        onBack={() => dispatch(setCurrentModal("signup"))}
+        email={formData.email}
+        onVerify={handleVerification}
+        handleSwitchToSignIn={handleSwitchToSignIn}
+      />
+
+      <PersonalInfoModal
+        isOpen={currentModal === "personalInfo"}
+        onClose={() => {
+          dispatch(closeModal()); // This will close all modals without triggering success
+        }}
+        email={formData.email}
+      />
+
+      {currentModal === "success" && (
+        <SuccessModal
+          isOpen={true}
+          onClose={() => {
+            dispatch(closeModal());
+            // router.push("/");
+          }}
+          title="Welcome to Houzdey!"
+          message="Your account has been created successfully. You can now start exploring properties."
+          buttonText="Get Started"
+        />
+      )}
+
+      <LoadingModal
+        isOpen={isPending}
+        title="Creating your account"
+        message="Please wait while we set up your account"
+        spinnerSize="lg"
       />
       <ErrorModal
         isOpen={showError}
         onClose={() => setShowError(false)}
         message={errorMessage}
-      />
-      <ExitModal
-        isOpen={showExit}
-        onClose={() => setShowExit(false)}
-        onConfirm={onClose}
-      />
-      <VerificationCodeModal
-        isOpen={showVerification}
-        onClose={onClose}
-        onBack={() => setShowVerification(false)}
-        email={formData.email}
-        onVerify={handleVerification}
-      />
-      <PersonalInfoModal
-        isOpen={showPersonalInfo}
-        onClose={onClose}
-        // onBack={() => setShowPersonalInfo(false)}
-        // onSubmit={handlePersonalInfo}
       />
     </>
   );

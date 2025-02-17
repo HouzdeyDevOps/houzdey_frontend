@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
-import { AppProviders } from "./providers";
+import { AppProviders } from "./providers/providers";
 import CookieConsent from "@/components/CookieConsent";
 import Navbar from "@/components/navbar/Navbar";
 
