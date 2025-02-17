@@ -225,6 +225,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
       <VerificationCodeModal
         isOpen={currentModal === "verification"}
         onBack={() => dispatch(setCurrentModal("signup"))}
+        onClose={() => dispatch(closeModal())}
         email={formData.email}
         onVerify={handleVerification}
         handleSwitchToSignIn={handleSwitchToSignIn}

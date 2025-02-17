@@ -11,14 +11,16 @@ import Image from "next/image";
 interface VerificationCodeModalProps {
   isOpen: boolean;
   onBack: () => void;
+  onClose: () => void;
   email: string;
-  onVerify: () => void;
+  onVerify: (code: string) => void;
   handleSwitchToSignIn?: () => void;
 }
 
 export default function VerificationCodeModal({
   isOpen,
   onBack,
+  onClose,
   email,
   onVerify,
   handleSwitchToSignIn,
@@ -34,7 +36,7 @@ export default function VerificationCodeModal({
       setShowSuccess(true);
       // Wait for 2 seconds to show success message before closing
       setTimeout(() => {
-        onVerify();
+        onVerify(verificationCode);
       }, 2000);
     },
     onError: (error: Error) => {

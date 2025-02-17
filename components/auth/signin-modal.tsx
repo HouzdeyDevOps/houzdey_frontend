@@ -309,6 +309,7 @@ export default function SignInModal({
         <VerificationCodeModal
           isOpen={showVerificationCodeModal}
           onBack={() => setShowVerificationCodeModal(false)}
+          onClose={() => setShowVerificationCodeModal(false)}
           email={formData.email}
           onVerify={() => {
             setShowVerificationCodeModal(false);
