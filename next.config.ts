@@ -16,16 +16,7 @@ const nextConfig: NextConfig = {
         pathname: '/a/**', 
       },
     ],
-  },
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: 'https://www.houzdey.com',
-        permanent: true,
-      },
-    ];
-  },
+  }
   // other config options here
 };
 
