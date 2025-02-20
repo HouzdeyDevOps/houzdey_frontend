@@ -211,29 +211,43 @@ export const authApi = {
     }
   },
 
-  async appleSignIn(token: string): Promise<SignInResponse> {
+  async getAppleAuthUrl(): Promise<string> {
+    const state = crypto.randomUUID();
+    const nonce = crypto.randomUUID();
+    
+    // Store state and nonce in localStorage for verification
+    localStorage.setItem('appleAuthState', state);
+    localStorage.setItem('appleAuthNonce', nonce);
+    
+    const params = new URLSearchParams({
+      response_type: 'code',
+      client_id: process.env.NEXT_PUBLIC_APPLE_CLIENT_ID!,
+      redirect_uri: process.env.NEXT_PUBLIC_APPLE_REDIRECT_URI!,
+      state: state,
+      nonce: nonce,
+      response_mode: 'form_post',
+      scope: 'name email'
+    });
+
+    return `https://appleid.apple.com/auth/authorize?${params.toString()}`;
+  },
+
+  async appleSignIn(code: string): Promise<SignInResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/social/apple`,
-        {},
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
+        `${API_BASE_URL}/users/social/apple/callback`,
+        { code }
       );
 
+      // Set token in axios defaults
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+      
+      // Store token in localStorage
       localStorage.setItem("token", response.data.access_token);
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
-      }
-      throw new Error("Apple sign in failed. Please try again.");
+      throw new Error(error.response?.data?.detail || "Apple sign in failed");
     }
   },
 };

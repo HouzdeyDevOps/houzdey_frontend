@@ -111,7 +111,7 @@ const Navbar = ({
         {/* Property Type Filters */}
         {showPropertyTypeFilters && (
           <>
-            <nav className="border-b">
+            <nav className="border-b px-4 py-2">
               <PropertyTypeNav />
             </nav>
           </>

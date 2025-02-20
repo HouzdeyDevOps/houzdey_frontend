@@ -4,7 +4,6 @@
 import Link from "next/link";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { ThemeToggle } from "@/components/ThemeToggle";
 import Navbar from "@/components/navbar/Navbar";
 import PropertyCard from "@/components/properties/propertycard";
 import Loader from "@/components/ui/Loader";
@@ -77,7 +76,6 @@ export default function HomePage() {
       {/* Properties Grid */}
       <section className="max-w-7xl mx-auto p-4 mt-44">
         <div className="flex justify-end mb-4 gap-x-2">
-          <ThemeToggle />
           <select className="border rounded-lg px-3 py-2">
             <option>Newest to Oldest</option>
             <option>Oldest to Newest</option>

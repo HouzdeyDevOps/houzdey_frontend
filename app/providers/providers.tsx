@@ -6,7 +6,7 @@ import { store } from "@/store/store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactNode } from "react";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { ThemeProvider } from "./ThemeProvider";
+// import { ThemeProvider } from "./ThemeProvider";
 import { AuthProvider } from "@/providers/AuthProvider";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 
@@ -23,7 +23,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
+        {/* <ThemeProvider> */}
           <AuthProvider>
             <GoogleOAuthProvider
               clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}
@@ -32,7 +32,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
             </GoogleOAuthProvider>
           </AuthProvider>
           <ReactQueryDevtools initialIsOpen={false} />
-        </ThemeProvider>
+        {/* </ThemeProvider> */}
       </QueryClientProvider>
     </Provider>
   );
