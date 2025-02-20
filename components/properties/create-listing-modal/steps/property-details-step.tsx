@@ -2,10 +2,10 @@ import React from "react";
 // import { PropertyTypeArray } from "@/@types/create-listing";
 import { getAmenityIcon } from "@/utils/iconUtils";
 import { amenities } from "@/constants/amenities";
-import { PropertyType, PropertyTypeArray } from "@/@types/create-listing";
+import { PropertyType, PropertyTypeArray, CreateListingFormData } from "@/@types/create-listing";
 
 interface PropertyDetailsStepProps {
-  formData: any;
+  formData: CreateListingFormData;
   updateForm: (field: string, value: any) => void;
 }
 
@@ -31,8 +31,8 @@ export default function PropertyDetailsStep({
             type="text"
             placeholder="Enter estate name"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-            value={formData.estateName}
-            onChange={(e) => updateForm("estateName", e.target.value)}
+            value={formData.estate || ""}
+            onChange={(e) => updateForm("estate", e.target.value)}
           />
         </div>
 
@@ -129,6 +129,9 @@ export default function PropertyDetailsStep({
           <label className="block font-medium mb-1">Bedrooms</label>
           <input
             type="number"
+            value={formData.beds || ""}
+            onChange={(e) => updateForm("beds", e.target.value)}
+            min="0"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
@@ -138,6 +141,9 @@ export default function PropertyDetailsStep({
           <label className="block font-medium mb-1">Bathrooms</label>
           <input
             type="number"
+            value={formData.baths || ""}
+            onChange={(e) => updateForm("baths", e.target.value)}
+            min="0"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
@@ -147,6 +153,9 @@ export default function PropertyDetailsStep({
           <label className="block font-medium mb-1">Toilets</label>
           <input
             type="number"
+            value={formData.toilets || ""}
+            onChange={(e) => updateForm("toilets", e.target.value)}
+            min="0"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
@@ -164,7 +173,7 @@ export default function PropertyDetailsStep({
               <label
                 key={index}
                 className={`flex items-center gap-2 p-3 border rounded-lg cursor-pointer transition-colors ${
-                  formData.amenities.includes(amenity.name)
+                  formData.amenities.some((a: { name: string; icon: string }) => a.name === amenity.name)
                     ? "border-indigo-600 bg-indigo-50"
                     : "hover:bg-gray-50"
                 }`}
@@ -172,18 +181,18 @@ export default function PropertyDetailsStep({
                 <input
                   type="checkbox"
                   className="hidden"
-                  checked={formData.amenities.includes(amenity.name)}
+                  checked={formData.amenities.some((a: { name: string; icon: string }) => a.name === amenity.name)}
                   onChange={(e) => {
                     if (e.target.checked) {
                       updateForm("amenities", [
                         ...formData.amenities,
-                        amenity.name,
+                        { name: amenity.name, icon: amenity.icon }
                       ]);
                     } else {
                       updateForm(
                         "amenities",
                         formData.amenities.filter(
-                          (a: string) => a !== amenity.name
+                          (a: { name: string; icon: string }) => a.name !== amenity.name
                         )
                       );
                     }

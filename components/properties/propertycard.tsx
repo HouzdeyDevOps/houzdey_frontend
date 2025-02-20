@@ -4,9 +4,11 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
 
 interface Property {
-  id: number;
+  id: string;
   title: string;
-  location: string;
+  state: string;
+  lga: string;
+  address: string;
   beds: number;
   baths: number;
   price: number;
@@ -96,7 +98,7 @@ function PropertyCard({ property }: { property: Property }) {
       
       <div className="p-4">
         <h3 className="font-semibold">{property.title}</h3>
-        <p className="text-gray-600 dark:text-gray-400">{property.location}</p>
+        <p className="text-gray-600 dark:text-gray-400">{`${property.address}, ${property.lga}, ${property.state}`}</p>
         <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
           <span>{property.beds} bed</span>
           <span>•</span>

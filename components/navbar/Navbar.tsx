@@ -13,14 +13,23 @@ import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
 import ProfileDropdown from "./ProfileDropdown";
 import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
+import { PropertyFilters } from '@/@types/property';
+
+interface NavbarProps {
+  showSearch: boolean;
+  showPropertyTypeFilters: boolean;
+  onSearchChange?: (search: string) => void;
+  onFilterChange?: (filters: Partial<PropertyFilters>) => void;
+  onFilterClick?: () => void;
+}
 
 const Navbar = ({
   showSearch,
   showPropertyTypeFilters,
-}: {
-  showSearch: boolean;
-  showPropertyTypeFilters: boolean;
-}) => {
+  onSearchChange,
+  onFilterChange,
+  onFilterClick,
+}: NavbarProps) => {
   const [showCreateListing, setShowCreateListing] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
@@ -59,17 +68,18 @@ const Navbar = ({
                       type="text"
                       placeholder="Search Properties, Locations ..."
                       className="w-full px-4 py-3 border shadow-sm rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                      onChange={(e) => onSearchChange?.(e.target.value)}
                     />
                     <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-indigo-600 text-white rounded-full p-2">
                       <Search />
                     </button>
                   </div>
                   <button
-                    onClick={() => setShowFilters(true)}
+                    onClick={() => onFilterClick?.()}
                     className="p-1 hover:text-gray-700 relative"
                   >
                     {filterCount > 0 && (
-                      <span className="absolute -top-2 -right-3 bg-indigo-60 text-black rounded-full px-2 py-1 text-sm">
+                      <span className="absolute -top-2 -right-3 bg-indigo-600 text-white rounded-full px-2 py-1 text-xs">
                         {filterCount}
                       </span>
                     )}
@@ -117,6 +127,7 @@ const Navbar = ({
           </>
         )}
 
+
         {/* Add the modal component: */}
         <CreateListingModal
           isOpen={showCreateListing}
@@ -136,11 +147,14 @@ const Navbar = ({
           }}
           onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
         />
-        <FilterModal
-          isOpen={showFilters}
-          onClose={() => setShowFilters(false)}
-          onFilterChange={setFilterCount}
-        />
+    <FilterModal
+      isOpen={showFilters}
+      onClose={() => setShowFilters(false)}
+      onFilterChange={(filters) => {
+        onFilterChange?.(filters);
+        setFilterCount(Object.keys(filters).length);
+      }}
+    />
       </div>
     </div>
   );

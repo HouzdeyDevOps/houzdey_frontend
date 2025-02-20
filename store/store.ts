@@ -2,6 +2,7 @@ import { configureStore } from "@reduxjs/toolkit";
 import userAuthSlice from "./slices/userAuthSlice";
 import authModalSlice from "./slices/authModalSlice";
 import { authMiddleware, initializeAuth } from './middleware/authMiddleware';
+import propertySlice from "./slices/propertySlice";
 
 const preloadedState = {
   userAuth: {
@@ -15,6 +16,7 @@ export const store = configureStore({
   reducer: {
     [userAuthSlice.name]: userAuthSlice.reducer, 
     [authModalSlice.name]: authModalSlice.reducer,
+    [propertySlice.name]: propertySlice.reducer,
   },
   preloadedState,
   middleware: (getDefaultMiddleware) =>

@@ -1,7 +1,8 @@
 import React from "react";
-import { StepProps, FormData } from "@/@types/create-listing";
+import { StepProps, CreateListingFormData as FormData } from "@/@types/create-listing";
 import { ChevronRight } from "lucide-react";
 import { getAmenityIcon } from "@/utils/iconUtils";
+import { generatePropertyTitle } from "@/utils/generatePropertyTitle";
 
 interface ReviewStepProps extends StepProps {
   formData: FormData;
@@ -23,7 +24,7 @@ const ReviewStep = ({ formData, setStep }: ReviewStepProps) => {
   const reviewSections = [
     {
       title: "Property title",
-      value: formData.title,
+      value: generatePropertyTitle(formData),
       step: 2,
     },
     {

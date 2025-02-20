@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronLeft, X } from "lucide-react";
 import {
   PropertyDetailsStep,
@@ -9,10 +9,11 @@ import {
   ImagesStep,
 } from "./steps";
 
-import { FormData, PropertyType, StepProps } from "@/@types/create-listing";
+import { CreateListingFormData as FormData, PropertyType, StepProps } from "@/@types/create-listing";
 import ExitModal from "./exit-modal";
 import LoadingModal from "./loading-modal";
 import SuccessModal from "./success-modal";
+import { propertyApi } from "@/api/properties";
 
 interface CreateListingModalProps {
   isOpen: boolean;
@@ -29,70 +30,92 @@ export default function CreateListingModal({
   const [showExitModal, setShowExitModal] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const [formData, setFormData] = useState<FormData>({
     title: "",
-    type: "" as PropertyType,
+    type: PropertyType.Apartment,
     price: "",
-    amenities: [
-      { name: "Kitchen", icon: "CookingPot" },
-      { name: "Garden view", icon: "garden" },
-      { name: "Pets allowed", icon: "pets" },
-      { name: "Central air conditioning", icon: "ac" },
-      { name: "Water heater", icon: "water" },
-      { name: "Refrigerator", icon: "fridge" },
-      { name: "Security cameras", icon: "security" },
-    ],
+    amenities: [],
     description: "",
     images: [],
-    location: "",
+    coverImage: null,
     beds: "",
     baths: "",
+    toilets: "",
+    condition: "",
+    furnishing: "",
     address: "",
     state: "",
     lga: "",
     ward: "",
-    coverImage: null,
     estate: "",
     size: "",
   });
 
-  const updateForm = (field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  const updateForm = useCallback((field: string, value: any) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear validation error when user makes changes
+    setValidationError(null);
+  }, []);
 
-  const handleNext = () => {
-    // if (validateStep(step)) {
-    setStep((prev) => prev + 1);
-    // }
-  };
-
-  const handleBack = () => {
-    setStep((prev) => prev - 1);
-  };
-
-  const validateStep = (currentStep: number): boolean => {
+  const validateStep = useCallback((currentStep: number): boolean => {
     switch (currentStep) {
-      case 1:
-        return (
-          !!formData.title &&
-          !!formData.type &&
-          !!formData.price &&
-          !!formData.amenities &&
-          !!formData.description
+      case 1: // Location Features Step
+        return !!(formData.state && formData.lga && formData.ward && formData.address);
+
+      case 2: // Property Details Step
+        return !!(
+          formData.type && 
+          formData.price && 
+          formData.beds && 
+          formData.baths && 
+          formData.toilets && 
+          formData.condition && 
+          formData.furnishing && 
+          formData.size && 
+          formData.description &&
+          formData.amenities.length > 0
         );
-      case 2:
-        return !!formData.location && !!formData.beds && !!formData.baths;
-      case 3:
-        return formData.amenities.length > 0;
-      case 4:
-        return !!formData.description && formData.images.length > 0;
+
+      case 3: // Images Step
+        return !!(formData.coverImage && formData.images.length > 0);
+
+      case 4: // Review Step
+        return true;
+
       default:
         return false;
     }
-  };
+  }, [formData]);
 
-  const handleSaveAsDraft = async () => {
+  const handleNext = useCallback(() => {
+    const isValid = validateStep(step);
+    if (isValid) {
+      setValidationError(null);
+      setStep(prev => prev + 1);
+    } else {
+      let errorMessage = "Please fill in all required fields";
+      if (step === 2 && formData.amenities.length === 0) {
+        errorMessage = "Please select at least one amenity";
+      } else if (step === 3) {
+        errorMessage = !formData.coverImage 
+          ? "Please upload a cover image" 
+          : "Please upload at least one additional image";
+      }
+      setValidationError(errorMessage);
+    }
+  }, [step, validateStep, formData]);
+
+  const handleBack = useCallback(() => {
+    setStep(prev => prev - 1);
+    setValidationError(null);
+  }, []);
+
+  const handleSaveAsDraft = useCallback(async () => {
     try {
       // Save as draft logic here
       // await saveDraft(formData);
@@ -100,56 +123,49 @@ export default function CreateListingModal({
     } catch (error) {
       console.error("Failed to save draft:", error);
     }
-  };
+  }, [onClose]);
 
-  // const handleSubmit = async () => {
-  //   // Combine cover image and other images into a single array
-  //   const allImages = [
-  //     ...(formData.coverImage ? [formData.coverImage] : []),
-  //     ...formData.images,
-  //   ];
-
-  //   // Create the final property data
-  //   const propertyData = {
-  //     ...formData,
-  //     images: allImages,
-  //     // Remove the coverImage field since it's now part of images array
-  //     coverImage: undefined,
-  //   };
-
-  //   try {
-  //     // Make your API call here
-  //     // await createProperty(propertyData);
-
-  //     // Close the modal
-  //     onClose();
-
-  //     // Optionally show a success message
-  //     // toast.success("Property listed successfully!");
-  //   } catch (error) {
-  //     // Handle error
-  //     console.error("Failed to create listing:", error);
-  //     // Optionally show an error message
-  //     // toast.error("Failed to create listing");
-  //   }
-  // };
-
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     setIsPosting(true);
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Validate all steps before submission
+      for (let currentStep = 1; currentStep <= TOTAL_STEPS; currentStep++) {
+        if (!validateStep(currentStep)) {
+          setStep(currentStep);
+          setIsPosting(false);
+          setValidationError("Please complete all required fields");
+          return;
+        }
+      }
 
-      // Your actual API call here
-      // await createProperty(formData);
-
+      await propertyApi.createProperty(formData);
       setIsPosting(false);
       setShowSuccessModal(true);
+      
+      // Use a ref for timeout to avoid memory leaks
+      // const timeoutId = setTimeout(() => {
+      //   onClose();
+      //   window.location.reload();
+      // }, 2000);
+
+      // return () => clearTimeout(timeoutId);
     } catch (error) {
       setIsPosting(false);
       console.error("Failed to create listing:", error);
+      setValidationError("Failed to create listing. Please try again.");
     }
-  };
+  }, [formData, validateStep, onClose]);
+
+  // Reset form when modal is opened/closed
+  useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setValidationError(null);
+      setShowExitModal(false);
+      setIsPosting(false);
+      setShowSuccessModal(false);
+    }
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -222,6 +238,7 @@ export default function CreateListingModal({
             ) : (
               <button
                 onClick={handleNext}
+                disabled={!validateStep(step)}
                 className="w-full px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
@@ -241,9 +258,12 @@ export default function CreateListingModal({
         isOpen={showSuccessModal}
         onClose={() => {
           setShowSuccessModal(false);
+          // refresh page
+          window.location.reload();
           onClose();
         }}
       />
     </>
   );
 }
+
