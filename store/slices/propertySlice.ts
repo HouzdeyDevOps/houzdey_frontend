@@ -15,7 +15,7 @@ const initialState: PropertyState = {
         property_type: undefined,
         bedrooms: undefined,
         bathrooms: undefined,
-        location_state: undefined,
+        state: undefined,
         // location_area: undefined,
         amenities: [],
         sort_by: SortBy.CREATED_AT,

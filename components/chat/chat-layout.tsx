@@ -31,7 +31,7 @@ export default function ChatLayout({ children }: ChatLayoutProps) {
             isUnread
           />
           <ChatListItem
-            name="Mary sarah"
+            name="Mary Sarah"
             message="Alright, thank you"
             time="10:25"
           />
@@ -86,4 +86,4 @@ function ChatListItem({ name, message, time, isUnread }: ChatListItemProps) {
       </div>
     </div>
   );
-} 
+}

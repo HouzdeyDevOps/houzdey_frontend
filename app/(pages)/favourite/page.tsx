@@ -1,5 +1,5 @@
 "use client"
-import Favouritecard from "@/app/components/favoriteproperties/Favouritecard";
+import Favouritecard from "@/components/favoriteproperties/Favouritecard";
 import { ChevronLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

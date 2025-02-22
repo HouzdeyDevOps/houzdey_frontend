@@ -1,25 +1,13 @@
-import { useEffect } from 'react';
-import { useDispatch } from 'react-redux';
-import { login } from '@/store/slices/userAuthSlice';
-import axiosInstance from '@/lib/axios';
+// frontend/hooks/useAuth.ts
+import { useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+// import { User } from '@/store/slices/userAuthSlice';
 
 export function useAuth() {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      // Verify token and get user data
-      axiosInstance.get('/users/me')
-        .then(response => {
-          dispatch(login({
-            user: response.data,
-            token
-          }));
-        })
-        .catch(() => {
-          localStorage.removeItem('token');
-        });
-    }
-  }, [dispatch]);
-} 
+  const { user, isAuthenticated } = useSelector((state: RootState) => state.userAuth);
+  
+  return {
+    user,
+    isAuthenticated,
+  };
+}

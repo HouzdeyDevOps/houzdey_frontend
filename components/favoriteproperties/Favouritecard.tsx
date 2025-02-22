@@ -1,7 +1,7 @@
 "use client";
 import { ChevronLeft, ChevronRight, EllipsisVertical, Heart } from "lucide-react";
 import React, { useState } from "react";
-import Modal from "@/app/components/favoriteproperties/Modal"
+import Modal from "@/components/favoriteproperties/Modal"
 
 
 interface FavoriteCardProps {

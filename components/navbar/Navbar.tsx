@@ -40,7 +40,6 @@ const Navbar = ({
     (state: RootState) => state.authModal.currentModal
   );
 
-  console.log(user)
   
   return (
     <div>

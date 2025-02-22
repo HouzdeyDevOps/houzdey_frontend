@@ -1,0 +1,63 @@
+.heart-button {
+  position: relative;
+  transform-origin: center;
+}
+
+.heart-icon {
+  transition: all 0.2s ease;
+  position: relative;
+  z-index: 100;
+}
+
+.heart-animation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.heart-animation::before,
+.heart-animation::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-image: radial-gradient(circle, #ff4b4b 20%, transparent 20%),
+    radial-gradient(circle, #ff4b4b 20%, transparent 20%);
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(0);
+}
+
+.heart-animation.active::before {
+  animation: heartBurst 0.8s ease-out forwards;
+}
+
+.heart-animation.active::after {
+  animation: heartBurst 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes heartBurst {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(1.2);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.8);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.2);
+  }
+} 

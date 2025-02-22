@@ -1,6 +1,6 @@
 import axios from "axios";
-import { API_BASE_URL } from "./auth";
-import { PropertyResponse, PropertyFilters } from "@/@types/property";
+import { API_BASE_URL, API_VERSION } from "./auth";
+import { PropertyResponse, PropertyFilters, Property, PropertyDetail } from "@/@types/property";
 import { CreateListingFormData } from "@/@types/create-listing";
 import { generatePropertyTitle } from "@/utils/generatePropertyTitle";
 
@@ -24,7 +24,7 @@ export const propertyApi = {
       });
 
       const response = await axios.get(
-        `${API_BASE_URL}/properties?${params.toString()}`
+        `${API_BASE_URL}/${API_VERSION}/properties?${params.toString()}`
       );
       return response.data;
     } catch (error: any) {
@@ -105,7 +105,7 @@ export const propertyApi = {
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/properties/upload-images`,
+        `${API_BASE_URL}/${API_VERSION}/properties/upload-images`,
         formData,
         {
           headers: {
@@ -117,6 +117,20 @@ export const propertyApi = {
     } catch (error: any) {
       throw new Error(
         error.response?.data?.detail || "Failed to upload images"
+      );
+    }
+  },
+
+  async getPropertyById(id: string): Promise<PropertyDetail> {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/${API_VERSION}/properties/${id}`);
+      return response.data;
+    } catch (error: any) {
+      if (error.response?.status === 404) {
+        throw new Error('Property not found');
+      }
+      throw new Error(
+        error.response?.data?.detail || 'Failed to fetch property details'
       );
     }
   },

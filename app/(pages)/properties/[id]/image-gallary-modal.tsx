@@ -48,7 +48,7 @@ export default function ImageGalleryModal({ images, initialIndex, onClose }: Ima
         <ChevronLeft className="w-6 h-6" />
       </button>
 
-      <div className="relative max-w-7xl mx-auto px-4">
+      <div className="relative max-w-full mx-auto px-4">
         <motion.img
           src={images[currentIndex]}
           alt={`Image ${currentIndex + 1}`}

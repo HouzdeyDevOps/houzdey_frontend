@@ -7,9 +7,11 @@ export interface Property {
   baths: number;
   state: string;
   lga: string;
+  ward: string;
   address: string;
   description?: string;
   size?: string;
+  estate?: string;
   owner_id: string;
   amenities: Array<{
     name: string;
@@ -59,4 +61,28 @@ export enum SortBy {
 export enum SortOrder {
   ASC = 'asc',
   DESC = 'desc'
+}
+
+export interface PropertyDetail extends Property {
+  description: string;
+  amenities: {
+    name: string;
+    icon: string;
+  }[];
+  host: {
+    name: string;
+    image: string;
+    company: string;
+    role: string;
+  };
+  reviews: {
+    id: number;
+    user: {
+      name: string;
+      image: string;
+    };
+    rating: number;
+    date: string;
+    comment: string;
+  }[];
 } 

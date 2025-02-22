@@ -2,6 +2,7 @@ import axios from "axios";
 import { AuthError, SignInResponse, UserSignInParams } from "@/@types/auth";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+export const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION;
 
 interface GoogleAuthUrlResponse {
   auth_url: string;
@@ -16,7 +17,7 @@ interface GoogleSignInParams {
 export const authApi = {
   async signup(data: UserSignInParams) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/register`, {
+      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/register`, {
         email: data.email,
         password: data.password,
         phone_number: "", // Will be updated in personal info step
@@ -33,7 +34,7 @@ export const authApi = {
   // async signin(data: UserSignInParams) {
   async signin(data: UserSignInParams): Promise<SignInResponse> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/signin`, {
+      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/signin`, {
         email: data.email,
         password: data.password,
       });
@@ -74,7 +75,7 @@ export const authApi = {
   async resendVerificationEmail(email: string): Promise<void> {
     try {
       await axios.post(
-        `${API_BASE_URL}/users/resend-verification?email=${encodeURIComponent(
+        `${API_BASE_URL}/${API_VERSION}/users/resend-verification?email=${encodeURIComponent(
           email
         )}`
       );
@@ -90,7 +91,7 @@ export const authApi = {
 
   async getCurrentUser() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/users/me`);
+      const response = await axios.get(`${API_BASE_URL}/${API_VERSION}/users/me`);
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch user data");
@@ -100,7 +101,7 @@ export const authApi = {
   async verifyEmail(token: string) {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/verify-email/${token}`
+        `${API_BASE_URL}/${API_VERSION}/users/verify-email/${token}`
       );
       return response.data;
     } catch (error: any) {
@@ -114,7 +115,7 @@ export const authApi = {
   async updatePersonalInfo(formData: FormData) {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/personal-info`,
+        `${API_BASE_URL}/${API_VERSION}/users/personal-info`,
         formData,
         {
           headers: {
@@ -130,7 +131,7 @@ export const authApi = {
 
   async verifyCode(email: string, code: string) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/verify-code`, {
+      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/verify-code`, {
         email,
         code,
       });
@@ -145,7 +146,7 @@ export const authApi = {
 
   async resendCode(email: string) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/resend-code`, {
+      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/resend-code`, {
         email,
       });
       return response.data;
@@ -159,7 +160,7 @@ export const authApi = {
 
   async getGoogleAuthUrl(): Promise<GoogleAuthUrlResponse> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/users/social/google/auth`);
+      const response = await axios.get(`${API_BASE_URL}/${API_VERSION}/users/social/google/auth`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || "Failed to get auth URL");
@@ -169,7 +170,7 @@ export const authApi = {
   async googleSignIn({ code }: GoogleSignInParams): Promise<SignInResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/social/google/callback`,
+        `${API_BASE_URL}/${API_VERSION}/users/social/google/callback`,
         { code: code }
       );
 
@@ -188,7 +189,7 @@ export const authApi = {
   async facebookSignIn(token: string): Promise<SignInResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/social/facebook`,
+        `${API_BASE_URL}/${API_VERSION}/users/social/facebook`,
         {},
         {
           headers: {
@@ -235,7 +236,7 @@ export const authApi = {
   async appleSignIn(code: string): Promise<SignInResponse> {
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/social/apple/callback`,
+        `${API_BASE_URL}/${API_VERSION}/users/social/apple/callback`,
         { code }
       );
 

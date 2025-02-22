@@ -31,7 +31,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
               {children}
             </GoogleOAuthProvider>
           </AuthProvider>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
         {/* </ThemeProvider> */}
       </QueryClientProvider>
     </Provider>

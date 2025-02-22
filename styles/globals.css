@@ -226,4 +226,89 @@ body {
   cursor: pointer;
   margin-top: 4px;
   box-shadow: 0 0 1px 1px #ced4da;
-} 
+}
+
+.heart-particles {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.heart-particles::before,
+.heart-particles::after {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  animation: particle-burst 0.5s ease-out forwards;
+}
+
+.heart-particles::before {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.heart-particles::after {
+  right: 50%;
+  bottom: 50%;
+  transform: translate(50%, 50%);
+}
+
+@keyframes particle-burst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x, 20px), var(--y, -20px)) scale(0);
+    opacity: 0;
+  }
+}
+
+.heart-animation {
+  pointer-events: none;
+}
+
+.heart-burst-particles {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.heart-burst-particles::before,
+.heart-burst-particles::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #ef4444;
+  animation: burst 0.5s ease-out forwards;
+}
+
+.heart-burst-particles::before {
+  --angle: -30deg;
+  transform: rotate(var(--angle)) translateX(0);
+}
+
+.heart-burst-particles::after {
+  --angle: 30deg;
+  transform: rotate(var(--angle)) translateX(0);
+}
+
+@keyframes burst {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(0);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(20px);
+  }
+}
