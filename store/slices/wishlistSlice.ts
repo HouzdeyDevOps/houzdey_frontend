@@ -26,15 +26,12 @@ const wishlistSlice = createSlice({
   reducers: {
     setWishlistItems: (state, action: PayloadAction<string[]>) => {
       state.items = action.payload;
-      // localStorage.setItem('wishlist', JSON.stringify(action.payload));
     },
     addToWishlist: (state, action: PayloadAction<string>) => {
       state.items.push(action.payload);
-      // localStorage.setItem('wishlist', JSON.stringify(state.items));
     },
     removeFromWishlist: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(id => id !== action.payload);
-      // localStorage.setItem('wishlist', JSON.stringify(state.items));
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
