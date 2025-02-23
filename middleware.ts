@@ -4,8 +4,8 @@ export function middleware(req: NextRequest) {
   const isAdmin = req.cookies.get("adminToken");
   const token = req.cookies.get("token")?.value;
 
-  console.log("Admin Token:", isAdmin);
-  console.log("User Token:", token);
+  // console.log("Admin Token:", isAdmin);
+  // console.log("User Token:", token);
 
   if (req.nextUrl.pathname.startsWith("/admin") && !isAdmin) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
