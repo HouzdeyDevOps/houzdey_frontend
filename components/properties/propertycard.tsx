@@ -2,11 +2,16 @@
 
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { useRouter } from 'next/navigation';
+import { formatLocation } from "@/utils/formatLocation";
+import WishlistButton from "@/components/wishlist/WishlistButton";
 
 interface Property {
-  id: number;
+  id: string;
   title: string;
-  location: string;
+  state: string;
+  lga: string;
+  address: string;
   beds: number;
   baths: number;
   price: number;
@@ -14,35 +19,43 @@ interface Property {
 }
 
 function PropertyCard({ property }: { property: Property }) {
+  const router = useRouter();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
   const nextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === property.images.length - 1 ? 0 : prev + 1
     );
   };
 
   const previousImage = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => 
+    setCurrentImageIndex((prev) =>
       prev === 0 ? property.images.length - 1 : prev - 1
     );
   };
 
+
+
+  const handlePropertyClick = () => {
+    router.push(`/properties/${property.id}`);
+  };
+
   return (
-    <div 
+    <div
       className="group cursor-pointer"
+      onClick={handlePropertyClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-        <div 
+        <div
           className="w-full h-full transition-transform duration-500 ease-out"
-          style={{ 
+          style={{
             transform: `translateX(-${currentImageIndex * 100}%)`,
-            display: 'flex'
+            display: "flex",
           }}
         >
           {property.images.map((image, index) => (
@@ -54,18 +67,18 @@ function PropertyCard({ property }: { property: Property }) {
             />
           ))}
         </div>
-        
+
         {/* Navigation Arrows - Only show when there are multiple images */}
         {property.images.length > 1 && isHovered && (
           <>
-            <button 
+            <button
               onClick={previousImage}
               className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
             >
               <ChevronLeft className="w-4 h-4 text-neutral-600" />
             </button>
-            
-            <button 
+
+            <button
               onClick={nextImage}
               className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
             >
@@ -75,9 +88,7 @@ function PropertyCard({ property }: { property: Property }) {
         )}
 
         {/* Heart Button */}
-        <button className="absolute bottom-2 right-2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors">
-          <Heart className="w-5 h-5 text-neutral-600" />
-        </button>
+        <WishlistButton propertyId={property.id} />
 
         {/* Image Dots Indicator - Only show when there are multiple images */}
         {property.images.length > 1 && (
@@ -86,17 +97,19 @@ function PropertyCard({ property }: { property: Property }) {
               <div
                 key={index}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  index === currentImageIndex ? 'bg-white' : 'bg-white/50'
+                  index === currentImageIndex ? "bg-white" : "bg-white/50"
                 }`}
               />
             ))}
           </div>
         )}
       </div>
-      
+
       <div className="p-4">
-        <h3 className="font-semibold">{property.title}</h3>
-        <p className="text-gray-600 dark:text-gray-400">{property.location}</p>
+        <h3 className="font-semibold">{formatLocation(property.title)}</h3>
+        <p className="text-gray-600 dark:text-gray-400">{`${formatLocation(
+          property.lga
+        )}, ${formatLocation(property.state)}`}</p>
         <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
           <span>{property.beds} bed</span>
           <span>•</span>
@@ -112,25 +125,6 @@ function PropertyCard({ property }: { property: Property }) {
 
 export default PropertyCard;
 
-function SearchIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="11" cy="11" r="8" />
-      <path d="m21 21-4.3-4.3" />
-    </svg>
-  );
-}
-
 function HeartIcon() {
   return (
     <svg
@@ -140,8 +134,8 @@ function HeartIcon() {
       viewBox="0 0 24 24"
       fill="#737373"
       stroke="none"
-    //   fill="none"
-    //   stroke="currentColor"
+      //   fill="none"
+      //   stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"

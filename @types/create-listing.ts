@@ -1,4 +1,4 @@
-export interface FormData {
+export interface CreateListingFormData {
   title: string;
   type: PropertyType;
   price: string;
@@ -6,9 +6,11 @@ export interface FormData {
   description: string;
   images: string[];
   coverImage: string | null;
-  location: string;
   beds: string;
   baths: string;
+  toilets: string;
+  condition: string;
+  furnishing: string;
   address: string;
   state: string;
   lga: string;
@@ -18,7 +20,7 @@ export interface FormData {
 }
 
 export interface StepProps {
-  formData: FormData;
+  formData: CreateListingFormData;
   updateForm: (field: string, value: any) => void;
 }
 

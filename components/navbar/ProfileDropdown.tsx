@@ -41,7 +41,7 @@ export default function ProfileDropdown() {
   };
 
   const menuItems = [
-    { label: "Chats", icon: MessageSquare, href: "/chats" },
+    { label: "Chats", icon: MessageSquare, href: "/chat" },
     { label: "Notifications", icon: Settings, href: "/notifications" },
     { label: "Create a lisiting", icon: List, href: "/create-listing" },
     {

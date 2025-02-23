@@ -11,12 +11,14 @@ export interface User {
 interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   token: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
+  isLoading: false,
   token: null,
 };
 

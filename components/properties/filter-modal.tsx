@@ -1,311 +1,384 @@
 "use client";
 
-import { X } from "lucide-react";
+import { Minus, Plus, X } from "lucide-react";
 import { useState } from "react";
+import { PropertyFilters } from "@/@types/property";
+import { useStates, useLGAs } from '@/hooks/useLocations';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@/store/store';
+import { MultiRangeSlider } from '@/components/ui/double-range-slider';
 
 interface FilterModalProps {
     isOpen: boolean;
     onClose: () => void;
-    onFilterChange: (count: number) => void;
+    onFilterChange: (filters: Partial<PropertyFilters>) => void;
   }
 
 export default function FilterModal({ isOpen, onClose, onFilterChange }: FilterModalProps) {
-    const [selectedFilters, setSelectedFilters] = useState([
-        "All LGAs",
-        "All states",
-        "All states",
-        "Bungalows",
-        "Bungalows"
-      ]);
-  const [selectedState, setSelectedState] = useState("All");
-  const [selectedLGA, setSelectedLGA] = useState("All");
-  const [priceRange, setPriceRange] = useState({
-    min: "50000",
-    max: "10000000000",
-  });
-  const [rooms, setRooms] = useState({
-    bedrooms: "Any",
-    bathrooms: "2",
-    kitchens: "3",
-  });
-  const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>(
-    []
-  );
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+    const dispatch = useDispatch();
+    const currentFilters = useSelector((state: RootState) => state.property.filters);
+    const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+    const [selectedState, setSelectedState] = useState("All");
+    const [selectedLGA, setSelectedLGA] = useState("All");
+    const [priceRange, setPriceRange] = useState({
+      min: "",
+      max: "",
+    });
+    const [rooms, setRooms] = useState({
+      bedrooms: "0",
+      bathrooms: "0",
+      toilets: "0",
+    });
+    const [selectedPropertyTypes, setSelectedPropertyTypes] = useState<string[]>([]);
+    const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
 
-  if (!isOpen) return null;
+    const { data: states, isLoading: statesLoading } = useStates();
+    const { data: lgas, isLoading: lgasLoading } = useLGAs(selectedState);
 
-  const propertyTypes = [
-    "Any",
-    "Apartment",
-    "Bungalow",
-    "Detached house",
-    "Duplex",
-    "Flats",
-    "Mansion",
-    "Penthouse",
-  ];
+    if (!isOpen) return null;
 
-  const amenities = [
-    "Any",
-    "Kitchen",
-    "Solar power",
-    "Water heater",
-    "Air conditioner",
-  ];
+    const propertyTypes = [
+      "Any",
+      "Apartment",
+      "Bungalow",
+      "Detached house",
+      "Duplex",
+      "Flats",
+      "Mansion",
+      "Penthouse",
+    ];
 
-  const handleFilterRemove = (filter: string) => {
-    setSelectedFilters((prev) => prev.filter((f) => f !== filter));
-  };
+    const amenities = [
+      "Any",
+      "Kitchen",
+      "Solar power",
+      "Water heater",
+      "Air conditioner",
+    ];
 
-// Update the handleApplyFilters function
-const handleApplyFilters = () => {
-    // Count active filters
-    const activeFilters = [
-      ...selectedFilters,
-      ...selectedPropertyTypes,
-      ...selectedAmenities,
-      selectedState !== "All" ? 1 : 0,
-      selectedLGA !== "All" ? 1 : 0,
-      priceRange.min !== "50000" || priceRange.max !== "10000000000" ? 1 : 0,
-      rooms.bedrooms !== "Any" || rooms.bathrooms !== "2" || rooms.kitchens !== "3" ? 1 : 0
-    ].filter(Boolean).length;
+    const handleFilterRemove = (filter: string) => {
+      setSelectedFilters((prev) => prev.filter((f) => f !== filter));
+      
+      if (filter.startsWith("Property: ")) {
+        const type = filter.replace("Property: ", "");
+        setSelectedPropertyTypes(prev => prev.filter(t => t !== type));
+      } else if (filter.startsWith("Amenity: ")) {
+        const amenity = filter.replace("Amenity: ", "");
+        setSelectedAmenities(prev => prev.filter(a => a !== amenity));
+      } else if (filter.includes("LGA: ")) {
+        setSelectedLGA("All");
+      } else if (filter.includes("State: ")) {
+        setSelectedState("All");
+        setSelectedLGA("All");
+      }
+    };
+
+    const handleApplyFilters = () => {
+      const filters: Partial<PropertyFilters> = {
+        property_type: selectedPropertyTypes.length > 0 ? selectedPropertyTypes : undefined,
+        amenities: selectedAmenities.length > 0 ? selectedAmenities : undefined,
+        state: selectedState !== "All" ? selectedState : undefined,
+        lga: selectedLGA !== "All" ? selectedLGA : undefined,
+        min_price: priceRange.min ? parseInt(priceRange.min) : undefined,
+        max_price: priceRange.max ? parseInt(priceRange.max) : undefined,
+        bedrooms: rooms.bedrooms !== "0" ? parseInt(rooms.bedrooms) : undefined,
+        bathrooms: rooms.bathrooms !== "0" ? parseInt(rooms.bathrooms) : undefined,
+        search: currentFilters.search
+      };
+
+      onFilterChange(filters);
+      onClose();
+    };
+
+    const addFilter = (value: string, type: 'property' | 'amenity' | 'location' | 'room') => {
+      const filterText = type === 'location' ? value :
+                        type === 'property' ? `Property: ${value}` :
+                        type === 'amenity' ? `Amenity: ${value}` :
+                        type === 'room' ? value : value;
+
+      // Check if filter already exists
+      const filterExists = selectedFilters.includes(filterText);
+      
+      if (filterExists) {
+        // Remove the filter
+        setSelectedFilters(prev => prev.filter(f => f !== filterText));
+        
+        // Remove from corresponding state
+        switch (type) {
+          case 'property':
+            setSelectedPropertyTypes(prev => prev.filter(t => t !== value));
+            break;
+          case 'amenity':
+            setSelectedAmenities(prev => prev.filter(a => a !== value));
+            break;
+        }
+      } else {
+        // Add the filter
+        setSelectedFilters(prev => [...prev, filterText]);
+        
+        // Add to corresponding state
+        switch (type) {
+          case 'property':
+            setSelectedPropertyTypes(prev => [...prev, value]);
+            break;
+          case 'amenity':
+            setSelectedAmenities(prev => [...prev, value]);
+            break;
+        }
+      }
+    };
     
-    onFilterChange(activeFilters);
-    onClose();
-  };
+    const handleClearAll = () => {
+      setSelectedFilters([]);
+      setSelectedPropertyTypes([]);
+      setSelectedAmenities([]);
+      setSelectedState("All");
+      setSelectedLGA("All");
+      setPriceRange({ min: "", max: "" });
+      setRooms({ bedrooms: "0", bathrooms: "0", toilets: "0" });
+    };
 
-  const addFilter = (filter: string) => {
-    if (!selectedFilters.includes(filter)) {
-      setSelectedFilters(prev => [...prev, filter]);
-    }
-  };
-  
-  
-  const handleClearAll = () => {
-    setSelectedFilters([]);
-    setSelectedState("All");
-    setSelectedLGA("All");
-    setPriceRange({
-      min: "50000",
-      max: "10000000000"
-    });
-    setRooms({
-      bedrooms: "Any",
-      bathrooms: "2",
-      kitchens: "3"
-    });
-    setSelectedPropertyTypes([]);
-    setSelectedAmenities([]);
-  };
+    const handleStateChange = (state: string) => {
+      setSelectedState(state);
+      setSelectedLGA("All"); // Reset LGA when state changes
+      if (state !== "All") {
+        addFilter(`State: ${state}`, 'location');
+      }
+    };
 
-  return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex justify-center">
-      <div className="bg-white w-full max-w-xl rounded-b-xl overflow-hidden absolute top-0 rounded-t-xl p-4">
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-center">
-            <h2 className="text-xl font-semibold">Filters</h2>
-            <button onClick={onClose} className="p-2 absolute right-5">
-              <X className="w-6 h-6" />
+    const handleLGAChange = (lga: string) => {
+      setSelectedLGA(lga);
+      if (lga !== "All") {
+        addFilter(`LGA: ${lga}`, 'location');
+      }
+    };
+
+    const handleRoomChange = (type: string, value: string) => {
+      setRooms(prev => ({ ...prev, [type]: value }));
+      
+      // Create the filter text (e.g., "Bedrooms: 2")
+      const filterText = `${type.charAt(0).toUpperCase() + type.slice(1)}: ${value}`;
+      
+      // Remove any existing filter for this room type
+      setSelectedFilters(prev => prev.filter(filter => !filter.startsWith(type.charAt(0).toUpperCase() + type.slice(1))));
+      
+      // Only add the new filter if the value is not "0"
+      if (value !== "0") {
+        setSelectedFilters(prev => [...prev, filterText]);
+      }
+    };
+
+    const formatPrice = (price: string) => {
+      if (!price) return '';
+      const num = parseInt(price);
+      return isNaN(num) ? '' : num.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
+    };
+
+    const parsePrice = (price: string) => {
+      return price.replace(/[^0-9]/g, '');
+    };
+
+    return (
+      <div className="fixed inset-0 bg-black/50 z-50 flex justify-center">
+        <div className="bg-white w-full max-w-xl rounded-b-xl overflow-hidden absolute top-0">
+          <div className="p-4 border-b">
+            <div className="flex items-center justify-center relative">
+              <h2 className="text-xl font-semibold">Filters</h2>
+              <button onClick={onClose} className="p-2 absolute right-0">
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+          </div>
+
+          <div className="py-4 px-8 space-y-8 h-[calc(100vh-140px)] overflow-y-auto">
+            {/* Selected Filters */}
+            <div>
+              <h3 className="font-semibold mb-3">Selected filters</h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedFilters.map((filter, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleFilterRemove(filter)}
+                    className="px-3 py-1.5 bg-gray-100 rounded-full text-sm flex items-center gap-1"
+                  >
+                    {filter}
+                    <X className="w-4 h-4" />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* State Selection */}
+            <div>
+              <h3 className="font-medium mb-3">Select state</h3>
+              <select
+                value={selectedState}
+                onChange={(e) => handleStateChange(e.target.value)}
+                className="w-full p-3 border rounded-lg"
+                disabled={statesLoading}
+              >
+                <option value="All">All States</option>
+                {states?.map((state: string) => (
+                  <option key={state} value={state} className="capitalize">
+                    {state}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* LGA Selection */}
+            <div>
+              <h3 className="font-medium mb-3">Select LGA</h3>
+              <select
+                value={selectedLGA}
+                onChange={(e) => handleLGAChange(e.target.value)}
+                className="w-full p-3 border rounded-lg"
+                disabled={lgasLoading || selectedState === "All"}
+              >
+                <option value="All">All LGAs</option>
+                {lgas?.map((lga: string) => (
+                  <option key={lga} value={lga}>
+                    {lga}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Price Range */}
+            <div>
+              <h3 className="font-medium mb-3">Price range</h3>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="text-sm text-gray-600">Min</label>
+                    <input
+                      type="text"
+                      value={formatPrice(priceRange.min)}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          min: parsePrice(e.target.value),
+                        }))
+                      }
+                      className="w-full p-3 border rounded-lg"
+                      placeholder="₦ 50,000"
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <label className="text-sm text-gray-600">Max</label>
+                    <input
+                      type="text"
+                      value={formatPrice(priceRange.max)}
+                      onChange={(e) =>
+                        setPriceRange((prev) => ({
+                          ...prev,
+                          max: parsePrice(e.target.value),
+                        }))
+                      }
+                      className="w-full p-3 border rounded-lg"
+                      placeholder="₦ 10,000,000,000"
+                    />
+                  </div>
+                </div>
+                <MultiRangeSlider
+                  min={50000}
+                  max={10000000000}
+                  initialMin={parseInt(priceRange.min) || 50000}
+                  initialMax={parseInt(priceRange.max) || 10000000000}
+                  onChange={({ min, max }) => {
+                    setPriceRange({
+                      min: min.toString(),
+                      max: max.toString()
+                    });
+                  }}
+                />
+              </div>
+            </div>
+
+            {/* Rooms Section */}
+            <div>
+              <h3 className="font-medium mb-3">Number of rooms</h3>
+              <div className="space-y-4">
+                {Object.entries(rooms).map(([key, value]) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <span className="capitalize">{key}</span>
+                    <div className="flex items-center gap-4">
+                      <button 
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                        onClick={() => handleRoomChange(key, Math.max(0, parseInt(value) - 1).toString())}
+                      >
+                        <Minus className="w-4 h-4" />
+                      </button>
+                      <span className="w-8 text-center">{value}</span>
+                      <button 
+                        className="p-2 hover:bg-gray-100 rounded-full"
+                        onClick={() => handleRoomChange(key, (parseInt(value) + 1).toString())}
+                      >
+                        <Plus className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Property Type */}
+            <div>
+              <h3 className="font-medium mb-3">Type</h3>
+              <div className="flex flex-wrap gap-2">
+                {propertyTypes.map((type) => (
+                  <button
+                    key={type}
+                    onClick={() => addFilter(type, 'property')}
+                    className={`px-4 py-2 rounded-full border ${
+                      selectedPropertyTypes.includes(type)
+                        ? "border-indigo-600 bg-indigo-50"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {type}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div>
+              <h3 className="font-medium mb-3">Amenities</h3>
+              <div className="flex flex-wrap gap-2">
+                {amenities.map((amenity) => (
+                  <button
+                    key={amenity}
+                    onClick={() => addFilter(amenity, 'amenity')}
+                    className={`px-4 py-2 rounded-full border ${
+                      selectedAmenities.includes(amenity)
+                        ? "border-indigo-600 bg-indigo-50"
+                        : "border-gray-300"
+                    }`}
+                  >
+                    {amenity}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="border-t p-4 flex justify-between items-center">
+            <button
+              onClick={handleClearAll}
+              className="text-gray-600 font-medium"
+            >
+              Clear all
+            </button>
+            <button
+              onClick={handleApplyFilters}
+              className="bg-indigo-600 text-white px-8 py-2 rounded-lg hover:bg-indigo-700"
+            >
+              Apply {selectedFilters.length} filters
             </button>
           </div>
         </div>
-
-        <div className="py-4 px-8 space-y-8 h-[calc(100vh-140px)] overflow-y-auto">
-          {/* Selected Filters */}
-          <div>
-            <h3 className="font-semibold mb-3">Selected filters</h3>
-            <div className="flex flex-wrap gap-2">
-              {selectedFilters.map((filter, index) => (
-                <button
-                  key={index}
-                  className="px-3 py-1.5 bg-gray-100 rounded-full text-sm flex items-center gap-1"
-                  onClick={() => handleFilterRemove(filter)}
-                >
-                  {filter}
-                  <X className="w-4 h-4" />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* State Selection */}
-          <div>
-            <h3 className="font-medium mb-3">Select state</h3>
-            <select
-              value={selectedState}
-              onChange={(e) => {
-                setSelectedState(e.target.value);
-                addFilter(`State: ${e.target.value}`);
-              }}              
-              className="w-full p-3 border rounded-lg"
-            >
-              <option value="All">All</option>
-            </select>
-          </div>
-
-          {/* LGA Selection */}
-          <div>
-            <h3 className="font-medium mb-3">Select LGA</h3>
-            <select
-              value={selectedLGA}
-              onChange={(e) => {
-                setSelectedLGA(e.target.value);
-                addFilter(`LGA: ${e.target.value}`);
-              }}
-              className="w-full p-3 border rounded-lg"
-            >
-              <option value="All">All</option>
-            </select>
-          </div>
-
-          {/* Price Range */}
-          <div>
-            <h3 className="font-medium mb-3">Price range</h3>
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <label className="text-sm text-gray-600">Min</label>
-                  <input
-                    type="text"
-                    value={priceRange.min}
-                    onChange={(e) =>
-                      setPriceRange((prev) => ({
-                        ...prev,
-                        min: e.target.value,
-                      }))
-                    }
-                    className="w-full p-3 border rounded-lg"
-                    placeholder="₦ 50,000"
-                  />
-                </div>
-                <div className="flex-1">
-                  <label className="text-sm text-gray-600">Max</label>
-                  <input
-                    type="text"
-                    value={priceRange.max}
-                    onChange={(e) =>
-                      setPriceRange((prev) => ({
-                        ...prev,
-                        max: e.target.value,
-                      }))
-                    }
-                    className="w-full p-3 border rounded-lg"
-                    placeholder="₦ 10,000,000,000"
-                  />
-                </div>
-              </div>
-              <input
-                type="range"
-                className="w-full accent-indigo-600"
-                min="50000"
-                max="10000000000"
-                value={priceRange.max}
-                onChange={(e) =>
-                  setPriceRange((prev) => ({ ...prev, max: e.target.value }))
-                }
-              />
-            </div>
-          </div>
-
-          {/* Number of Rooms */}
-          <div>
-            <h3 className="font-medium mb-3">Number of *</h3>
-            <div className="space-y-4">
-              {Object.entries(rooms).map(([key, value]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="capitalize">{key}</span>
-                  <div className="flex items-center gap-4">
-                    <button className="p-2 hover:bg-gray-100 rounded-full">
-                      <X className="w-4 h-4 rotate-45" />
-                    </button>
-                    <span className="w-8 text-center">{value}</span>
-                    <button className="p-2 hover:bg-gray-100 rounded-full">
-                      <X className="w-4 h-4 rotate-90" />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Property Type */}
-          <div>
-            <h3 className="font-medium mb-3">Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {propertyTypes.map((type) => (
-                <button
-                  key={type}
-                  className={`px-4 py-2 rounded-full border ${
-                    selectedPropertyTypes.includes(type)
-                      ? "border-indigo-600 bg-indigo-50"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => {
-                    if (selectedPropertyTypes.includes(type)) {
-                      setSelectedPropertyTypes((prev) =>
-                        prev.filter((t) => t !== type)
-                      );
-                    } else {
-                      setSelectedPropertyTypes((prev) => [...prev, type]);
-                    }
-                  }}
-                >
-                  {type}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Amenities */}
-          <div>
-            <h3 className="font-medium mb-3">Amenities</h3>
-            <div className="flex flex-wrap gap-2">
-              {amenities.map((amenity) => (
-                <button
-                  key={amenity}
-                  className={`px-4 py-2 rounded-full border ${
-                    selectedAmenities.includes(amenity)
-                      ? "border-indigo-600 bg-indigo-50"
-                      : "border-gray-300"
-                  }`}
-                  onClick={() => {
-                    if (selectedAmenities.includes(amenity)) {
-                      setSelectedAmenities(prev => prev.filter(a => a !== amenity));
-                      handleFilterRemove(amenity);
-                    } else {
-                      setSelectedAmenities(prev => [...prev, amenity]);
-                      addFilter(amenity);
-                    }
-                  }}
-                >
-                  {amenity}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 border-t bg-white flex justify-between max-w-xl mx-auto">
-          <button
-            onClick={() => {
-              setSelectedFilters([]);
-              setSelectedPropertyTypes([]);
-              setSelectedAmenities([]);
-            }}
-            className="text-gray-600"
-          >
-            Clear all
-          </button>
-          <button
-            onClick={handleApplyFilters}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
-            Apply 5 filters
-          </button>
-        </div>
       </div>
-    </div>
-  );
+    );
 }

@@ -3,6 +3,7 @@ import "../styles/globals.css";
 import { AppProviders } from "./providers/providers";
 import CookieConsent from "@/components/CookieConsent";
 import Navbar from "@/components/navbar/Navbar";
+import ChatNotification from "@/components/chat/chat-notification";
 
 export const viewport = {
   width: "device-width",
@@ -42,9 +43,10 @@ export default function RootLayout({
       >
         <AppProviders>
           {children}
+          <ChatNotification />
         </AppProviders>
         <CookieConsent />
-        </body>
+      </body>
     </html>
   );
 }

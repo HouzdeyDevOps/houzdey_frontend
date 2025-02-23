@@ -1,34 +1,29 @@
-import { FormData } from "@/@types/create-listing";
+import { CreateListingFormData as FormData } from "@/@types/create-listing";
+
 
 export function generatePropertyTitle(formData: FormData): string {
-  const type = formData.type || '';
-  const beds = formData.beds ? `${formData.beds} Bedroom` : '';
-  const location = formData.ward ? 
-    `in ${formData.ward.split('-').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}, ${
-      formData.lga.split('-').map(word => 
-        word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}, ${
-      formData.state.charAt(0).toUpperCase() + formData.state.slice(1)}` : '';
-
-  const parts = [beds, type, location].filter(Boolean);
-  return parts.join(' ');
-} 
-
-interface GenerateTitleProps {
-    bedrooms: number;
-    propertyType: string;
-    estateName: string;
-    location: string;
-}
-
-function generateTitle({ bedrooms, propertyType, estateName, location }: GenerateTitleProps) {
-    let title = `${bedrooms}-Bedroom ${propertyType}`;
-    if (estateName) {
-      title += ` in ${estateName}`;
-    }
-    if (location) {
-      title += `, ${location}`;
-    }
-    return title;
-  }
+  const parts: string[] = [];
   
+  // Add furnishing if it's furnished
+  if (formData.furnishing?.toLowerCase() === 'furnished') {
+    parts.push('furnished');
+  }
+
+  // Add bedrooms and property type
+  parts.push(`${formData.beds}-Bedroom`);
+  parts.push(formData.type.charAt(0).toUpperCase() + formData.type.slice(1));
+
+  // Add estate if available
+  if (formData.estate) {
+    parts.push(`in ${formData.estate.charAt(0).toUpperCase() + formData.estate.slice(1)} Estate`);
+  }
+
+  // Add ward if available, with comma
+  if (formData.ward) {
+    parts.push(`, ${formData.ward.charAt(0).toUpperCase() + formData.ward.slice(1)}`);
+  }
+
+  // Join all parts with proper spacing and capitalize first letter
+  const title = parts.join(' ');
+  return title.charAt(0).toUpperCase() + title.slice(1);
+}

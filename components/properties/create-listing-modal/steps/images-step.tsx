@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StepProps, FormData } from "@/@types/create-listing";
+import { StepProps, CreateListingFormData as  FormData } from "@/@types/create-listing";
 import { X } from "lucide-react";
 
 interface ImagesStepProps extends StepProps {
