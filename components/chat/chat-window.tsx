@@ -70,27 +70,33 @@ export default function ChatWindow() {
       const initialMessages = await chatApi.getMessages(conversationId);
       setMessages(initialMessages);
 
-      chatService.onMessage((message: Message) => {
-        setMessages((prev) => [...prev, message]);
+      // Set up message handler
+      const unsubscribeMessage = chatService.onMessage((message: Message) => {
+        console.log("Received new message:", message);
+        setMessages((prev) => {
+          // Check if this is a pending message being confirmed
+          const pendingIndex = prev.findIndex(
+            (m) => m.pending && m.content === message.content && m.sender_id === message.sender_id
+          );
+          
+          if (pendingIndex !== -1) {
+            // Replace pending message with confirmed message
+            const newMessages = [...prev];
+            newMessages[pendingIndex] = message;
+            return newMessages;
+          }
+          
+          // Check if we already have this message
+          const existingIndex = prev.findIndex((m) => m.id === message.id);
+          if (existingIndex !== -1) {
+            return prev; // Don't add duplicate messages
+          }
+          
+          // If it's a new message, add it
+          return [...prev, message];
+        });
         scrollToBottom();
       });
-
-   // Set up message handler
-   const unsubscribeMessage = chatService.onMessage((message: Message) => {
-    console.log("Received new message:", message);
-    // Replace optimistic message with the actual message
-    setMessages((prev) => {
-      const index = prev.findIndex((m) => m.id === message.id);
-      if (index !== -1) {
-        const newMessages = [...prev];
-        newMessages[index] = message;
-        return newMessages;
-      }
-      return [...prev, message];
-    });
-    scrollToBottom();
-  });
-
 
       // Set up typing status handler
       const unsubscribeTyping = chatService.onTyping((status) => {
@@ -180,52 +186,19 @@ export default function ChatWindow() {
 
     if (!newMessage.trim() || !conversationId || !isConnected) return;
 
-    // Optimistically add message to UI
-    const tempId = `temp-${Date.now()}`;
-    const optimisticMessage: Message = {
-      id: tempId,
-      conversation_id: conversationId,
-      sender_id: user?.id || '',
-      // receiver_id: receiverId,
-      content: newMessage.trim(),
-      created_at: new Date().toISOString(),
-      read: false,
-      pending: true
-    };
-
-    setMessages(prev => [...prev, optimisticMessage]);
+    const messageContent = newMessage.trim();
     setNewMessage("");
 
-
     try {
-      console.log("Sending message:", newMessage.trim());
-
-      await chatService.sendMessage(conversationId, newMessage.trim());
-
-      // setNewMessage("");
-      // scrollToBottom();
-
-      // The real message will come back via the socket "new_message" event
-
-      // and replace our temporary one in the message handler
+      await chatService.sendMessage(conversationId, messageContent);
+      // The socket will handle adding the message to the UI
     } catch (err) {
       console.error("Failed to send message:", err);
-      // Update the optimistic message to show error
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === tempId 
-            ? {...msg, content: msg.content + " (Failed to send)", pending: false} 
-            : msg
-        )
-      );
-      
       setError(
         err instanceof Error
           ? err.message
           : "Failed to send message. Please try again."
       );
-
-      // Clear error after 5 seconds
       setTimeout(() => setError(null), 5000);
     }
   };
