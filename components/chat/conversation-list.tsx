@@ -6,12 +6,23 @@ import { chatApi, chatService } from "@/api/chat";
 import { formatDistanceToNow } from "date-fns";
 import { Message } from "@/@types/chat";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatMessageTime } from "@/utils/date";
 
 interface Conversation {
   id: string;
   property_id: string;
+  property: {
+    id: string;
+    title: string;
+  };
   user_id: string;
   owner_id: string;
+  other_user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    profile_picture?: string;
+  };
   last_message?: string;
   last_message_time?: string;
   unread_count: number;
@@ -103,15 +114,11 @@ export default function ConversationList({ onConversationSelect, selectedConvers
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center mb-1">
               <span className="font-medium truncate">
-                {conversation.user_id === "CURRENT_USER_ID"
-                  ? "Property Owner"
-                  : "Interested Buyer"}
+                {`${conversation.other_user.first_name} ${conversation.other_user.last_name}`}
               </span>
               {conversation.last_message_time && (
                 <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
-                  {formatDistanceToNow(new Date(conversation.last_message_time), {
-                    addSuffix: true,
-                  })}
+                  {formatMessageTime(conversation.last_message_time)}
                 </span>
               )}
             </div>

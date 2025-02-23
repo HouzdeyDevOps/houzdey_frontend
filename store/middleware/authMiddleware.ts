@@ -22,6 +22,7 @@ authMiddleware.startListening({
     effect: (action) => {
       if (!isBrowser) return;
       localStorage.setItem('token', action.payload.token);
+      document.cookie = `token=${action.payload.token}; path=/`;
       axios.defaults.headers.common['Authorization'] = `Bearer ${action.payload.token}`;
     },
 });
@@ -30,7 +31,8 @@ authMiddleware.startListening({
   actionCreator: logout,
   effect: () => {
     if (!isBrowser) return;
-    delete axios.defaults.headers.common['Authorization'];
     localStorage.removeItem('token');
+    document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    delete axios.defaults.headers.common['Authorization'];
   }
 }); 

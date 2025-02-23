@@ -13,7 +13,7 @@ import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
 import ProfileDropdown from "./ProfileDropdown";
 import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
-import { PropertyFilters } from '@/@types/property';
+import { PropertyFilters } from "@/@types/property";
 
 interface NavbarProps {
   showSearch: boolean;
@@ -21,6 +21,7 @@ interface NavbarProps {
   onSearchChange?: (search: string) => void;
   onFilterChange?: (filters: Partial<PropertyFilters>) => void;
   onFilterClick?: () => void;
+  showListingButton?: boolean;
 }
 
 const Navbar = ({
@@ -29,6 +30,7 @@ const Navbar = ({
   onSearchChange,
   onFilterChange,
   onFilterClick,
+  showListingButton = true,
 }: NavbarProps) => {
   const [showCreateListing, setShowCreateListing] = useState(false);
   const [showSignUp, setShowSignUp] = useState(false);
@@ -40,7 +42,6 @@ const Navbar = ({
     (state: RootState) => state.authModal.currentModal
   );
 
-  
   return (
     <div>
       {/* nav bar */}
@@ -89,17 +90,18 @@ const Navbar = ({
             )}
 
             <div className="flex gap-4 justify-end items-center">
-              <button
-                onClick={
-                  user
-                    ? () => setShowCreateListing(true)
-                    : () => dispatch(setCurrentModal("signup"))
-                }
-                className="px-4 py-3 font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
-              >
-                Create listing
-              </button>
-
+              {showListingButton && (
+                <button
+                  onClick={
+                    user
+                      ? () => setShowCreateListing(true)
+                      : () => dispatch(setCurrentModal("signup"))
+                  }
+                  className="px-4 py-3 font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
+                >
+                  Create listing
+                </button>
+              )}
               {user ? (
                 <ProfileDropdown />
               ) : (
@@ -126,7 +128,6 @@ const Navbar = ({
           </>
         )}
 
-
         {/* Add the modal component: */}
         <CreateListingModal
           isOpen={showCreateListing}
@@ -146,14 +147,14 @@ const Navbar = ({
           }}
           onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
         />
-    <FilterModal
-      isOpen={showFilters}
-      onClose={() => setShowFilters(false)}
-      onFilterChange={(filters) => {
-        onFilterChange?.(filters);
-        setFilterCount(Object.keys(filters).length);
-      }}
-    />
+        <FilterModal
+          isOpen={showFilters}
+          onClose={() => setShowFilters(false)}
+          onFilterChange={(filters) => {
+            onFilterChange?.(filters);
+            setFilterCount(Object.keys(filters).length);
+          }}
+        />
       </div>
     </div>
   );

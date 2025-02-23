@@ -9,6 +9,7 @@ import Image from "next/image";
 import ReportModal from "./report-modal";
 import { useAuth } from "@/hooks/useAuth";
 import Link from "next/link";
+import { formatChatTime } from "@/utils/date";
 
 export default function ChatWindow() {
   const { id: conversationIdParam } = useParams();
@@ -70,10 +71,10 @@ export default function ChatWindow() {
       const initialMessages = await chatApi.getMessages(conversationId);
       setMessages(initialMessages);
 
-      // Set up message handler
-      const unsubscribeMessage = chatService.onMessage((message: Message) => {
-        console.log("Received new message:", message);
-        setMessages((prev) => {
+   // Set up message handler
+   const unsubscribeMessage = chatService.onMessage((message: Message) => {
+    console.log("Received new message:", message);
+    setMessages((prev) => {
           // Check if this is a pending message being confirmed
           const pendingIndex = prev.findIndex(
             (m) => m.pending && m.content === message.content && m.sender_id === message.sender_id
@@ -81,10 +82,10 @@ export default function ChatWindow() {
           
           if (pendingIndex !== -1) {
             // Replace pending message with confirmed message
-            const newMessages = [...prev];
+        const newMessages = [...prev];
             newMessages[pendingIndex] = message;
-            return newMessages;
-          }
+        return newMessages;
+      }
           
           // Check if we already have this message
           const existingIndex = prev.findIndex((m) => m.id === message.id);
@@ -93,10 +94,10 @@ export default function ChatWindow() {
           }
           
           // If it's a new message, add it
-          return [...prev, message];
-        });
-        scrollToBottom();
-      });
+      return [...prev, message];
+    });
+    scrollToBottom();
+  });
 
       // Set up typing status handler
       const unsubscribeTyping = chatService.onTyping((status) => {
@@ -248,33 +249,50 @@ export default function ChatWindow() {
             />
           </div>
           <div>
-            <h2 className="font-semibold text-gray-900">
-              {conversation?.other_user?.first_name} {conversation?.other_user?.last_name}
-            </h2>
-            <Link 
-              href={`/properties/${conversation?.property_id}`}
-              className="text-sm text-gray-500 hover:text-indigo-600"
-            >
-              {conversation?.property?.title}
-            </Link>
+            <div className="font-medium">
+              {`${conversation?.other_user?.first_name} ${conversation?.other_user?.last_name}`}
+            </div>
+            <div className="text-sm text-gray-500">
+              {user?.id === conversation?.owner_id ? "Interested Tenant" : conversation?.property?.title}
+            </div>
+            {/* user status here */}
+            
           </div>
         </div>
-        <button
-          onClick={handleMoreClick}
-          className="p-2 text-gray-600 hover:text-gray-800"
-        >
-          <MoreVertical className="w-5 h-5" />
-        </button>
+        <div className="relative">
+          <button
+            onClick={handleMoreClick}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <MoreVertical className="w-5 h-5 text-gray-500" />
+          </button>
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+              <button
+                onClick={handleReport}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Report User
+              </button>
+              <button
+                onClick={handleBlock}
+                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              >
+                Block User
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Messages area - Scrollable */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 space-y-4">
-          {messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full text-gray-500">
-              Start a conversation...
-            </div>
-          ) : (
+        {messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full text-gray-500">
+            Start a conversation...
+          </div>
+        ) : (
             messages.map((message, index) => {
               const isLastMessage = index === messages.length - 1;
               const showDate = index === 0 || 
@@ -302,20 +320,17 @@ export default function ChatWindow() {
                     <div className="max-w-[70%]">
                       <div
                         className={`rounded-2xl px-4 py-2 ${
-                          message.sender_id === user?.id
-                            ? "bg-indigo-600 text-white"
+                  message.sender_id === user?.id
+                    ? "bg-indigo-600 text-white"
                             : "bg-gray-100 text-gray-900"
-                        } ${message.pending ? "opacity-70" : ""}`}
-                      >
-                        {message.content}
-                      </div>
+                } ${message.pending ? "opacity-70" : ""}`}
+              >
+                {message.content}
+              </div>
                       <div className={`flex items-center mt-1 text-xs text-gray-500 ${
                         message.sender_id === user?.id ? "justify-end" : "justify-start"
                       }`}>
-                        {new Date(message.created_at).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {formatChatTime(message.created_at)}
                         {message.pending && " • Sending..."}
                         {isLastMessage && message.sender_id === user?.id && message.read && (
                           <span className="ml-1 text-indigo-600">Seen</span>
@@ -339,8 +354,8 @@ export default function ChatWindow() {
                 </div>
               </div>
             </div>
-          )}
-          <div ref={messagesEndRef} />
+        )}
+        <div ref={messagesEndRef} />
         </div>
       </div>
 
@@ -348,10 +363,10 @@ export default function ChatWindow() {
       <div className="p-4 border-t bg-white relative">
         <form onSubmit={handleSendMessage} className="flex items-center gap-3">
           <div className="flex-1">
-            <input
-              type="text"
-              value={newMessage}
-              onChange={handleInputChange}
+          <input
+            type="text"
+            value={newMessage}
+            onChange={handleInputChange}
               placeholder="Are you open to negotiations?"
               className="w-full px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white"
             />
@@ -381,8 +396,8 @@ export default function ChatWindow() {
                     </svg>
                     <span>Image</span>
                   </button>
-                  <button 
-                    type="button"
+            <button
+              type="button"
                     className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -393,19 +408,19 @@ export default function ChatWindow() {
                       <line x1="10" y1="9" x2="8" y2="9"/>
                     </svg>
                     <span>Document</span>
-                  </button>
+            </button>
                 </div>
               </div>
-            </div>
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || !isConnected}
-              className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
+          </div>
+          <button
+            type="submit"
+            disabled={!newMessage.trim() || !isConnected}
+            className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
-            </button>
+          </button>
           </div>
         </form>
       </div>
