@@ -31,9 +31,9 @@ export default function ChatLayoutClient({
           <div className="w-[320px] border-r bg-white flex flex-col flex-shrink-0">
             <div className="p-4 flex-shrink-0 mb-2">
               <div className="flex items-center gap-2">
-                <Link href="/" className="text-gray-600 hover:text-gray-900">
+                <button onClick={() => router.push('/')} className="text-gray-600 hover:text-gray-900">
                   <ChevronLeft className="w-6 h-6" />
-                </Link>
+                </button>
                 <h1 className="text-xl font-semibold">Chats</h1>
               </div>
             </div>

@@ -14,6 +14,8 @@ import ProfileDropdown from "./ProfileDropdown";
 import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
 import { PropertyFilters } from "@/@types/property";
+import { useRouter } from "next/navigation";
+
 
 interface NavbarProps {
   showSearch: boolean;
@@ -37,6 +39,7 @@ const Navbar = ({
   const [showFilters, setShowFilters] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
   const dispatch = useDispatch();
+  const router = useRouter();
   const user = useSelector((state: RootState) => state.userAuth.user);
   const currentModal = useSelector(
     (state: RootState) => state.authModal.currentModal
@@ -52,14 +55,14 @@ const Navbar = ({
           }`}
         >
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <Link href="/" className="text-2xl font-bold">
+            <button onClick={() => router.push('/')} className="text-2xl font-bold">
               <Image
                 src="/assets/images/houzdey-logo.png"
                 alt="Houzdey"
                 width={180}
                 height={50}
               />
-            </Link>
+            </button>
             {showSearch && (
               <div className="flex-1 max-w-lg mx-8">
                 <div className="relative flex flex-1 items-center justify-center gap-x-2">
