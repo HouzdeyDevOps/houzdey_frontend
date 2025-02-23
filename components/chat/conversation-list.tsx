@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { chatApi, chatService } from "@/api/chat";
 import { formatDistanceToNow } from "date-fns";
 import { Message } from "@/@types/chat";
@@ -18,6 +17,11 @@ interface Conversation {
   unread_count: number;
 }
 
+interface ConversationListProps {
+  onConversationSelect: (conversationId: string) => void;
+  selectedConversationId?: string;
+}
+
 function ConversationSkeleton() {
   return (
     <div className="flex items-center gap-3 p-4">
@@ -30,10 +34,9 @@ function ConversationSkeleton() {
   );
 }
 
-export default function ConversationList() {
+export default function ConversationList({ onConversationSelect, selectedConversationId }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const router = useRouter();
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -68,13 +71,9 @@ export default function ConversationList() {
     return () => unsubscribe();
   }, []);
 
-  const handleConversationClick = (conversationId: string) => {
-    router.push(`/chat/${conversationId}`);
-  };
-
   if (isLoading) {
     return (
-      <div className="overflow-y-auto h-[calc(100vh-73px)]">
+      <div className="h-full overflow-y-auto">
         {[1, 2, 3, 4, 5].map((i) => (
           <ConversationSkeleton key={i} />
         ))}
@@ -83,14 +82,16 @@ export default function ConversationList() {
   }
 
   return (
-    <div className="overflow-y-auto h-[calc(100vh-73px)]">
+    <div className="h-full overflow-y-auto">
       {conversations.map((conversation) => (
         <div
           key={conversation.id}
-          className="flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer"
-          onClick={() => handleConversationClick(conversation.id)}
+          className={`flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer ${
+            selectedConversationId === conversation.id ? 'bg-gray-50' : ''
+          }`}
+          onClick={() => onConversationSelect(conversation.id)}
         >
-          <div className="w-12 h-12 rounded-full overflow-hidden">
+          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
             <Image
               src="/assets/images/avatar-placeholder.jpg"
               alt="User Avatar"
@@ -99,27 +100,27 @@ export default function ConversationList() {
               className="object-cover"
             />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-medium">
+              <span className="font-medium truncate">
                 {conversation.user_id === "CURRENT_USER_ID"
                   ? "Property Owner"
                   : "Interested Buyer"}
               </span>
               {conversation.last_message_time && (
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
                   {formatDistanceToNow(new Date(conversation.last_message_time), {
                     addSuffix: true,
                   })}
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 min-w-0">
               {conversation.unread_count > 0 && (
-                <span className="w-2 h-2 bg-indigo-600 rounded-full"></span>
+                <span className="w-2 h-2 bg-indigo-600 rounded-full flex-shrink-0"></span>
               )}
               <span
-                className={`text-sm ${
+                className={`text-sm truncate ${
                   conversation.unread_count > 0
                     ? "text-indigo-600"
                     : "text-gray-500"
