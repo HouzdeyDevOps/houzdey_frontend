@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth'; // You'll need to create this hook
 import { setCurrentModal } from '@/store/slices/authModalSlice';
@@ -13,17 +13,20 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const token = localStorage.getItem('token');
-
-
+  const [token, setToken] = useState<string | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
+
+  useEffect(() => {
+    // Access localStorage only on client side
+    setToken(localStorage.getItem('token'));
+  }, []);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !token) {
       router.push('/');
       dispatch(setCurrentModal("signup"));
     }
-  }, [isAuthenticated, isLoading, router, dispatch]);
+  }, [isAuthenticated, isLoading, router, dispatch, token]);
 
   if (isLoading) {
     return <div>Loading...</div>;

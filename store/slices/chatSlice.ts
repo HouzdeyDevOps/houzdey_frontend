@@ -1,11 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Message, Conversation, ChatState } from '@/@types/chat';
+import { Message, Conversation, ChatState, UserStatus } from '@/@types/chat';
 
 const initialState: ChatState = {
   activeConversation: null,
   conversations: [],
   messages: {},
   typingUsers: {},
+  userStatuses: {},
   isLoading: false,
   error: null,
   isConnected: false
@@ -40,6 +41,10 @@ const chatSlice = createSlice({
     },
     setConnected: (state, action: PayloadAction<boolean>) => {
       state.isConnected = action.payload;
+    },
+    updateUserStatus: (state, action: PayloadAction<UserStatus>) => {
+      const { user_id } = action.payload;
+      state.userStatuses[user_id] = action.payload;
     }
   }
 });
@@ -51,7 +56,8 @@ export const {
   setMessages,
   setLoading,
   setError,
-  setConnected
+  setConnected,
+  updateUserStatus
 } = chatSlice.actions;
 
 export default chatSlice; 

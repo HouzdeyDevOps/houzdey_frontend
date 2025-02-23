@@ -12,25 +12,25 @@ export interface Message {
 export interface Conversation {
   id: string;
   property_id: string;
-  property: {
+  user_id: string;
+  owner_id: string;
+  created_at: string;
+  last_message?: string;
+  last_message_time?: string;
+  property?: {
     id: string;
     title: string;
     image?: string;
     price: number;
     location: string;
   };
-  other_user: {
+  other_user?: {
     id: string;
     first_name: string;
     last_name: string;
     profile_picture?: string;
   };
-  user_id: string;
-  owner_id: string;
-  last_message?: string;
-  last_message_time?: string;
   unread_count: number;
-  created_at: string;
 }
 
 export interface TypingStatus {
@@ -39,11 +39,18 @@ export interface TypingStatus {
   is_typing: boolean;
 }
 
+export interface UserStatus {
+  user_id: string;
+  status: 'online' | 'offline';
+  last_seen: string;
+}
+
 export interface ChatState {
   activeConversation: string | null;
   conversations: Conversation[];
-  messages: { [conversationId: string]: Message[] };
-  typingUsers: { [conversationId: string]: string[] };
+  messages: { [key: string]: Message[] };
+  typingUsers: { [key: string]: boolean };
+  userStatuses: { [key: string]: UserStatus };
   isLoading: boolean;
   error: string | null;
   isConnected: boolean;
@@ -67,5 +74,6 @@ export interface ChatService {
   onMessage: (handler: (message: Message) => void) => () => void;
   onConnection: (handler: (connected: boolean) => void) => () => void;
   onNotification: (handler: (message: Message) => void) => () => void;
+  onUserStatus: (handler: (status: UserStatus) => void) => () => void;
   isSocketConnected: () => boolean;
 } 

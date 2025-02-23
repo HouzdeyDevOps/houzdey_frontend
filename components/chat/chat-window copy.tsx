@@ -2,13 +2,14 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useParams } from "next/navigation";
-import { Message, Conversation, UserStatus, ChatService as ChatServiceType } from "@/@types/chat";
+import { Message, Conversation } from "@/@types/chat";
 import { chatApi, chatService } from "@/api/chat";
 import { MoreVertical, Send } from "lucide-react";
 import Image from "next/image";
 import ReportModal from "./report-modal";
 import { useAuth } from "@/hooks/useAuth";
-import { formatChatTime, formatLastSeen } from "@/utils/date";
+import Link from "next/link";
+import { formatChatTime } from "@/utils/date";
 import ChatHeaderSkeleton from "../ui/chat-header-skeleton";
 
 export default function ChatWindow() {
@@ -30,7 +31,6 @@ export default function ChatWindow() {
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [otherUserStatus, setOtherUserStatus] = useState<UserStatus | null>(null);
 
   useEffect(() => {
     const loadConversation = async () => {
@@ -38,61 +38,12 @@ export default function ChatWindow() {
       try {
         const data = await chatApi.getConversation(conversationId);
         setConversation(data);
-        // Request initial status when conversation loads
-        if (data?.other_user?.id) {
-          console.log("Requesting initial status for user:", data.other_user.id);
-          chatService.getUserStatus(data.other_user.id);
-        }
       } catch (error) {
         console.error("Failed to load conversation:", error);
       }
     };
     loadConversation();
   }, [conversationId]);
-
-  // Add effect to handle status updates
-  useEffect(() => {
-    if (!conversation?.other_user?.id) return;
-
-    const handleUserStatus = (status: UserStatus) => {
-      console.log("Processing user status update:", status);
-      if (status.user_id === conversation.other_user?.id) {
-        console.log("Updating status for user:", status.user_id, "to:", status.status);
-        setOtherUserStatus(status);
-      }
-    };
-
-    // Set up user status handler
-    const unsubscribe = chatService.onUserStatus(handleUserStatus);
-
-    // Request initial status
-    chatService.getUserStatus(conversation.other_user.id);
-
-    // Set up periodic status check
-    const statusInterval = setInterval(() => {
-      if (conversation.other_user?.id) {
-        // console.log("Periodic status check for user:", conversation.other_user.id);
-        chatService.getUserStatus(conversation.other_user.id);
-      }
-    }, 30000); // Check every 30 seconds
-
-    return () => {
-      unsubscribe();
-      clearInterval(statusInterval);
-    };
-  }, [conversation?.other_user?.id]);
-
-  // Add effect to handle connection changes
-  useEffect(() => {
-    if (!isConnected && conversation?.other_user?.id) {
-      console.log("Connection lost, marking user as offline");
-      setOtherUserStatus(prev => ({
-        ...prev,
-        status: 'offline',
-        last_seen: new Date().toISOString(),
-      } as UserStatus));
-    }
-  }, [isConnected, conversation?.other_user?.id]);
 
   const initializeChat = async () => {
     if (!user?.id || !conversationId) return;
@@ -112,12 +63,6 @@ export default function ChatWindow() {
       const unsubscribeConnection = chatService.onConnection((connected) => {
         console.log("Connection status changed:", connected);
         setIsConnected(connected);
-        
-        // Re-request user status when connection is restored
-        if (connected && conversation?.other_user?.id) {
-          console.log("Re-requesting user status after reconnection");
-          chatService.getUserStatus(conversation.other_user.id);
-        }
       });
 
       // Join the conversation room
@@ -129,14 +74,6 @@ export default function ChatWindow() {
 
       // Set up message handler
       const unsubscribeMessage = chatService.onMessage((message: Message) => {
-        // Also update user status when receiving a message
-        if (message.sender_id === conversation?.other_user?.id) {
-          setOtherUserStatus(prev => ({
-            ...prev,
-            status: 'online',
-            last_seen: new Date().toISOString(),
-          } as UserStatus));
-        }
         setMessages((prev) => {
           // Check if this is a pending message being confirmed
           const pendingIndex = prev.findIndex(
@@ -172,12 +109,6 @@ export default function ChatWindow() {
           status.conversation_id === conversationId
         ) {
           setOtherUserTyping(status.is_typing);
-          // Update user status when they're typing
-          setOtherUserStatus(prev => ({
-            ...prev,
-            status: 'online',
-            last_seen: new Date().toISOString(),
-          } as UserStatus));
         }
       });
 
@@ -302,7 +233,7 @@ export default function ChatWindow() {
           <ChatHeaderSkeleton />
         ) : (
           <div className="flex-1 flex items-center">
-            <div className="w-10 h-10 rounded-full mr-3 relative">
+            <div className="w-10 h-10 rounded-full overflow-hidden mr-3">
               <Image
                 src={
                   conversation?.other_user?.profile_picture ||
@@ -311,13 +242,7 @@ export default function ChatWindow() {
                 alt={`${conversation?.other_user?.first_name} ${conversation?.other_user?.last_name}`}
                 width={40}
                 height={40}
-                className="object-cover rounded-full"
-              />
-              <div 
-                className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white z-50 ${
-                  otherUserStatus?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
-                }`}
-                title={otherUserStatus?.status === 'online' ? 'Online' : 'Offline'}
+                className="object-cover"
               />
             </div>
             <div>
@@ -329,13 +254,7 @@ export default function ChatWindow() {
                   ? "Interested Tenant"
                   : conversation?.property?.title}
               </div>
-              <div className="text-sm text-gray-500">
-                {otherUserStatus?.status === 'online' 
-                  ? 'Online'
-                  : otherUserStatus?.last_seen 
-                    ? `Last seen ${formatLastSeen(otherUserStatus.last_seen)}`
-                    : 'Offline'}
-              </div>
+              {/* user status here */}
             </div>
           </div>
         )}
@@ -531,7 +450,21 @@ export default function ChatWindow() {
               disabled={!newMessage.trim() || !isConnected}
               className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-             <Send />
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M22 2L11 13M22 2L15 22L11 13M22 2L2 9L11 13"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
             </button>
           </div>
         </form>

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { io, Socket } from 'socket.io-client';
-import { Message, Conversation, TypingStatus } from "@/@types/chat";
+import { Message, Conversation, TypingStatus, UserStatus } from "@/@types/chat";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
@@ -13,6 +13,7 @@ export class ChatService {
   private typingHandlers: ((status: TypingStatus) => void)[] = [];
   private connectionHandlers: ((connected: boolean) => void)[] = [];
   private errorHandlers: ((error: Error) => void)[] = [];
+  private userStatusHandlers: ((status: UserStatus) => void)[] = [];
   private connectionPromise: Promise<void> | null = null;
 
   public async initializeConnection(token: string): Promise<void> {
@@ -40,7 +41,10 @@ export class ChatService {
         auth: { token },
         transports: ["websocket"],
         reconnection: true,
-        timeout: 10000, // 10 second timeout
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+        timeout: 10000,
+        forceNew: true
       });
 
       // Set up event listeners
@@ -50,8 +54,12 @@ export class ChatService {
         resolve();
       });
 
-      this.socket.on('connect_confirmed', (data) => {
+      this.socket.on('connect_confirmed', (data: { user_id: string }) => {
         console.log("Connection confirmed for user:", data.user_id);
+        // Request status updates for all users after connection is confirmed
+        if (this.socket && data.user_id) {
+        this.socket.emit('get_user_status', { user_id: data.user_id });
+        }
       });
 
       this.socket.on('new_message', (message) => {
@@ -65,7 +73,18 @@ export class ChatService {
       });
 
       this.socket.on('typing_status', (status) => {
+        console.log("Typing status received:", status);
         this.typingHandlers.forEach(handler => handler(status));
+      });
+
+      this.socket.on('user_status', (status) => {
+        console.log("User status update received:", status);
+        if (status && status.user_id && status.status) {
+          console.log(`Updating status for user ${status.user_id} to ${status.status}`);
+          this.userStatusHandlers.forEach(handler => handler(status));
+        } else {
+          console.warn("Received invalid user status update:", status);
+        }
       });
 
       this.socket.on('connect_error', (error) => {
@@ -79,6 +98,17 @@ export class ChatService {
         console.log("Socket disconnected:", reason);
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
+        
+        // Attempt to reconnect if not intentionally disconnected
+        if (reason !== "io client disconnect") {
+          console.log("Attempting to reconnect...");
+          const token = localStorage.getItem("token");
+          if (token) {
+            setTimeout(() => {
+              this.initializeConnection(token);
+            }, 1000);
+          }
+        }
       });
 
       // Add timeout
@@ -228,6 +258,24 @@ export class ChatService {
     
     this.socket.on('notification', handler);
     return () => this.socket?.off('notification', handler);
+  }
+
+  public getUserStatus(userId: string): void {
+    if (!this.socket?.connected) {
+      console.warn("Cannot get user status: socket not connected");
+      return;
+    }
+    console.log("Requesting status for user:", userId);
+    this.socket.emit('get_user_status', { user_id: userId });
+  }
+
+  public onUserStatus(handler: (status: UserStatus) => void): () => void {
+    console.log("Registering user status handler");
+    this.userStatusHandlers.push(handler);
+    return () => {
+      console.log("Removing user status handler");
+      this.userStatusHandlers = this.userStatusHandlers.filter(h => h !== handler);
+    };
   }
 }
 

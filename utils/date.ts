@@ -26,8 +26,7 @@ export const formatChatTime = (dateString: string) => {
   return format(date, 'h:mm a');
 };
 
-export function formatLastSeen(lastSeen: string | null, isOnline: boolean): string {
-    if (isOnline) return 'Online';
+export function formatLastSeen(lastSeen: string): string {
     if (!lastSeen) return 'Offline';
     
     const lastSeenDate = new Date(lastSeen);

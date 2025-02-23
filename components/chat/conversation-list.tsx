@@ -4,29 +4,9 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { chatApi, chatService } from "@/api/chat";
 import { formatDistanceToNow } from "date-fns";
-import { Message } from "@/@types/chat";
+import { Message, Conversation } from "@/@types/chat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMessageTime } from "@/utils/date";
-
-interface Conversation {
-  id: string;
-  property_id: string;
-  property: {
-    id: string;
-    title: string;
-  };
-  user_id: string;
-  owner_id: string;
-  other_user: {
-    id: string;
-    first_name: string;
-    last_name: string;
-    profile_picture?: string;
-  };
-  last_message?: string;
-  last_message_time?: string;
-  unread_count: number;
-}
 
 interface ConversationListProps {
   onConversationSelect: (conversationId: string) => void;
@@ -45,7 +25,10 @@ function ConversationSkeleton() {
   );
 }
 
-export default function ConversationList({ onConversationSelect, selectedConversationId }: ConversationListProps) {
+export default function ConversationList({
+  onConversationSelect,
+  selectedConversationId,
+}: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -98,14 +81,17 @@ export default function ConversationList({ onConversationSelect, selectedConvers
         <div
           key={conversation.id}
           className={`flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer ${
-            selectedConversationId === conversation.id ? 'bg-gray-50' : ''
+            selectedConversationId === conversation.id ? "bg-gray-50" : ""
           }`}
           onClick={() => onConversationSelect(conversation.id)}
         >
           <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
             <Image
-              src="/assets/images/avatar-placeholder.jpg"
-              alt="User Avatar"
+              src={
+                conversation.other_user?.profile_picture ||
+                "/assets/images/avatar-placeholder.jpg"
+              }
+              alt={`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               width={48}
               height={48}
               className="object-cover"
@@ -114,7 +100,7 @@ export default function ConversationList({ onConversationSelect, selectedConvers
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center mb-1">
               <span className="font-medium truncate">
-                {`${conversation.other_user.first_name} ${conversation.other_user.last_name}`}
+                {`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               </span>
               {conversation.last_message_time && (
                 <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
@@ -141,4 +127,4 @@ export default function ConversationList({ onConversationSelect, selectedConvers
       ))}
     </div>
   );
-} 
+}
