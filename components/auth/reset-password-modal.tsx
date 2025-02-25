@@ -5,6 +5,7 @@ import { ChevronLeft, X, Eye, EyeOff } from "lucide-react";
 import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import SuccessModal from "./success-modal";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ export default function ResetPasswordModal({
     
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage("Passwords do not match");
+      showErrorToast("Passwords do not match");
       setShowError(true);
       return;
     }
@@ -45,9 +47,12 @@ export default function ResetPasswordModal({
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsLoading(false);
       setShowSuccess(true);
+      showSuccessToast("Password reset successfully!");
     } catch (error) {
       setIsLoading(false);
-      setErrorMessage("Failed to reset password. Please try again.");
+      const message = "Failed to reset password. Please try again.";
+      setErrorMessage(message);
+      showErrorToast(message);
       setShowError(true);
     }
   };

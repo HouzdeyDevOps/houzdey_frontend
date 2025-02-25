@@ -6,6 +6,7 @@ import { RootState } from '@/store/store';
 import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
 import { wishlistApi } from '@/api/wishlist';
 import { setCurrentModal } from '@/store/slices/authModalSlice';
+import { showSuccessToast, showErrorToast } from '@/utils/toast';
 
 interface WishlistButtonProps {
   propertyId: string;
@@ -24,6 +25,7 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
     
     if (!isAuthenticated) {
       dispatch(setCurrentModal("signin"));
+      showErrorToast("Please sign in to add properties to your wishlist");
       return;
     }
 
@@ -38,14 +40,18 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
     try {
       if (isInWishlist) {
         await wishlistApi.removeFromWishlist(propertyId);
+        // showSuccessToast("Property removed from wishlist");
       } else {
         await wishlistApi.addToWishlist(propertyId);
+        showSuccessToast("Property added to wishlist");
       }
     } catch (error) {
       if (isInWishlist) {
         dispatch(addToWishlist(propertyId));
+        showErrorToast("Failed to remove property from wishlist");
       } else {
         dispatch(removeFromWishlist(propertyId));
+        showErrorToast("Failed to add property to wishlist");
       }
       console.error('Wishlist operation failed:', error);
     } finally {

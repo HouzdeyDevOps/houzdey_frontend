@@ -16,7 +16,6 @@ import SignInModal from "../auth/signin-modal";
 import { PropertyFilters } from "@/@types/property";
 import { useRouter } from "next/navigation";
 
-
 interface NavbarProps {
   showSearch: boolean;
   showPropertyTypeFilters: boolean;
@@ -55,12 +54,17 @@ const Navbar = ({
           }`}
         >
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <button onClick={() => router.push('/')} className="text-2xl font-bold">
+            <button
+              onClick={() => router.push("/")}
+              className="text-2xl font-bold"
+            >
               <Image
                 src="/assets/images/houzdey-logo.png"
                 alt="Houzdey"
                 width={180}
-                height={50}
+                height={40}
+                style={{ height: "auto" }}
+                priority 
               />
             </button>
             {showSearch && (

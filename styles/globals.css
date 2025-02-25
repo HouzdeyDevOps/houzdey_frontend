@@ -131,31 +131,31 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #5146e5a4;
+  background: rgba(190, 186, 249, 0.4);
   border-radius: 50px !important;
   transition: all 0.2s ease-in-out;
   z-index: 0 !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(80, 70, 229, 0.5);
+  background: rgba(178, 173, 245, 0.5);
   z-index: 0 !important;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #5146e5a4 transparent;
+  scrollbar-color: rgba(190, 186, 249, 0.4) transparent;
 }
 
 /* For modals and other containers with dark overlay */
 .modal-scroll::-webkit-scrollbar-thumb {
-  background: rgba(80, 70, 229, 0.4);
+  background: rgba(223, 221, 255, 0.4);
   z-index: 0 !important;
 }
 
 .modal-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(80, 70, 229, 0.6);
+  background: rgba(190, 186, 249, 0.6);
   z-index: 0 !important;
 }
 

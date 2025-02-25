@@ -24,7 +24,7 @@ export const propertyApi = {
       });
 
       const response = await axios.get(
-        `${API_BASE_URL}/${API_VERSION}/properties?${params.toString()}`
+        `${API_BASE_URL}/api/v1/properties?${params.toString()}`
       );
       return response.data;
     } catch (error: any) {
@@ -82,7 +82,7 @@ export const propertyApi = {
 
       const token = localStorage.getItem("token");
       
-      const response = await axios.post(`${API_BASE_URL}/properties`, form, {
+      const response = await axios.post(`${API_BASE_URL}/api/v1/properties`, form, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",
@@ -105,7 +105,7 @@ export const propertyApi = {
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/${API_VERSION}/properties/upload-images`,
+        `${API_BASE_URL}/api/v1/properties/upload-images`,
         formData,
         {
           headers: {
@@ -123,7 +123,7 @@ export const propertyApi = {
 
   async getPropertyById(id: string): Promise<PropertyDetail> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${API_VERSION}/properties/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/api/v1/properties/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {

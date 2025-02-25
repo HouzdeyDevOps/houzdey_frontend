@@ -4,6 +4,7 @@ import { AppProviders } from "./providers/providers";
 import CookieConsent from "@/components/CookieConsent";
 import Navbar from "@/components/navbar/Navbar";
 import ChatNotification from "@/components/chat/chat-notification";
+import { Toaster } from 'sonner';
 
 export const viewport = {
   width: "device-width",
@@ -15,6 +16,10 @@ export const metadata: Metadata = {
   description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
   keywords: "property rental, house rent, apartments, real estate, Nigeria housing",
   authors: [{ name: "Houzdey" }],
+  metadataBase: new URL('https://www.houzdey.com'),
+  alternates: {
+    canonical: '/',
+  },
   openGraph: {
     title: "Houzdey - Find Your Perfect Home",
     description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
@@ -44,6 +49,12 @@ export default function RootLayout({
         <AppProviders>
           {children}
           <ChatNotification />
+          <Toaster 
+            // position="top-right"
+            expand={false}
+            richColors
+            theme="system"
+          />
         </AppProviders>
         <CookieConsent />
       </body>

@@ -7,6 +7,7 @@ import { authApi } from "@/api/auth";
 import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import Image from "next/image";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface VerificationCodeModalProps {
   isOpen: boolean;
@@ -34,6 +35,7 @@ export default function VerificationCodeModal({
     mutationFn: () => authApi.verifyCode(email, verificationCode),
     onSuccess: () => {
       setShowSuccess(true);
+      showSuccessToast("Email verified successfully!");
       // Wait for 2 seconds to show success message before closing
       setTimeout(() => {
         onVerify(verificationCode);
@@ -41,14 +43,19 @@ export default function VerificationCodeModal({
     },
     onError: (error: Error) => {
       setErrorMessage(error.message);
+      showErrorToast(error.message);
       setShowError(true);
     },
   });
 
   const { mutate: resendCode, isPending: isResending } = useMutation({
     mutationFn: () => authApi.resendCode(email),
+    onSuccess: () => {
+      showSuccessToast("Verification code resent successfully");
+    },
     onError: (error: Error) => {
       setErrorMessage(error.message);
+      showErrorToast(error.message);
       setShowError(true);
     },
   });

@@ -13,22 +13,25 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const [token, setToken] = useState<string | null>(null);
   const { isAuthenticated, isLoading } = useAuth();
+  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
 
   useEffect(() => {
-    // Access localStorage only on client side
-    setToken(localStorage.getItem('token'));
-  }, []);
+    // Check if there's a token in localStorage
+    const token = localStorage.getItem('token');
+    setHasCheckedStorage(true);
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated && !token) {
+    // Only show signup modal if:
+    // 1. We're not loading
+    // 2. User is not authenticated
+    // 3. There's no token in localStorage
+    if (!isLoading && !isAuthenticated && !token && hasCheckedStorage) {
       router.push('/');
       dispatch(setCurrentModal("signup"));
     }
-  }, [isAuthenticated, isLoading, router, dispatch, token]);
+  }, [isAuthenticated, isLoading, router, dispatch, hasCheckedStorage]);
 
-  if (isLoading) {
+  if (isLoading || !hasCheckedStorage) {
     return <div>Loading...</div>;
   }
 
