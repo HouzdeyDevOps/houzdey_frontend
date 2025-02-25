@@ -4,6 +4,7 @@ import { API_BASE_URL } from "./auth";
 export const wishlistApi = {
   async addToWishlist(propertyId: string) {
     try {
+      // /api/v1/wishlist
       const response = await axios.post(`${API_BASE_URL}/api/v1/wishlist`, {
         property_id: propertyId
       });

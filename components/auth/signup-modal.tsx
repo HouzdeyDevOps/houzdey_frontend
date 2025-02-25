@@ -164,7 +164,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
                   className="p-3 border rounded-full hover:bg-gray-50"
                 >
                   <Image
-                    src="/assets/icons/facebook.png"
+                    src="/assets/icons/facebook_icon.png"
                     alt="Facebook"
                     width={24}
                     height={24}

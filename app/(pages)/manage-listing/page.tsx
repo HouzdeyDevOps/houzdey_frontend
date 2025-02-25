@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import ListingmanageCard from "@/app/components/ListingManage/ListingmanageCard";
 import { useState } from "react";
+import Navbar from "@/components/navbar/Navbar";
 
 type Property = {
   id: number;
@@ -63,25 +64,11 @@ export default function ManageListing() {
 
   return (
     <main className="relative h-screen">
-      <header className="p-4 border-b">
-        <nav className="max-7xl mx-auto flex items-center justify-between">
-          <Link href="/">
-            <Image
-              src="/assets/images/houzdey-logo.png"
-              alt="Houzdey"
-              width={180}
-              height={180}
-            />
-          </Link>
-          <Image
-            src="/assets/images/Face _37.png"
-            alt="profile_Image"
-            className="rounded-full"
-            width={48}
-            height={48}
-          />
-        </nav>
-      </header>
+      <Navbar
+        showListingButton={false}
+        showSearch={false}
+        showPropertyTypeFilters={false}
+      />
 
       {/* Title */}
       <div className="flex justify-between py-8 px-4 mt-6 items-center cursor-pointer">
@@ -108,7 +95,10 @@ export default function ManageListing() {
           {["Available", "Unavailable", "Draft", "Pending Approval"].map(
             (status) => {
               return (
-                <li key={status} className="text-gray-500 font-semibold text-xl">
+                <li
+                  key={status}
+                  className="text-gray-500 font-semibold text-xl"
+                >
                   <Link
                     href={`/properties?listing=${status.toLowerCase()}`}
                     className="text-gray-600 hover:text-gray-900"
