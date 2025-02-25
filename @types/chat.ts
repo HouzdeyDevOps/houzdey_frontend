@@ -1,10 +1,16 @@
+export type MessageType = 'text' | 'image' | 'voice';
+
 export interface Message {
   id: string;
   conversation_id: string;
   sender_id: string;
   // receiver_id: string;
   content: string;
+  type: MessageType;
+  file_url?: string;
+  duration?: number; // For voice messages
   created_at: string;
+  updated_at: string;
   read: boolean;
   pending?: boolean;
 }

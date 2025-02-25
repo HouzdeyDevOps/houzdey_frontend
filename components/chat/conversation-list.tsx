@@ -25,6 +25,20 @@ function ConversationSkeleton() {
   );
 }
 
+const formatMessagePreview = (message: string): string => {
+  try {
+    const parsedContent = JSON.parse(message);
+    if (parsedContent.type === 'image') {
+      return '📷 Image';
+    } else if (parsedContent.type === 'voice') {
+      return '🎤 Voice message';
+    }
+    return message;
+  } catch (e) {
+    return message;
+  }
+};
+
 export default function ConversationList({
   onConversationSelect,
   selectedConversationId,
@@ -119,7 +133,7 @@ export default function ConversationList({
                     : "text-gray-500"
                 }`}
               >
-                {conversation.last_message || "No messages yet"}
+                {conversation.last_message ? formatMessagePreview(conversation.last_message) : "No messages yet"}
               </span>
             </div>
           </div>

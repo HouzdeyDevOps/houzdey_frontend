@@ -343,4 +343,19 @@ export const chatApi = {
     );
   },
 
+  async deleteMessage(messageId: string): Promise<void> {
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/api/v1/chat/messages/${messageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      throw new Error("Failed to delete message");
+    }
+  },
 };
