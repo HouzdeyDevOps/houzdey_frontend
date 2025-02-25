@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { showErrorToast } from '../utils/toast';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION;
@@ -11,6 +12,7 @@ export const locationService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching states:", error);
+      showErrorToast("Failed to fetch states. Please try again later.");
       return [];
     }
   },
@@ -22,6 +24,7 @@ export const locationService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching LGAs:", error);
+      showErrorToast("Failed to fetch LGAs. Please try again later.");
       return [];
     }
   },
@@ -33,6 +36,7 @@ export const locationService = {
       return response.data;
     } catch (error) {
       console.error("Error fetching wards:", error);
+      showErrorToast("Failed to fetch wards. Please try again later.");
       return [];
     }
   }

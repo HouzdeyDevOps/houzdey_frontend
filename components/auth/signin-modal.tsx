@@ -17,6 +17,7 @@ import ErrorModal from "./error-modal";
 import { AuthError, SignInResponse } from "@/@types/auth";
 import GoogleAuthButton from "./GoogleAuthButton";
 import VerificationCodeModal from "./verification-code-modal";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -53,6 +54,7 @@ export default function SignInModal({
     }) => {
       dispatch(login({ token: data.access_token, user: data.user }));
       dispatch(closeModal());
+      showSuccessToast("Successfully signed in!");
     },
     onError: (error: Error & Partial<AuthError>) => {
       setErrorMessage(error.message);
@@ -62,11 +64,13 @@ export default function SignInModal({
           message: error.message,
           email: error.email || formData.email,
         });
+        showErrorToast("Please verify your email before signing in");
       } else {
         setError({
           type: error.type || "GENERAL_ERROR",
           message: error.message,
         });
+        showErrorToast(error.message || "Failed to sign in");
       }
       setShowError(true);
     },
@@ -91,6 +95,7 @@ export default function SignInModal({
         setErrorMessage(
           "Please verify your email before signing in. Check your inbox for the verification code."
         );
+        showErrorToast("Please verify your email before signing in");
       } else {
         const message = err.message || "An error occurred during sign in";
         setError({
@@ -98,6 +103,7 @@ export default function SignInModal({
           message: message,
         });
         setErrorMessage(message);
+        showErrorToast(message);
       }
       setShowError(true);
     } finally {
@@ -109,8 +115,7 @@ export default function SignInModal({
     setIsResendingVerification(true);
     try {
       await authApi.resendVerificationEmail(formData.email);
-
- 
+      showSuccessToast("Verification email sent successfully");
       setShowVerificationCodeModal(true);
     } catch (err: any) {
       const message = err.message || "Failed to resend verification email";
@@ -119,6 +124,7 @@ export default function SignInModal({
         message: message,
       });
       setErrorMessage(message);
+      showErrorToast(message);
       setShowError(true);
     } finally {
       setIsResendingVerification(false);
@@ -165,7 +171,7 @@ export default function SignInModal({
             </button>
           </div>
 
-          {error && (
+          {/* {error && (
             <div className="mb-4 p-4 rounded-lg bg-red-50 text-red-600">
               <p>{error.message}</p>
               {error.type === "UNVERIFIED_EMAIL" && (
@@ -180,7 +186,7 @@ export default function SignInModal({
                 </button>
               )}
             </div>
-          )}
+          )} */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -247,7 +253,7 @@ export default function SignInModal({
                 className="p-3 border rounded-full hover:bg-gray-50"
               >
                 <Image
-                  src="/assets/icons/facebook.png"
+                  src="/assets/icons/facebook_icon.png"
                   alt="Facebook"
                   width={24}
                   height={24}

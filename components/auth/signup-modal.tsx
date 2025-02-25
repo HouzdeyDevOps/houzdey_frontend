@@ -21,6 +21,7 @@ import { signupSchema } from "@/utils/validationSchema";
 import { RootState } from "@/store/store";
 import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
 import GoogleAuthButton from "./GoogleAuthButton";
+import { showSuccessToast, showErrorToast, showInfoToast } from "@/utils/toast";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -44,9 +45,11 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     mutationFn: authApi.signup,
     onSuccess: () => {
       dispatch(setCurrentModal("verification"));
+      showSuccessToast("Account created successfully! Please check your email for verification.");
     },
     onError: (error: Error) => {
       setErrorMessage(error.message);
+      showErrorToast(error.message);
       setShowError(true);
     },
   });
@@ -58,21 +61,26 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
       signup(validatedData);
     } catch (error) {
       if (error instanceof z.ZodError) {
-        setErrorMessage(error.errors[0].message);
+        const errorMessage = error.errors[0].message;
+        setErrorMessage(errorMessage);
+        showErrorToast(errorMessage);
         setShowError(true);
       }
     }
   };
 
   const handleVerification = () => {
+    showSuccessToast("Email verified successfully!");
     dispatch(setCurrentModal("personalInfo"));
   };
 
   const handlePersonalInfoSuccess = () => {
+    showSuccessToast("Profile information updated successfully!");
     dispatch(setCurrentModal("success"));
   };
 
   const handleSwitchToSignIn = () => {
+    showInfoToast("Switching to sign in...");
     dispatch(setCurrentModal("signin"));
   };
   console.log(currentModal);

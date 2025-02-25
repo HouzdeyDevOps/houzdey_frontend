@@ -1,5 +1,6 @@
 import { io, Socket } from 'socket.io-client';
 import { Message, UserStatus } from '@/@types/chat';
+import { showSuccessToast, showErrorToast, showInfoToast } from '../utils/toast';
 
 class ChatService {
   private socket: Socket | null = null;
@@ -20,10 +21,12 @@ class ChatService {
 
     this.socket.on('connect', () => {
       this.connectionHandlers.forEach(handler => handler(true));
+      showSuccessToast('Connected to chat server');
     });
 
     this.socket.on('disconnect', () => {
       this.connectionHandlers.forEach(handler => handler(false));
+      showErrorToast('Disconnected from chat server');
     });
 
     this.socket.on('new_message', (message: Message) => {
@@ -39,13 +42,18 @@ class ChatService {
     });
 
     return new Promise((resolve, reject) => {
-      if (!this.socket) return reject('Socket not initialized');
+      if (!this.socket) {
+        showErrorToast('Failed to initialize chat');
+        return reject('Socket not initialized');
+      }
 
       this.socket.on('connect_confirmed', () => {
+        showSuccessToast('Chat connection established');
         resolve();
       });
 
       this.socket.on('connect_error', (error) => {
+        showErrorToast('Failed to connect to chat server');
         reject(error);
       });
     });

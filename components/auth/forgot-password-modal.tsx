@@ -6,6 +6,7 @@ import VerificationCodeModal from "./verification-code-modal";
 import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import ResetPasswordModal from "./reset-password-modal";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface ForgotPasswordModalProps {
   isOpen: boolean;
@@ -36,9 +37,12 @@ export default function ForgotPasswordModal({
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsLoading(false);
       setShowVerification(true);
+      showSuccessToast("Verification code sent to your email");
     } catch (error) {
       setIsLoading(false);
-      setErrorMessage("Failed to send verification code. Please try again.");
+      const message = "Failed to send verification code. Please try again.";
+      setErrorMessage(message);
+      showErrorToast(message);
       setShowError(true);
     }
   };
@@ -51,9 +55,12 @@ export default function ForgotPasswordModal({
       setIsLoading(false);
       setShowVerification(false);
       setShowResetPassword(true);
+      showSuccessToast("Email verified successfully");
     } catch (error) {
       setIsLoading(false);
-      setErrorMessage("Invalid verification code. Please try again.");
+      const message = "Invalid verification code. Please try again.";
+      setErrorMessage(message);
+      showErrorToast(message);
       setShowError(true);
     }
   };
