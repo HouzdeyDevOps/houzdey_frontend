@@ -8,6 +8,7 @@ import { Message, Conversation } from "@/@types/chat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMessageTime } from "@/utils/date";
 import { useAuth } from "@/hooks/useAuth";
+import { Check, CheckCheck } from 'lucide-react';
 
 interface ConversationListProps {
   onConversationSelect: (conversationId: string) => void;
@@ -44,7 +45,10 @@ export default function ConversationList({
   onConversationSelect,
   selectedConversationId,
 }: ConversationListProps) {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [conversations, setConversations] = useState<(Conversation & { 
+    lastMessageRead?: boolean;
+    last_sender_id?: string;
+  })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
@@ -52,7 +56,11 @@ export default function ConversationList({
     const loadConversations = async () => {
       try {
         const data = await chatApi.getConversations();
-        setConversations(data);
+        setConversations(data.map(conv => ({
+          ...conv,
+          lastMessageRead: false, // Initial state, will be updated when receiving messages
+          last_sender_id: undefined // Will be set when receiving messages
+        })));
       } catch (error) {
         console.error("Failed to load conversations:", error);
       } finally {
@@ -71,6 +79,8 @@ export default function ConversationList({
                 ...conv,
                 last_message: message.content,
                 last_message_time: message.created_at,
+                lastMessageRead: message.read,
+                last_sender_id: message.sender_id,
                 unread_count: message.sender_id !== user?.id ? conv.unread_count + 1 : conv.unread_count,
               }
             : conv
@@ -86,6 +96,7 @@ export default function ConversationList({
             ? {
                 ...conv,
                 unread_count: 0,
+                lastMessageRead: true
               }
             : conv
         )
@@ -99,7 +110,7 @@ export default function ConversationList({
       unsubscribeMessage();
       chatService.offReadStatus(handleReadStatus);
     };
-  }, []);
+  }, [user?.id]);
 
   // Update unread count when conversation is selected
   useEffect(() => {
@@ -110,6 +121,7 @@ export default function ConversationList({
             ? {
                 ...conv,
                 unread_count: 0,
+                lastMessageRead: true
               }
             : conv
         )
@@ -175,6 +187,20 @@ export default function ConversationList({
               >
                 {conversation.last_message ? formatMessagePreview(conversation.last_message) : "No messages yet"}
               </span>
+              {conversation.last_message && (
+                <>
+                  {/* Show read indicators only if the last message was sent by current user */}
+                  {conversation.last_sender_id === user?.id && (
+                    <span className="flex-shrink-0 text-gray-400">
+                      {conversation.lastMessageRead ? (
+                        <CheckCheck className="w-4 h-4 text-indigo-600" />
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                    </span>
+                  )}
+                </>
+              )}
             </div>
           </div>
         </div>

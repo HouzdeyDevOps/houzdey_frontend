@@ -142,9 +142,9 @@ const Message = React.memo(({ message, isCurrentUser, unreadMessages, observer, 
           {isCurrentUser && (
             <span className="ml-2">
               {message.read ? (
-                <CheckCheck className="w-4 h-4" />
+                <CheckCheck className="w-4 h-4 text-gray-50" />
               ) : (
-                <Check className="w-4 h-4" />
+                <Check className="w-4 h-4 text-gray-50" />
               )}
             </span>
           )}
