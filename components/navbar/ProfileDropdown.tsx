@@ -13,9 +13,11 @@ import {
   List,
 } from "lucide-react";
 import { RootState } from "@/store/store";
+import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 
 export default function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
+  const [showCreateListing, setShowCreateListing] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userAuth.user);
@@ -43,7 +45,14 @@ export default function ProfileDropdown() {
   const menuItems = [
     { label: "Chats", icon: MessageSquare, href: "/chat" },
     { label: "Notifications", icon: Settings, href: "/notifications" },
-    { label: "Create a lisiting", icon: List, href: "/create-listing" },
+    { 
+      label: "Create a listing", 
+      icon: List, 
+      onClick: () => {
+        setShowCreateListing(true);
+        setIsOpen(false);
+      }
+    },
     {
       label: "Manage listings",
       icon: List,
@@ -111,6 +120,11 @@ export default function ProfileDropdown() {
           </div>
         </>
       )}
+
+      <CreateListingModal
+        isOpen={showCreateListing}
+        onClose={() => setShowCreateListing(false)}
+      />
     </div>
   );
 }

@@ -30,7 +30,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="">
+    <main className="pt-20">
       <Navbar 
         showSearch={true} 
         showPropertyTypeFilters={true}
@@ -41,7 +41,7 @@ export default function HomePage() {
       
 
 
-      <section className="max-w-7xl mx-auto p-4 mt-44 ">
+      <section className="max-w-7xl mx-auto px-8 mt-44 ">
         <div className="flex justify-end mb-4 gap-x-2 ">
           <select 
             className="border rounded-lg px-3 py-2"

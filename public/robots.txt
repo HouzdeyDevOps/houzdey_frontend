@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://www.houzdey.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 10
+
+# Disallow sensitive routes
+Disallow: /api/
+Disallow: /admin/
+Disallow: /private/ 
