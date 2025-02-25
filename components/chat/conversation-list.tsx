@@ -7,6 +7,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Message, Conversation } from "@/@types/chat";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMessageTime } from "@/utils/date";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ConversationListProps {
   onConversationSelect: (conversationId: string) => void;
@@ -45,6 +46,7 @@ export default function ConversationList({
 }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
 
   useEffect(() => {
     const loadConversations = async () => {
@@ -61,7 +63,7 @@ export default function ConversationList({
     loadConversations();
 
     // Listen for new messages to update conversation list
-    const unsubscribe = chatService.onMessage((message: Message) => {
+    const unsubscribeMessage = chatService.onMessage((message: Message) => {
       setConversations((prevConversations) =>
         prevConversations.map((conv) =>
           conv.id === message.conversation_id
@@ -69,15 +71,51 @@ export default function ConversationList({
                 ...conv,
                 last_message: message.content,
                 last_message_time: message.created_at,
-                unread_count: conv.unread_count + 1,
+                unread_count: message.sender_id !== user?.id ? conv.unread_count + 1 : conv.unread_count,
               }
             : conv
         )
       );
     });
 
-    return () => unsubscribe();
+    // Listen for read status updates
+    const handleReadStatus = (conversationId: string) => {
+      setConversations((prevConversations) =>
+        prevConversations.map((conv) =>
+          conv.id === conversationId
+            ? {
+                ...conv,
+                unread_count: 0,
+              }
+            : conv
+        )
+      );
+    };
+
+    // Subscribe to read status updates
+    chatService.onReadStatus(handleReadStatus);
+
+    return () => {
+      unsubscribeMessage();
+      chatService.offReadStatus(handleReadStatus);
+    };
   }, []);
+
+  // Update unread count when conversation is selected
+  useEffect(() => {
+    if (selectedConversationId) {
+      setConversations((prevConversations) =>
+        prevConversations.map((conv) =>
+          conv.id === selectedConversationId
+            ? {
+                ...conv,
+                unread_count: 0,
+              }
+            : conv
+        )
+      );
+    }
+  }, [selectedConversationId]);
 
   if (isLoading) {
     return (
@@ -99,7 +137,7 @@ export default function ConversationList({
           }`}
           onClick={() => onConversationSelect(conversation.id)}
         >
-          <div className="w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
+          <div className="w-12 h-12 flex-shrink-0 relative">
             <Image
               src={
                 conversation.other_user?.profile_picture ||
@@ -108,28 +146,30 @@ export default function ConversationList({
               alt={`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               width={48}
               height={48}
-              className="object-cover"
+              className="object-cover rounded-full"
             />
+            {conversation.unread_count > 0 && (
+              <div className="absolute -top-1 -right-2 bg-indigo-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                {conversation.unread_count}
+              </div>
+            )}
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-medium truncate">
+              <span className={`font-medium truncate ${conversation.unread_count > 0 ? 'text-indigo-600' : ''}`}>
                 {`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               </span>
               {conversation.last_message_time && (
-                <span className="text-sm text-gray-500 flex-shrink-0 ml-2">
+                <span className={`text-sm ${conversation.unread_count > 0 ? 'text-indigo-600' : 'text-gray-500'} flex-shrink-0 ml-2`}>
                   {formatMessageTime(conversation.last_message_time)}
                 </span>
               )}
             </div>
             <div className="flex items-center gap-2 min-w-0">
-              {conversation.unread_count > 0 && (
-                <span className="w-2 h-2 bg-indigo-600 rounded-full flex-shrink-0"></span>
-              )}
               <span
                 className={`text-sm truncate ${
                   conversation.unread_count > 0
-                    ? "text-indigo-600"
+                    ? "text-indigo-600 font-medium"
                     : "text-gray-500"
                 }`}
               >
