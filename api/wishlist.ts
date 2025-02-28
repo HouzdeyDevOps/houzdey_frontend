@@ -1,34 +1,21 @@
-import axios from "axios";
-import { API_BASE_URL } from "./auth";
+import { axiosInstance } from "@/api/axios-config";
 
 export const wishlistApi = {
-  async addToWishlist(propertyId: string) {
-    try {
-      // /api/v1/wishlist
-      const response = await axios.post(`${API_BASE_URL}/api/v1/wishlist`, {
-        property_id: propertyId
-      });
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to add to wishlist");
-    }
+  // Get user's wishlist items
+  getWishlist: async () => {
+    const response = await axiosInstance.get("/api/v1/wishlist");
+    return response.data;
   },
 
-  async removeFromWishlist(propertyId: string) {
-    try {
-      const response = await axios.delete(`${API_BASE_URL}/api/v1/wishlist/${propertyId}`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to remove from wishlist");
-    }
+  // Add property to wishlist
+  addToWishlist: async (propertyId: string) => {
+    const response = await axiosInstance.post("/api/v1/wishlist", { property_id: propertyId });
+    return response.data;
   },
 
-  async getWishlist() {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/api/v1/wishlist`);
-      return response.data.items;
-    } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to fetch wishlist");
-    }
+  // Remove property from wishlist
+  removeFromWishlist: async (propertyId: string) => {
+    const response = await axiosInstance.delete(`/api/v1/wishlist/${propertyId}`);
+    return response.data;
   }
 }; 
