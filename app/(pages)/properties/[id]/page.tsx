@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MessageCircle, Phone } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import ImageGalleryModal from "./image-gallary-modal";
@@ -43,6 +43,7 @@ interface Property {
     image: string;
     company: string;
     role: string;
+    phone_number?: string;
   };
   reviews: Review[];
 }
@@ -137,9 +138,9 @@ export default function PropertyDetails() {
       <main className="max-w-7xl mx-auto px-4 py-4 mt-24">
         {/* Back button and title */}
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Link href="/" className="flex items-center text-gray-600">
-              <ChevronLeft className="w-5 h-5" />
+          <div className="flex items-center gap-2 mb-10">
+            <Link href="/" className="flex items-center text-gray-600 font-semibold text-2xl">
+              <ChevronLeft className="w-6 h-6" />
               <span>Back</span>
             </Link>
           </div>
@@ -338,13 +339,23 @@ export default function PropertyDetails() {
             {/* Right Column - Sticky Host Information */}
             <div className="lg:col-span-1">
               <div className="sticky top-40">
-                <div className="border rounded-xl p-6">
+                <div className="border rounded-xl p-6 space-y-4">
                   <button 
                     onClick={handleContactHost}
-                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700"
+                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
                   >
-                    Contact Host
+                    <MessageCircle className="w-5 h-5" />
+                    Chat with Host
                   </button>
+                  {property.host.phone_number && (
+                    <a 
+                      href={`tel:${property.host.phone_number}`}
+                      className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
+                    >
+                      <Phone className="w-5 h-5" />
+                      Call Host
+                    </a>
+                  )}
                 </div>
               </div>
             </div>

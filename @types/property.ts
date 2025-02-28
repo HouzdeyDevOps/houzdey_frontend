@@ -74,6 +74,7 @@ export interface PropertyDetail extends Property {
     image: string;
     company: string;
     role: string;
+    phone_number: string;
   };
   reviews: {
     id: number;
