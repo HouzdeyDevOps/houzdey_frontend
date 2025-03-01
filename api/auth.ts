@@ -146,9 +146,9 @@ export const authApi = {
 
   async resendCode(email: string) {
     try {
-      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/resend-code`, {
-        email,
-      });
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/resend-code?email=${encodeURIComponent(email)}`
+      );
       return response.data;
     } catch (error: any) {
       if (error.response?.data?.detail) {
@@ -249,6 +249,69 @@ export const authApi = {
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || "Apple sign in failed");
+    }
+  },
+
+  async sendPhoneVerificationOTP(phoneNumber: string) {
+    try {
+      const formData = new FormData();
+      formData.append('phone_number', phoneNumber);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/phone/send-otp`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to send OTP");
+    }
+  },
+
+  async verifyPhoneNumber(phoneNumber: string, otp: string) {
+    try {
+      const formData = new FormData();
+      formData.append('phone_number', phoneNumber);
+      formData.append('otp', otp);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/phone/verify`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to verify phone number");
+    }
+  },
+
+  async forgotPassword(email: string) {
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/forgot-password`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to send reset code");
+    }
+  },
+
+  async resetPassword(email: string, code: string, newPassword: string) {
+    try {
+      const formData = new FormData();
+      formData.append('email', email);
+      formData.append('code', code);
+      formData.append('new_password', newPassword);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/reset-password`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to reset password");
     }
   },
 };

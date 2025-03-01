@@ -11,7 +11,8 @@ const preloadedState = {
     user: null,
     isAuthenticated: false,
     isLoading: false, 
-    token: initializeAuth()
+    token: initializeAuth(),
+    email: null,
   }
 };
 

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChevronLeft, MessageCircle, Phone } from "lucide-react";
+import { ChevronLeft, MessageCircle, Phone, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import ImageGalleryModal from "./image-gallary-modal";
@@ -15,6 +15,8 @@ import { formatLocation } from "@/utils/formatLocation";
 import { generateGoogleMapsEmbedUrl } from "@/utils/mapUtils";
 import { PropertyDetailSkeleton } from "@/components/ui/property-skeleton";
 import { chatApi } from "@/api/chat";
+import { authApi } from "@/api/auth";
+import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
 
 interface Review {
   id: number;
@@ -56,6 +58,7 @@ export default function PropertyDetails() {
   const [property, setProperty] = useState<PropertyDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -93,6 +96,16 @@ export default function PropertyDetails() {
       // Handle error appropriately
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handlePhoneVerified = async (phoneNumber: string) => {
+    try {
+      // Refresh property data to get updated host info
+      const data = await propertyApi.getPropertyById(id as string);
+      setProperty(data);
+    } catch (err) {
+      console.error('Error refreshing property data:', err);
     }
   };
 
@@ -340,27 +353,56 @@ export default function PropertyDetails() {
             <div className="lg:col-span-1">
               <div className="sticky top-40">
                 <div className="border rounded-xl p-6 space-y-4">
-                  <button 
-                    onClick={handleContactHost}
-                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    Chat with Host
-                  </button>
-                  {property.host.phone_number && (
-                    <a 
-                      href={`tel:${property.host.phone_number}`}
-                      className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
-                    >
-                      <Phone className="w-5 h-5" />
-                      Call Host
-                    </a>
+                  {property.host.phone_number ? (
+                    <>
+                      <button 
+                        onClick={handleContactHost}
+                        className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
+                      >
+                        <MessageCircle className="w-5 h-5" />
+                        Chat with Host
+                      </button>
+                      <a 
+                        href={`tel:${property.host.phone_number}`}
+                        className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
+                      >
+                        <Phone className="w-5 h-5" />
+                        Call Host
+                      </a>
+                    </>
+                  ) : (
+                    <div className="bg-yellow-50 p-4 rounded-lg">
+                      <div className="flex items-start gap-3">
+                        <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                        <div>
+                          <h3 className="text-sm font-medium text-yellow-800">
+                            Phone number required
+                          </h3>
+                          <p className="mt-1 text-sm text-yellow-700">
+                            Please add your phone number to enable chat and call features.
+                          </p>
+                          <button
+                            onClick={() => setShowPhoneVerificationModal(true)}
+                            className="mt-3 text-sm font-medium text-yellow-800 hover:text-yellow-900"
+                          >
+                            Add phone number →
+                          </button>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
           </div>
         </div>
+
+        {/* Phone Verification Modal */}
+        <PhoneVerificationModal
+          isOpen={showPhoneVerificationModal}
+          onClose={() => setShowPhoneVerificationModal(false)}
+          onVerified={handlePhoneVerified}
+        />
       </main>
     </div>
   );

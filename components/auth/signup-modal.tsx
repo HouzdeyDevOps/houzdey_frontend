@@ -19,7 +19,7 @@ import VerificationCodeModal from "./verification-code-modal";
 import PersonalInfoModal from "./personal-info-modal";
 import { signupSchema } from "@/utils/validationSchema";
 import { RootState } from "@/store/store";
-import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
+import { setCurrentModal, closeModal, setMode } from "@/store/slices/authModalSlice";
 import GoogleAuthButton from "./GoogleAuthButton";
 import { showSuccessToast, showErrorToast, showInfoToast } from "@/utils/toast";
 
@@ -59,6 +59,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     try {
       const validatedData = signupSchema.parse(formData);
       signup(validatedData);
+      dispatch(setMode("signup"));
     } catch (error) {
       if (error instanceof z.ZodError) {
         const errorMessage = error.errors[0].message;
@@ -69,18 +70,8 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
     }
   };
 
-  const handleVerification = () => {
-    showSuccessToast("Email verified successfully!");
-    dispatch(setCurrentModal("personalInfo"));
-  };
-
-  const handlePersonalInfoSuccess = () => {
-    showSuccessToast("Profile information updated successfully!");
-    dispatch(setCurrentModal("success"));
-  };
 
   const handleSwitchToSignIn = () => {
-    showInfoToast("Switching to sign in...");
     dispatch(setCurrentModal("signin"));
   };
   console.log(currentModal);
@@ -227,7 +218,6 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         onClose={() => {
           dispatch(closeModal());
         }}
-        onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
       />
 
       <VerificationCodeModal
@@ -235,30 +225,21 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         onBack={() => dispatch(setCurrentModal("signup"))}
         onClose={() => dispatch(closeModal())}
         email={formData.email}
-        onVerify={handleVerification}
+        // onVerify={handleVerification}
         handleSwitchToSignIn={handleSwitchToSignIn}
+        showSocialLogin = {true}
+        showSignInLink = {true}
       />
 
       <PersonalInfoModal
         isOpen={currentModal === "personalInfo"}
         onClose={() => {
-          dispatch(closeModal()); // This will close all modals without triggering success
+          dispatch(closeModal()); 
         }}
         email={formData.email}
       />
 
-      {currentModal === "success" && (
-        <SuccessModal
-          isOpen={true}
-          onClose={() => {
-            dispatch(closeModal());
-            // router.push("/");
-          }}
-          title="Welcome to Houzdey!"
-          message="Your account has been created successfully. You can now start exploring properties."
-          buttonText="Get Started"
-        />
-      )}
+    
 
       <LoadingModal
         isOpen={isPending}

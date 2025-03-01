@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X, AlertTriangle } from "lucide-react";
 import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import SignUpModal from "../auth/signup-modal";
@@ -15,6 +15,10 @@ import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
 import { PropertyFilters } from "@/@types/property";
 import { useRouter } from "next/navigation";
+import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
+import { User } from "@/store/slices/userAuthSlice";
+import ForgotPasswordModal from "../auth/forgot-password-modal";
+import ResetPasswordModal from "../auth/reset-password-modal";
 
 interface NavbarProps {
   showSearch: boolean;
@@ -37,17 +41,39 @@ const Navbar = ({
   const [showSignUp, setShowSignUp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
+  const [showPhoneVerificationModal, setShowPhoneVerificationModal] =
+    useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state: RootState) => state.userAuth.user);
   const currentModal = useSelector(
     (state: RootState) => state.authModal.currentModal
   );
+  const email = useSelector((state: RootState) => state.userAuth.email);
 
   return (
     <div>
       {/* nav bar */}
+
       <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+        {user?.phone_verified === false && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <div className="flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-blue-400" />
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Please verify your phone number to enable all features
+                  <button
+                    onClick={() => setShowPhoneVerificationModal(true)}
+                    className="ml-2 font-medium text-blue-700 underline hover:text-blue-600"
+                  >
+                    Verify now
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <header
           className={`relative border-b ${
             showPropertyTypeFilters ? "p-4" : "p-2"
@@ -64,7 +90,7 @@ const Navbar = ({
                 width={180}
                 height={40}
                 style={{ height: "auto" }}
-                priority 
+                priority
               />
             </button>
             {showSearch && (
@@ -152,7 +178,6 @@ const Navbar = ({
           onClose={() => {
             dispatch(closeModal());
           }}
-          onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
         />
         <FilterModal
           isOpen={showFilters}
@@ -161,6 +186,32 @@ const Navbar = ({
             onFilterChange?.(filters);
             setFilterCount(Object.keys(filters).length);
           }}
+        />
+
+        {/* Add PhoneVerificationModal */}
+        <PhoneVerificationModal
+          isOpen={showPhoneVerificationModal && !user?.phone_verified}
+          onClose={() => setShowPhoneVerificationModal(false)}
+          onVerified={(phoneNumber: string) => {
+            // Update user state with verified phone number
+            dispatch({
+              type: "userAuth/updateUser",
+              payload: { phone_verified: true, phone_number: phoneNumber },
+            });
+          }}
+        />
+
+        <ForgotPasswordModal
+          isOpen={currentModal === "forgotPassword"}
+          onClose={() => dispatch(closeModal())}
+          onBack={() => dispatch(setCurrentModal("signin"))}
+        />
+
+        <ResetPasswordModal
+          isOpen={currentModal === 'resetPassword'}
+          onClose={() => dispatch(closeModal())}
+          onBack={() => dispatch(setCurrentModal('forgotPassword'))}
+          email={email || ''}
         />
       </div>
     </div>
