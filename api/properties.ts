@@ -134,4 +134,54 @@ export const propertyApi = {
       );
     }
   },
+
+  async getUserProperties(): Promise<Property[]> {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/api/v1/properties/users/me/properties`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to fetch user properties");
+    }
+  },
+
+  async deleteProperty(id: string): Promise<void> {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/api/v1/properties/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to delete property");
+    }
+  },
+
+  async updatePropertyStatus(id: string, status: string): Promise<void> {
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("status", status);
+
+      await axios.patch(
+        `${API_BASE_URL}/api/v1/properties/${id}/status`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.detail || "Failed to update property status"
+      );
+    }
+  },
 };

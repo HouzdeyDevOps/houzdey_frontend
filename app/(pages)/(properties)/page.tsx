@@ -41,7 +41,7 @@ export default function HomePage() {
       
 
 
-      <section className="max-w-7xl mx-auto px-8 mt-44 ">
+      <section className="max-w-7xl mx-auto px-8 lg:mt-44 mt-10">
         <div className="flex justify-end mb-4 gap-x-2 ">
           <select 
             className="border rounded-lg px-3 py-2"
@@ -71,7 +71,7 @@ export default function HomePage() {
           )}
         </div>
             
-        {!isLoading && (
+        {!isLoading && data?.properties?.length && data?.properties?.length > 11 && (
           <div className="mt-8">
             <Pagination
               currentPage={filters.page}

@@ -13,6 +13,7 @@ export interface Property {
   size?: string;
   estate?: string;
   owner_id: string;
+  status: string;
   amenities: Array<{
     name: string;
     icon: string;
