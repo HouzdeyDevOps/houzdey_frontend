@@ -1,7 +1,15 @@
+export enum ListingType {
+  RENT = 'rent',
+  SALE = 'sale'
+}
+
 export interface CreateListingFormData {
   title: string;
   type: PropertyType;
-  price: string;
+  price: string;  // For backward compatibility
+  listing_type: ListingType;
+  rental_price: string;  // Monthly rent
+  sale_price: string;    // Sale price
   amenities: { name: string; icon: string }[];
   description: string;
   images: string[];

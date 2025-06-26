@@ -8,8 +8,11 @@ import Loader from "@/components/ui/Loader";
 import { SortOrder, SortBy, PropertyFilters, Property } from "@/@types/property";
 import Pagination from "@/components/ui/pagination";
 import { usePropertyFilters } from '@/hooks/usePropertyFilters';
+import { useWishlist } from '@/hooks/useWishlist';
 import FilterModal from '@/components/properties/filter-modal';
 import { PropertyCardSkeleton } from '@/components/ui/property-card-skeleton';
+import ListingTypeNav from "@/components/navbar/ListingTypeNav";
+import SortingSelect from '@/components/properties/SortingSelect';
 
 export default function HomePage() {
   const { 
@@ -20,6 +23,9 @@ export default function HomePage() {
     updatePage 
   } = usePropertyFilters();
   const [showFilters, setShowFilters] = useState(false);
+  
+  // Initialize wishlist data when component mounts
+  useWishlist();
 
   const handleFilterChange = (newFilters: Partial<PropertyFilters>) => {
     updateFilters(newFilters);
@@ -39,23 +45,20 @@ export default function HomePage() {
         onFilterClick={() => setShowFilters(true)}
       />
       
+      {/* New Listing Type Navigation */}
+      {/* <ListingTypeNav /> */}
+      
 
 
       <section className="max-w-7xl mx-auto px-8 lg:mt-44 mt-10">
         <div className="flex justify-end mb-4 gap-x-2 ">
-          <select 
-            className="border rounded-lg px-3 py-2"
-            onChange={(e) => {
-              const [sort_by, sort_order] = e.target.value.split('-');
-              handleFilterChange({ sort_by: sort_by as SortBy, sort_order: sort_order as SortOrder });
+          <SortingSelect
+            sortBy={filters.sort_by || SortBy.CREATED_AT}
+            sortOrder={filters.sort_order || SortOrder.DESC}
+            onSortChange={(sortBy, sortOrder) => {
+              handleFilterChange({ sort_by: sortBy, sort_order: sortOrder });
             }}
-            value={`${filters.sort_by}-${filters.sort_order}`}
-          >
-            <option value="created_at-desc">Newest to Oldest</option>
-            <option value="created_at-asc">Oldest to Newest</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 min-h-screen">

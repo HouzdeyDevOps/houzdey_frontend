@@ -25,6 +25,7 @@ export default function PropertyFiltersModal({
   const [selectedLGA, setSelectedLGA] = useState('');
   const [selectedBeds, setSelectedBeds] = useState<number | null>(null);
   const [selectedBaths, setSelectedBaths] = useState<number | null>(null);
+  const [selectedListingType, setSelectedListingType] = useState<string>('');
 
   const handleFilterAdd = (type: string, value: string) => {
     const newFilter = { type, value };
@@ -95,6 +96,7 @@ export default function PropertyFiltersModal({
       bathrooms: selectedBaths || undefined,
       state: selectedState || undefined,
       lga: selectedLGA || undefined,
+      listing_type: selectedListingType || undefined,
     });
     onClose();
   };
@@ -135,6 +137,39 @@ export default function PropertyFiltersModal({
               ))}
             </div>
           )}
+
+          {/* Listing Type */}
+          <div>
+            <h3 className="font-medium mb-3">Listing Type</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setSelectedListingType(selectedListingType === 'rent' ? '' : 'rent');
+                  handleFilterAdd('listing_type', 'rent');
+                }}
+                className={`px-4 py-2 rounded-full border transition-colors ${
+                  selectedListingType === 'rent'
+                    ? 'bg-blue-100 border-blue-500 text-blue-700'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                For Rent
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedListingType(selectedListingType === 'sale' ? '' : 'sale');
+                  handleFilterAdd('listing_type', 'sale');
+                }}
+                className={`px-4 py-2 rounded-full border transition-colors ${
+                  selectedListingType === 'sale'
+                    ? 'bg-green-100 border-green-500 text-green-700'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
+              >
+                For Sale
+              </button>
+            </div>
+          </div>
 
           {/* Price Range */}
           <div>

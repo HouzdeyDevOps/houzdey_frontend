@@ -9,6 +9,7 @@ import SubscriptionForm from "@/components/profile/subscription-form";
 import SecurityForm from "@/components/profile/security-form";
 import ChangePasswordPage from "@/components/profile/change-password";
 import Navbar from "@/components/navbar/Navbar";
+import ProtectedRoute from "@/components/auth/protected-route";
 
 function ProfileContent() {
   const router = useRouter();
@@ -73,7 +74,7 @@ function ProfileContent() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-      <div className="max-w-7xl mx-auto px-4 py-8 mt-24">
+      <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
         <div className="flex items-center gap-2 mb-8">
           <Link href="/" className="flex items-center text-gray-600 gap-2">
             <ChevronLeft className="w-5 h-5" />
@@ -140,8 +141,10 @@ function ProfileContent() {
 // Main component with Suspense boundary
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <ProfileContent />
-    </Suspense>
+    <ProtectedRoute>
+      <Suspense fallback={<div>Loading...</div>}>
+        <ProfileContent />
+      </Suspense>
+    </ProtectedRoute>
   );
 }

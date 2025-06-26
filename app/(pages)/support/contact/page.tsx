@@ -44,7 +44,7 @@ export default function ContactInformation() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
+    <div>
       <div className="flex items-center gap-2 mb-8">
         <Link href="/support" className="flex items-center text-gray-600">
           <ChevronLeft className="w-5 h-5" />

@@ -45,7 +45,14 @@ export const propertyApi = {
       form.append("title", generatedTitle);
       console.log(generatedTitle, "generatedTitle");  
       form.append("type", formData.type);
-      form.append("price", formData.price.toString());
+      form.append("price", formData.price.toString()); // For backward compatibility
+      form.append("listing_type", formData.listing_type);
+      if (formData.rental_price) {
+        form.append("rental_price", formData.rental_price.toString());
+      }
+      if (formData.sale_price) {
+        form.append("sale_price", formData.sale_price.toString());
+      }
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { Search, SlidersHorizontal, X, AlertTriangle, Menu, MessageSquare, List, Heart, Settings, LogOut } from "lucide-react";
+import { Search, SlidersHorizontal, X, AlertTriangle, Menu, MessageSquare, List, Heart, Settings, LogOut, Bell } from "lucide-react";
 import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import SignUpModal from "../auth/signup-modal";
@@ -11,6 +11,7 @@ import FilterModal from "../properties/filter-modal";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
 import ProfileDropdown from "./ProfileDropdown";
+import NotificationDropdown from "./NotificationDropdown";
 import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
 import { PropertyFilters } from "@/@types/property";
@@ -149,6 +150,13 @@ const Navbar = ({
           {/* User Menu Items */}
           {user && (
             <div className="space-y-1 border-t pt-4">
+              <div className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Bell className="w-5 h-5 text-gray-500" />
+                  <span>Notifications</span>
+                </div>
+                <NotificationDropdown />
+              </div>
               <Link
                 href="/chat"
                 className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"

@@ -17,6 +17,7 @@ import { PropertyDetailSkeleton } from "@/components/ui/property-skeleton";
 import { chatApi } from "@/api/chat";
 import { authApi } from "@/api/auth";
 import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Review {
   id: number;
@@ -60,6 +61,10 @@ export default function PropertyDetails() {
   const [error, setError] = useState<string | null>(null);
   const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Check if current user is the property owner
+  const isOwner = property && user && property.owner_id === user.id;
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -121,7 +126,7 @@ export default function PropertyDetails() {
     return (
       <div className="min-h-screen bg-white">
         <Navbar showSearch={false} showPropertyTypeFilters={false} />
-        <div className="max-w-7xl mx-auto px-4 py-4 mt-24">
+        <div className="max-w-7xl mx-auto px-8 py-4 mt-24">
           <div className="flex items-center gap-2 mb-4">
             <Link
               href="/properties"
@@ -145,13 +150,11 @@ export default function PropertyDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-white px-4">
+    <div className="min-h-screen bg-white">
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-
-      <main className="max-w-7xl mx-auto px-4 py-4 mt-24">
+      <main className="max-w-7xl mx-auto px-8 py-4 mt-24">
         {/* Back button and title */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 mb-10">
+            <div className="flex items-center gap-2 mb-10">
             <Link href="/" className="flex items-center text-gray-600 font-semibold text-2xl">
               <ChevronLeft className="w-6 h-6" />
               <span>Back</span>
@@ -238,9 +241,22 @@ export default function PropertyDetails() {
                         : ""
                     } ${property.lga}, ${property.state}`}
                   </p>
-                  <p className="text-2xl font-semibold">
-                    ₦ {property.price.toLocaleString()} / year
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-2xl font-semibold">
+                      {property.listing_type === 'sale' ? (
+                        <>₦ {(property.sale_price || property.price).toLocaleString()}</>
+                      ) : (
+                        <>₦ {(property.rental_price || property.price).toLocaleString()} / year</>
+                      )}
+                    </p>
+                    <span className={`px-3 py-1 text-sm rounded-full ${
+                      property.listing_type === 'sale' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* divider */}
@@ -353,49 +369,65 @@ export default function PropertyDetails() {
             <div className="lg:col-span-1">
               <div className="sticky top-40">
                 <div className="border rounded-xl p-6 space-y-4">
-                  {property.host.phone_number ? (
-                    <>
-                      <button 
-                        onClick={handleContactHost}
+                  {isOwner ? (
+                    /* Owner View - Show property management options */
+                    <div className="space-y-3">
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-green-800 mb-2">
+                          Your Property
+                        </h3>
+                        <p className="text-sm text-green-700">
+                          This is your property listing. You can manage it from your dashboard.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => router.push('/manage-listings')}
                         className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
                       >
-                        <MessageCircle className="w-5 h-5" />
-                        Chat with Host
+                        Manage Listing
                       </button>
-                      <a 
-                        href={`tel:${property.host.phone_number}`}
-                        className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
-                      >
-                        <Phone className="w-5 h-5" />
-                        Call Host
-                      </a>
-                    </>
-                  ) : (
-                    <div className="bg-yellow-50 p-4 rounded-lg">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
-                        <div>
-                          <h3 className="text-sm font-medium text-yellow-800">
-                            Phone number required
-                          </h3>
-                          <p className="mt-1 text-sm text-yellow-700">
-                            Please add your phone number to enable chat and call features.
-                          </p>
-                          <button
-                            onClick={() => setShowPhoneVerificationModal(true)}
-                            className="mt-3 text-sm font-medium text-yellow-800 hover:text-yellow-900"
-                          >
-                            Add phone number →
-                          </button>
-                        </div>
-                      </div>
                     </div>
+                  ) : (
+                    /* Visitor View - Show contact options */
+                    <>
+                      {property.host.phone_number ? (
+                        <>
+                          <button 
+                            onClick={handleContactHost}
+                            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            Chat with Host
+                          </button>
+                          <a 
+                            href={`tel:${property.host.phone_number}`}
+                            className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
+                          >
+                            <Phone className="w-5 h-5" />
+                            Call Host
+                          </a>
+                        </>
+                      ) : (
+                        <div className="bg-yellow-50 p-4 rounded-lg">
+                          <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                            <div>
+                              <h3 className="text-sm font-medium text-yellow-800">
+                                Contact information not available
+                              </h3>
+                              <p className="mt-1 text-sm text-yellow-700">
+                                The host hasn't provided contact information yet.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
         {/* Phone Verification Modal */}
         <PhoneVerificationModal

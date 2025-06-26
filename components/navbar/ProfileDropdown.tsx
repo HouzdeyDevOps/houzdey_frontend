@@ -11,9 +11,11 @@ import {
   Crown,
   HelpCircle,
   List,
+  Bell,
 } from "lucide-react";
 import { RootState } from "@/store/store";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -44,7 +46,6 @@ export default function ProfileDropdown() {
 
   const menuItems = [
     { label: "Chats", icon: MessageSquare, href: "/chat" },
-    { label: "Notifications", icon: Settings, href: "/notifications" },
     { 
       label: "Create a listing", 
       icon: List, 
@@ -88,6 +89,16 @@ export default function ProfileDropdown() {
             onClick={() => setIsOpen(false)}
           />
           <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg z-50 py-2 border">
+            {/* Notifications Section */}
+            <div className="px-4 py-2 hover:bg-gray-50 flex items-center gap-3">
+              <Bell className="w-5 h-5 text-gray-500" />
+              <span>Notifications</span>
+              <div className="ml-auto">
+                <NotificationDropdown />
+              </div>
+            </div>
+            <div className="my-2 border-b border-gray-200" />
+            
             {menuItems.map((item, index) => (
               <div key={item.label}>
                 {item.onClick ? (

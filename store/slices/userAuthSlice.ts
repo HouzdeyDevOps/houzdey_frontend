@@ -10,6 +10,7 @@ export interface User {
   phone_number?: string;
   phone_verified?: boolean;
   status?: string;
+  role?: string;
 }
 
 
@@ -46,6 +47,7 @@ const userAuthSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('wishlist');
     },
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;

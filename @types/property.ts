@@ -1,7 +1,15 @@
+export enum ListingType {
+  RENT = 'rent',
+  SALE = 'sale'
+}
+
 export interface Property {
   id: string;
   title: string;
-  price: number;
+  price: number;  // For backward compatibility
+  rental_price?: number;  // Monthly rent price
+  sale_price?: number;    // Sale price
+  listing_type: ListingType;
   type: string;
   beds: number;
   baths: number;
@@ -43,6 +51,7 @@ export interface PropertyFilters {
   state?: string;
   lga?: string;
   amenities?: string[];
+  listing_type?: string;  // New: Filter by rent or sale
   sort_by?: SortBy;
   sort_order?: SortOrder;
   page?: number;

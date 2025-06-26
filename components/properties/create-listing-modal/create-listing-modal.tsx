@@ -9,7 +9,7 @@ import {
   ImagesStep,
 } from "./steps";
 
-import { CreateListingFormData as FormData, PropertyType, StepProps } from "@/@types/create-listing";
+import { CreateListingFormData as FormData, PropertyType, StepProps, ListingType } from "@/@types/create-listing";
 import ExitModal from "./exit-modal";
 import LoadingModal from "./loading-modal";
 import SuccessModal from "./success-modal";
@@ -36,6 +36,9 @@ export default function CreateListingModal({
     title: "",
     type: PropertyType.Apartment,
     price: "",
+    listing_type: ListingType.RENT,
+    rental_price: "",
+    sale_price: "",
     amenities: [],
     description: "",
     images: [],
@@ -68,9 +71,13 @@ export default function CreateListingModal({
         return !!(formData.state && formData.lga && formData.ward && formData.address);
 
       case 2: // Property Details Step
+        const priceValid = formData.listing_type === ListingType.RENT 
+          ? !!(formData.rental_price || formData.price)
+          : !!(formData.sale_price || formData.price);
+        
         return !!(
           formData.type && 
-          formData.price && 
+          priceValid &&
           formData.beds && 
           formData.baths && 
           formData.toilets && 

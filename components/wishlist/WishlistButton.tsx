@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart } from 'lucide-react';
 import { RootState } from '@/store/store';
-import { addToWishlist, removeFromWishlist } from '@/store/slices/wishlistSlice';
+import { addToWishlist, removeFromWishlist, setWishlistItems } from '@/store/slices/wishlistSlice';
 import { wishlistApi } from '@/api/wishlist';
 import { setCurrentModal } from '@/store/slices/authModalSlice';
 import { showSuccessToast, showErrorToast } from '@/utils/toast';
@@ -20,6 +20,8 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
   const isInWishlist = wishlistItems.includes(propertyId);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  // Note: localStorage sync is now handled in the wishlist slice
+
   const handleWishlistClick = async (e: React.MouseEvent) => {
     e.stopPropagation();
     
@@ -31,21 +33,30 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
 
     setIsAnimating(true);
     
-    if (isInWishlist) {
-      dispatch(removeFromWishlist(propertyId));
-    } else {
-      dispatch(addToWishlist(propertyId));
-    }
-
     try {
       if (isInWishlist) {
+        // Remove from wishlist
+        dispatch(removeFromWishlist(propertyId));
         await wishlistApi.removeFromWishlist(propertyId);
-        // showSuccessToast("Property removed from wishlist");
+        showSuccessToast("Property removed from wishlist");
       } else {
+        // Add to wishlist
+        dispatch(addToWishlist(propertyId));
         await wishlistApi.addToWishlist(propertyId);
         showSuccessToast("Property added to wishlist");
       }
+
+      // Refresh wishlist data to ensure consistency
+      try {
+        const wishlistData = await wishlistApi.getWishlistIds();
+        const propertyIds = wishlistData.items || [];
+        dispatch(setWishlistItems(propertyIds));
+      } catch (refreshError) {
+        console.error('Failed to refresh wishlist:', refreshError);
+      }
+
     } catch (error) {
+      // Revert optimistic update on error
       if (isInWishlist) {
         dispatch(addToWishlist(propertyId));
         showErrorToast("Failed to remove property from wishlist");
@@ -62,8 +73,7 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
   return (
     <motion.button
       onClick={handleWishlistClick}
-    //   bg-white/80 hover:bg-white
-      className={`absolute bottom-2 right-2 z-10 p-2 rounded-full transition-colors ${className}`}
+      className={`absolute bottom-2 right-2 z-10 p-2 rounded-full bg-white/80 hover:bg-white transition-colors ${className}`}
       whileTap={{ scale: 0.9 }}
     >
       <div className="relative">
@@ -81,7 +91,7 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
             }}
             className="relative"
           >
-            {isAnimating && isInWishlist && (
+            {isAnimating && !isInWishlist && (
               <div className="heart-animation active absolute inset-0">
                 <div className="heart-burst-particles" />
               </div>
@@ -90,7 +100,7 @@ export default function WishlistButton({ propertyId, className = '' }: WishlistB
               className={`w-7 h-7 transition-colors ${
                 isInWishlist 
                   ? 'fill-red-500 stroke-red-500' 
-                  : 'stroke-gray-100 fill-transparent'
+                  : 'stroke-gray-600 fill-transparent hover:stroke-red-500'
               }`}
               strokeWidth={2}
             />

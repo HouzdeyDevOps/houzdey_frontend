@@ -1,5 +1,6 @@
 import { createListenerMiddleware } from '@reduxjs/toolkit';
 import { login, logout } from '../slices/userAuthSlice';
+import { setWishlistItems } from '../slices/wishlistSlice';
 import axios from 'axios';
 
 export const authMiddleware = createListenerMiddleware();
@@ -29,10 +30,14 @@ authMiddleware.startListening({
 
 authMiddleware.startListening({
   actionCreator: logout,
-  effect: () => {
+  effect: (action, { dispatch }) => {
     if (!isBrowser) return;
     localStorage.removeItem('token');
+    localStorage.removeItem('wishlist');
     document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     delete axios.defaults.headers.common['Authorization'];
+    
+    // Clear wishlist from Redux store
+    dispatch(setWishlistItems([]));
   }
 }); 

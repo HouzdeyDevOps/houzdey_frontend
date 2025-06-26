@@ -18,6 +18,7 @@ const initialState: PropertyState = {
         state: undefined,
         // location_area: undefined,
         amenities: [],
+        listing_type: undefined,  // New: Support for listing type filtering
         sort_by: SortBy.CREATED_AT,
         sort_order: SortOrder.DESC,
         page: 1,

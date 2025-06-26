@@ -15,9 +15,15 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/a/**', 
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
-  }
-  // other config options here
+  },
+  reactStrictMode: true,
 };
 
 export default nextConfig;
