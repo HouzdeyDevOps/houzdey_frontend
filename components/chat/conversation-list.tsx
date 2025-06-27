@@ -18,7 +18,7 @@ interface ConversationListProps {
 function ConversationSkeleton() {
   return (
     <div className="flex items-center gap-3 p-4">
-      <Skeleton className="w-12 h-12 rounded-full" />
+      <Skeleton className="w-10 h-10 rounded-full" />
       <div className="flex-1">
         <Skeleton className="h-5 w-32 mb-2" />
         <Skeleton className="h-4 w-48" />
@@ -149,16 +149,20 @@ export default function ConversationList({
           }`}
           onClick={() => onConversationSelect(conversation.id)}
         >
-          <div className="w-12 h-12 flex-shrink-0 relative">
+          <div className="w-10 h-10 flex-shrink-0 relative">
             <Image
               src={
                 conversation.other_user?.profile_picture ||
                 "/assets/images/avatar-placeholder.jpg"
               }
               alt={`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
-              width={48}
-              height={48}
+              width={40}
+              height={40}
               className="object-cover rounded-full"
+              style={{
+                width: '40px',
+                height: '40px'
+              }}
             />
             {/* Property indicator - small colored dot */}
             <div 

@@ -314,4 +314,50 @@ export const authApi = {
       throw new Error(error.response?.data?.detail || "Failed to reset password");
     }
   },
+
+  async changePassword(currentPassword: string, newPassword: string) {
+    try {
+      const formData = new FormData();
+      formData.append('current_password', currentPassword);
+      formData.append('new_password', newPassword);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/change-password`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to change password");
+    }
+  },
+
+  async disconnectSocialAccount(provider: string) {
+    try {
+      const formData = new FormData();
+      formData.append('provider', provider);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/disconnect-social-account`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to disconnect social account");
+    }
+  },
+
+  async deactivateAccount(password: string) {
+    try {
+      const formData = new FormData();
+      formData.append('password', password);
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/deactivate-account`,
+        formData
+      );
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to deactivate account");
+    }
+  },
 };

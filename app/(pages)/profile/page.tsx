@@ -8,6 +8,9 @@ import PersonalInfoForm from "@/components/profile/personal-info-form";
 import SubscriptionForm from "@/components/profile/subscription-form";
 import SecurityForm from "@/components/profile/security-form";
 import ChangePasswordPage from "@/components/profile/change-password";
+import ProfileReviews from "@/components/profile/ProfileReviews";
+import BlockedUsers from "@/components/profile/BlockedUsers";
+import PrivacyPolicy from "@/components/profile/PrivacyPolicy";
 import Navbar from "@/components/navbar/Navbar";
 import ProtectedRoute from "@/components/auth/protected-route";
 
@@ -66,83 +69,189 @@ function ProfileContent() {
 
   useEffect(() => {
     const tab = searchParams.get("tab");
-    if (tab && menuItems.some((item) => item.id === tab)) {
+    if (tab && menuItems.some((item) => item.id === tab || item.subItems?.some(subItem => subItem.id === tab))) {
       setActiveSection(tab);
     }
   }, [searchParams]);
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case "personal":
+        return <PersonalInfoForm />;
+      case "premium":
+        return <SubscriptionForm />;
+      case "security":
+        return <SecurityForm />;
+      case "change-password":
+        return <ChangePasswordPage />;
+      case "reviews":
+        return <ProfileReviews />;
+      case "blocked":
+        return <BlockedUsers />;
+      case "privacy":
+        return <PrivacyPolicy />;
+      default:
+        return <PersonalInfoForm />;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-      <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
-        <div className="flex items-center gap-2 mb-8">
-          <Link href="/" className="flex items-center text-gray-600 gap-2">
-            <ChevronLeft className="w-5 h-5" />
-            <span className="text-xl font-bold text-black ">User profile</span>
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          {/* Sidebar */}
-          <div className="space-y-2">
-            {menuItems.map((item) => (
-              <div key={item.id}>
-                <button
-                  onClick={() => handleTabChange(item.id)}
-                  className={`w-full text-left p-4 rounded-lg transition-colors ${
-                    activeSection === item.id ||
-                    item.subItems?.some(
-                      (subItem) => subItem.id === activeSection
-                    )
-                      ? "bg-indigo-50 border-l-4 border-indigo-600"
-                      : "hover:bg-gray-100"
-                  }`}
-                >
-                  <h3 className="font-medium">{item.title}</h3>
-                  <p className="text-sm text-gray-600">{item.description}</p>
-                </button>
-
-                {item?.subItems && (
-                  <div className="ml-4 mt-2 space-y-2">
-                    {item?.subItems?.map((subItem) => (
-                      <button
-                        onClick={() => handleTabChange(subItem.id)}
-                        key={subItem.id}
-                        className="block p-3 rounded-lg hover:bg-gray-100 transition-colors w-full"
-                      >
-                        <h4 className="font-medium text-sm text-left">
-                          {subItem.title}
-                        </h4>
-                        <p className="text-xs text-gray-600 text-left">
-                          {subItem.description}
-                        </p>
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+      
+      <div className="flex">
+        {/* Fixed Left Panel - Profile Header + Sidebar */}
+        <div className="hidden lg:block lg:fixed lg:top-24 lg:left-0 lg:w-80 lg:h-[calc(100vh-6rem)] lg:bg-white lg:border-r lg:border-gray-200 lg:shadow-sm lg:overflow-y-auto">
+          {/* Profile Header */}
+          <div className="p-6 border-b border-gray-200">
+            <Link href="/" className="flex items-center text-gray-600 gap-2 hover:text-gray-800 transition-colors">
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-xl font-bold text-black">User profile</span>
+            </Link>
           </div>
 
-          {/* Main Content children */}
-          <div className="md:col-span-3">
-            {activeSection === "personal" && <PersonalInfoForm />}
-            {activeSection === "premium" && <SubscriptionForm />}
-            {activeSection === "security" && <SecurityForm />}
+          {/* Sidebar Menu */}
+          <div className="p-4">
+            <div className="space-y-2">
+              {menuItems.map((item) => (
+                <div key={item.id}>
+                  <button
+                    onClick={() => handleTabChange(item.id)}
+                    className={`w-full text-left p-4 rounded-lg transition-colors ${
+                      activeSection === item.id ||
+                      item.subItems?.some(
+                        (subItem) => subItem.id === activeSection
+                      )
+                        ? "bg-indigo-50 border-l-4 border-indigo-600"
+                        : "hover:bg-gray-100"
+                    }`}
+                  >
+                    <h3 className="font-medium">{item.title}</h3>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                  </button>
 
-            {/* sub items */}
-            {activeSection === "change-password" && <ChangePasswordPage />}
+                  {item?.subItems && (
+                    <div className="ml-4 mt-2 space-y-2">
+                      {item?.subItems?.map((subItem) => (
+                        <button
+                          onClick={() => handleTabChange(subItem.id)}
+                          key={subItem.id}
+                          className={`block p-3 rounded-lg transition-colors w-full ${
+                            activeSection === subItem.id
+                              ? "bg-indigo-50 border-l-4 border-indigo-600"
+                              : "hover:bg-gray-100"
+                          }`}
+                        >
+                          <h4 className="font-medium text-sm text-left">
+                            {subItem.title}
+                          </h4>
+                          <p className="text-xs text-gray-600 text-left">
+                            {subItem.description}
+                          </p>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile Header (visible on small screens) */}
+        <div className="lg:hidden w-full">
+          <div className="bg-white border-b border-gray-200 shadow-sm">
+            <div className="px-4 py-4">
+              <Link href="/" className="flex items-center text-gray-600 gap-2 hover:text-gray-800 transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+                <span className="text-xl font-bold text-black">User profile</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Area */}
+        <div className="flex-1 lg:ml-80">
+          <div className="px-8 pt-8 lg:pt-28 pb-8">
+            {/* Mobile Sidebar */}
+            <div className="lg:hidden mb-8">
+              <div className="bg-white rounded-xl p-4 shadow-sm">
+                <div className="space-y-2">
+                  {menuItems.map((item) => (
+                    <div key={item.id}>
+                      <button
+                        onClick={() => handleTabChange(item.id)}
+                        className={`w-full text-left p-4 rounded-lg transition-colors ${
+                          activeSection === item.id ||
+                          item.subItems?.some(
+                            (subItem) => subItem.id === activeSection
+                          )
+                            ? "bg-indigo-50 border-l-4 border-indigo-600"
+                            : "hover:bg-gray-100"
+                        }`}
+                      >
+                        <h3 className="font-medium">{item.title}</h3>
+                        <p className="text-sm text-gray-600">{item.description}</p>
+                      </button>
+
+                      {item?.subItems && (
+                        <div className="ml-4 mt-2 space-y-2">
+                          {item?.subItems?.map((subItem) => (
+                            <button
+                              onClick={() => handleTabChange(subItem.id)}
+                              key={subItem.id}
+                              className={`block p-3 rounded-lg transition-colors w-full ${
+                                activeSection === subItem.id
+                                  ? "bg-indigo-50 border-l-4 border-indigo-600"
+                                  : "hover:bg-gray-100"
+                              }`}
+                            >
+                              <h4 className="font-medium text-sm text-left">
+                                {subItem.title}
+                              </h4>
+                              <p className="text-xs text-gray-600 text-left">
+                                {subItem.description}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <Suspense 
+              fallback={
+                <div className="bg-white rounded-xl p-6 shadow-sm">
+                  <div className="flex items-center justify-center py-12">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                    <span className="ml-2 text-gray-600">Loading...</span>
+                  </div>
+                </div>
+              }
+            >
+              {renderContent()}
+            </Suspense>
           </div>
         </div>
       </div>
     </div>
   );
 }
+
 // Main component with Suspense boundary
 export default function ProfilePage() {
   return (
     <ProtectedRoute>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+          <span className="ml-2 text-gray-600">Loading profile...</span>
+        </div>
+      }>
         <ProfileContent />
       </Suspense>
     </ProtectedRoute>

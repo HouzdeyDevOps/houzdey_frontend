@@ -73,17 +73,23 @@ const Message = React.memo(({ message, isCurrentUser, unreadMessages, observer, 
         return (
           <>
             <div
-              className="relative w-64 h-64 cursor-pointer"
+              className="relative w-32 h-32 cursor-pointer"
+              onClick={(e) => handleImageClick(parsedContent.file_url, e)}
               onContextMenu={(e) =>
                 onMessageContextMenu(e, message, parsedContent.file_url)
               }
-              onClick={(e) => handleImageClick(parsedContent.file_url, e)}
             >
               <Image
                 src={parsedContent.file_url || ""}
                 alt="Shared image"
-                fill
-                className="object-cover rounded-lg hover:opacity-90 transition-opacity"
+                width={128}
+                height={128}
+                className="object-cover rounded-lg"
+                style={{
+                  width: '128px',
+                  height: '128px'
+                }}
+                sizes="128px"
               />
             </div>
             <ImageViewerModal
@@ -825,6 +831,10 @@ export default function ChatWindow() {
                 width={40}
                 height={40}
                 className="object-cover rounded-full"
+                style={{
+                  width: '40px',
+                  height: '40px'
+                }}
               />
               <div
                 className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white z-50 ${
@@ -925,12 +935,18 @@ export default function ChatWindow() {
       {imagePreview && (
         <div className="p-4 border-t bg-gray-50">
           <div className="flex items-center gap-4">
-            <div className="relative w-24 h-24">
+            <div className="relative w-20 h-20">
               <Image
                 src={imagePreview}
                 alt="Preview"
-                fill
+                width={80}
+                height={80}
                 className="object-cover rounded-lg"
+                style={{
+                  width: '80px',
+                  height: '80px'
+                }}
+                sizes="80px"
               />
             </div>
             <div className="flex gap-2">

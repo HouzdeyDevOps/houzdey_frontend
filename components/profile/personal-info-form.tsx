@@ -1,65 +1,218 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
+import { authApi } from "@/api/auth";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+
+interface UserProfile {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone_number?: string;
+  date_of_birth?: string;
+  profile_picture?: string;
+  status: string;
+}
 
 export default function PersonalInfoForm() {
+  const [userData, setUserData] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+  const [fileError, setFileError] = useState("");
+  const [imageError, setImageError] = useState(false);
+
   const [formData, setFormData] = useState({
-    firstName: "John",
-    lastName: "Doe",
-    dateOfBirth: "1984-12-08",
-    email: "johndoe68@gmail.com",
-    phoneNumber: "+234834567891",
+    firstName: "",
+    lastName: "",
+    dateOfBirth: "",
+    email: "",
+    phoneNumber: "",
     profilePicture: "/assets/images/avatar-placeholder.jpg",
   });
 
-  const [fileError, setFileError] = useState("");
+  useEffect(() => {
+    fetchUserData();
+  }, []);
+
+  const fetchUserData = async () => {
+    try {
+      const user = await authApi.getCurrentUser();
+      setUserData(user);
+      setFormData({
+        firstName: user.first_name || "",
+        lastName: user.last_name || "",
+        dateOfBirth: user.date_of_birth ? user.date_of_birth.split('T')[0] : "",
+        email: user.email || "",
+        phoneNumber: user.phone_number || "",
+        profilePicture: user.profile_picture || "/assets/images/avatar-placeholder.jpg",
+      });
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+      toast.error("Failed to load user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Helper function to get optimized image URL
+  const getImageSrc = (url: string) => {
+    if (!url || url === "/assets/images/avatar-placeholder.jpg") {
+      return "/assets/images/avatar-placeholder.jpg";
+    }
+    
+    // If it's a blob URL (preview), return as is
+    if (url.startsWith('blob:')) {
+      return url;
+    }
+    
+    // If it's a Cloudinary URL, add optimization parameters
+    if (url.includes('res.cloudinary.com')) {
+      // Add Cloudinary transformations for better loading
+      const transformations = 'w_200,h_200,c_fill,f_auto,q_auto';
+      return url.replace('/upload/', `/upload/${transformations}/`);
+    }
+    
+    return url;
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type
-    const validTypes = ["image/jpeg", "image/png", "image/gif"];
-    if (!validTypes.includes(file.type)) {
-      setFileError("The file format is not supported. Please upload a JPEG, PNG, or GIF image");
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
+    if (!allowedTypes.includes(file.type)) {
+      setFileError("Please upload a valid image file (JPEG, PNG, or GIF)");
       return;
     }
 
-    // Validate file size (10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size (10MB limit)
+    const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+    if (file.size > maxSize) {
       setFileError("File size must be less than 10MB");
       return;
     }
 
+    // Clear any previous errors
     setFileError("");
-    // Handle file upload logic here
+    setImageError(false);
+    
+    // Set the file for upload
+    setProfilePictureFile(file);
+    
+    // Create a preview URL
+    const previewUrl = URL.createObjectURL(file);
+    setFormData(prev => ({ ...prev, profilePicture: previewUrl }));
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      toast.error("First name and last name are required");
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      toast.error("Email is required");
+      return;
+    }
+
+    try {
+      setIsSaving(true);
+      
+      // Create FormData for multipart/form-data
+      const submitData = new FormData();
+      submitData.append("first_name", formData.firstName);
+      submitData.append("last_name", formData.lastName);
+      submitData.append("phone_number", formData.phoneNumber);
+      submitData.append("date_of_birth", formData.dateOfBirth);
+      
+      // Add profile picture if a new one was selected
+      if (profilePictureFile) {
+        submitData.append("profile_picture", profilePictureFile);
+      }
+
+      const response = await authApi.updatePersonalInfo(submitData);
+      
+      // Update the profile picture URL if a new one was uploaded
+      if (response.profile_picture_url) {
+        setFormData(prev => ({
+          ...prev,
+          profilePicture: response.profile_picture_url
+        }));
+      }
+      
+      toast.success("Personal information updated successfully!");
+      
+      // Reset the profile picture file state
+      setProfilePictureFile(null);
+      
+    } catch (error: any) {
+      console.error("Error updating personal info:", error);
+      toast.error(error.message || "Failed to update personal information");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleReset = () => {
+    // Reset to original user data from the fetched data
+    if (userData) {
+      setFormData({
+        firstName: userData.first_name || "",
+        lastName: userData.last_name || "",
+        dateOfBirth: "", // User type doesn't have date_of_birth, so keep empty
+        email: userData.email || "",
+        phoneNumber: userData.phone_number || "",
+        profilePicture: userData.profile_picture || "/assets/images/avatar-placeholder.jpg",
+      });
+      setProfilePictureFile(null);
+      setFileError("");
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm flex justify-center items-center">
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-indigo-600" />
+          <span className="ml-2 text-gray-600">Loading your information...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
       <h2 className="text-2xl font-semibold mb-8">Personal information</h2>
 
-      <form className="space-y-6">
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-700 mb-2">First name</label>
+            <label className="block text-gray-700 mb-2">First name *</label>
             <input
               type="text"
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              required
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2">Last name</label>
+            <label className="block text-gray-700 mb-2">Last name *</label>
             <input
               type="text"
               value={formData.lastName}
               onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
               className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              required
             />
           </div>
         </div>
@@ -75,13 +228,19 @@ export default function PersonalInfoForm() {
         </div>
 
         <div>
-          <label className="block text-gray-700 mb-2">Email address</label>
+          <label className="block text-gray-700 mb-2">Email address *</label>
           <input
             type="email"
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 bg-gray-50"
+            required
+            readOnly
+            title="Email cannot be changed. Please contact support if you need to update your email."
           />
+          <p className="text-sm text-gray-500 mt-1">
+            Email cannot be changed. Contact support if needed.
+          </p>
         </div>
 
         <div>
@@ -90,7 +249,7 @@ export default function PersonalInfoForm() {
             country="ng"
             value={formData.phoneNumber}
             onChange={(phone) => setFormData({ ...formData, phoneNumber: phone })}
-            inputClass="!w-full !py-6 !px-4 !border !rounded-lg focus:!outline-none focus:!ring-2 focus:!ring-indigo-600"
+            inputClass="!w-full !py-6 !pr-4 !pl-11 !border !rounded-lg focus:!outline-none focus:!ring-2 focus:!ring-indigo-600"
             containerClass="!w-full"
             buttonClass="!border-0 !bg-transparent"
           />
@@ -104,12 +263,25 @@ export default function PersonalInfoForm() {
           
           <div className="flex items-center justify-center">
             <div className="relative w-24 h-24">
-              <Image
-                src={formData.profilePicture}
-                alt="Profile"
-                fill
-                className="rounded-full object-cover"
-              />
+              {imageError ? (
+                <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
+                  <span className="text-gray-500 text-xs">No Image</span>
+                </div>
+              ) : (
+                <Image
+                  src={getImageSrc(formData.profilePicture)}
+                  alt="Profile"
+                  width={96}
+                  height={96}
+                  className="rounded-full object-cover"
+                  style={{
+                    width: '96px',
+                    height: '96px'
+                  }}
+                  onError={() => setImageError(true)}
+                  unoptimized={formData.profilePicture.startsWith('blob:') || formData.profilePicture.includes('res.cloudinary.com')}
+                />
+              )}
             </div>
           </div>
 
@@ -117,7 +289,7 @@ export default function PersonalInfoForm() {
             <button
               type="button"
               onClick={() => document.getElementById("profile-upload")?.click()}
-              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
             >
               Change profile picture
             </button>
@@ -141,15 +313,19 @@ export default function PersonalInfoForm() {
         <div className="flex justify-end gap-4">
           <button
             type="button"
+            onClick={handleReset}
             className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+            disabled={isSaving}
           >
             Reset
           </button>
           <button
             type="submit"
-            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+            disabled={isSaving}
+            className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
-            Save
+            {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
+            {isSaving ? "Saving..." : "Save"}
           </button>
         </div>
       </form>
