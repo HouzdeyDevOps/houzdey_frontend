@@ -6,10 +6,13 @@ export enum ListingType {
 export interface CreateListingFormData {
   title: string;
   type: PropertyType;
-  price: string;  // For backward compatibility
+  price: string;
   listing_type: ListingType;
-  rental_price: string;  // Annual rent
-  sale_price: string;    // Sale price
+  rental_price: string;
+  sale_price: string;
+  agency_fee?: string;
+  legal_fee?: string;
+  other_fees?: string;
   amenities: { name: string; icon: string }[];
   description: string;
   images: string[];
@@ -24,7 +27,7 @@ export interface CreateListingFormData {
   lga: string;
   ward: string;
   estate: string;
-  size: string;
+  size?: string;
 }
 
 export interface StepProps {

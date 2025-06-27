@@ -99,15 +99,83 @@ export default function PropertyDetailsStep({
         </div>
       </div>
 
+      {/* Additional Fees Section - Show for both rentals and sales */}
+      <div className="mt-6">
+        <h3 className="font-medium mb-4">Additional Fees</h3>
+        <div className="grid grid-cols-2 gap-4">
+          {/* Agency Fee */}
+          <div>
+            <label className="block text-sm mb-1">Agency Fee</label>
+            <div className="relative">
+              <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
+              <input
+                type="text"
+                placeholder="Enter agency fee"
+                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.agency_fee || ""}
+                onChange={(e) => updateForm("agency_fee", e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.listing_type === ListingType.RENT 
+                ? "Usually 10% of annual rent"
+                : "Agency commission for sale"}
+            </p>
+          </div>
+
+          {/* Legal Fee */}
+          <div>
+            <label className="block text-sm mb-1">Legal Fee</label>
+            <div className="relative">
+              <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
+              <input
+                type="text"
+                placeholder="Enter legal fee"
+                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.legal_fee || ""}
+                onChange={(e) => updateForm("legal_fee", e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.listing_type === ListingType.RENT 
+                ? "Legal/Tenancy Agreement Fee"
+                : "Legal documentation fee"}
+            </p>
+          </div>
+
+          {/* Other Fees */}
+          <div className="col-span-2">
+            <label className="block text-sm mb-1">Other Fees</label>
+            <div className="relative">
+              <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
+              <input
+                type="text"
+                placeholder="Enter other fees"
+                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formData.other_fees || ""}
+                onChange={(e) => updateForm("other_fees", e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {formData.listing_type === ListingType.RENT 
+                ? "Additional fees like caution fee, service charge, etc."
+                : "Additional charges or fees"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4">
         {/* Property size (sqm) */}
         <div>
-          <label className="block font-medium mb-1">Property size (sqm)</label>
+          <label className="block font-medium mb-1">
+            Property size (sqm) <span className="text-gray-500 text-sm font-normal">(optional)</span>
+          </label>
           <input
             type="text"
             placeholder="Enter property size"
             className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
-            value={formData.size}
+            value={formData.size || ""}
             onChange={(e) => updateForm("size", e.target.value)}
           />
         </div>

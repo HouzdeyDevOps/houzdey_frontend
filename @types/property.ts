@@ -6,10 +6,13 @@ export enum ListingType {
 export interface Property {
   id: string;
   title: string;
-  price: number;  // For backward compatibility
-  rental_price?: number;  // Annual rent price
-  sale_price?: number;    // Sale price
+  price: number;
+  rental_price?: number;
+  sale_price?: number;
   listing_type: ListingType;
+  agency_fee?: number;
+  legal_fee?: number;
+  other_fees?: number;
   type: string;
   beds: number;
   baths: number;

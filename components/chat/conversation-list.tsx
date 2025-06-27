@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { formatMessageTime } from "@/utils/date";
 import { useAuth } from "@/hooks/useAuth";
 import { Check, CheckCheck } from 'lucide-react';
+import { getOptimizedImageUrl } from "@/utils/imageUtils";
 
 interface ConversationListProps {
   onConversationSelect: (conversationId: string) => void;
@@ -145,15 +146,17 @@ export default function ConversationList({
         <div
           key={conversation.id}
           className={`flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer ${
-            selectedConversationId === conversation.id ? "bg-gray-50" : ""
+            selectedConversationId === conversation.id ? "bg-gray-200" : ""
           }`}
           onClick={() => onConversationSelect(conversation.id)}
         >
           <div className="w-10 h-10 flex-shrink-0 relative">
             <Image
               src={
-                conversation.other_user?.profile_picture ||
-                "/assets/images/avatar-placeholder.jpg"
+                getOptimizedImageUrl(
+                  conversation.other_user?.profile_picture,
+                  { width: 40, height: 40, defaultImage: "avatar-placeholder" }
+                )
               }
               alt={`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               width={40}

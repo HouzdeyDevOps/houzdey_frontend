@@ -27,6 +27,7 @@ import { uploadService } from "@/services/upload";
 import MessageContextMenu from "./message-context-menu";
 import React from "react";
 import ImageViewerModal from './image-viewer-modal';
+import { getOptimizedImageUrl } from "@/utils/imageUtils";
 
 // Add this new Message component before the ChatWindow component
 interface MessageProps {
@@ -824,8 +825,10 @@ export default function ChatWindow() {
             <div className="w-10 h-10 rounded-full mr-3 relative">
               <Image
                 src={
-                  conversation?.other_user?.profile_picture ||
-                  "/assets/images/avatar-placeholder.jpg"
+                  getOptimizedImageUrl(
+                    conversation?.other_user?.profile_picture,
+                    { width: 40, height: 40, defaultImage: "avatar-placeholder" }
+                  )
                 }
                 alt={`${conversation?.other_user?.first_name} ${conversation?.other_user?.last_name}`}
                 width={40}

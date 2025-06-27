@@ -16,14 +16,30 @@ import {
 import { RootState } from "@/store/store";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import NotificationDropdown from "./NotificationDropdown";
+import { getOptimizedImageUrl } from "@/utils/imageUtils";
+import { propertyApi } from "@/api/properties";
 
 export default function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
   const [showCreateListing, setShowCreateListing] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  const [propertiesCount, setPropertiesCount] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.userAuth.user);
 
+  useEffect(() => {
+    const fetchPropertiesCount = async () => {
+      try {
+        const properties = await propertyApi.getUserProperties();
+        setPropertiesCount(properties.length);
+      } catch (error) {
+        console.error("Failed to fetch properties count:", error);
+      }
+    };
+
+    fetchPropertiesCount();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -58,7 +74,7 @@ export default function ProfileDropdown() {
       label: "Manage listings",
       icon: List,
       href: "/manage-listings",
-      badge: "1",
+      badge: propertiesCount > 0 ? propertiesCount.toString() : undefined,
     },
     { label: "Favourite listings", icon: Heart, href: "/favourites" },
     { label: "User profile", icon: Settings, href: "/profile" },
@@ -73,17 +89,25 @@ export default function ProfileDropdown() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center focus:outline-none"
       >
-        <Image
-          src={user?.profile_picture || "/assets/images/default-avatar.png"}
-          alt="Profile"
-          width={40}
-          height={40}
-          className="rounded-full object-cover"
-          style={{
-            width: '40px',
-            height: '40px'
-          }}
-        />
+        {imageError ? (
+          <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500 text-xs">?</span>
+          </div>
+        ) : (
+          <Image
+            src={getOptimizedImageUrl(user?.profile_picture, { width: 50, height: 50 })}
+            alt="Profile"
+            width={50}
+            height={50}
+            className="rounded-full object-cover"
+            style={{
+              width: '50px',
+              height: '50px'
+            }}
+            onError={() => setImageError(true)}
+            priority={true}
+          />
+        )}
       </button>
 
       {isOpen && (

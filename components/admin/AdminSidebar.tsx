@@ -125,7 +125,13 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
         <div className={cn("flex items-center gap-2", isCollapsed && "justify-center")}>
-          <Image src="/assets/images/houzdey-logo.png" alt="Houzdey Logo" width={32} height={32} />
+          <Image 
+            src="/assets/images/houzdey-logo.png" 
+            alt="Houzdey Logo" 
+            width={32} 
+            height={32} 
+            style={{ width: "32px", height: "32px", objectFit: "contain" }}
+          />
           {!isCollapsed && (
             <div>
               <h1 className="text-xl font-bold text-gray-900">Admin Panel</h1>

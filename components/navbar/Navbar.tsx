@@ -58,8 +58,8 @@ const Navbar = ({
   };
 
   const MobileMenu = () => (
-    <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-      <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl overflow-y-auto">
+    <div className={`sticky inset-0 bg-black bg-opacity-50 z-50 lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div className="sticky inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl overflow-y-auto">
         <div className="flex justify-end p-4">
           <button onClick={toggleMobileMenu} className="p-2">
             <X className="h-6 w-6" />
@@ -244,7 +244,7 @@ const Navbar = ({
                 alt="Houzdey"
                 width={180}
                 height={40}
-                style={{ height: "auto" }}
+                style={{ width: "auto", height: "80px" }}
                 priority
               />
             </button>

@@ -83,7 +83,6 @@ export default function CreateListingModal({
           formData.toilets && 
           formData.condition && 
           formData.furnishing && 
-          formData.size && 
           formData.description &&
           formData.amenities.length > 0
         );

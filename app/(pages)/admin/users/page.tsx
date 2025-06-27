@@ -48,7 +48,7 @@ const UserActionsDropdown = ({ user, onEdit, onSuspend, onActivate, onDelete }: 
             className="fixed inset-0 z-10" 
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-20">
+          <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
             <div className="py-1">
               <button
                 onClick={() => {
@@ -111,15 +111,12 @@ export default function UsersManagement() {
     status: '',
     role: ''
   });
-  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: users, isLoading, error } = useQuery<AdminUser[]>({
+  const { data: users, isLoading, error } = useQuery({
     queryKey: ['admin-users', filters],
     queryFn: () => adminApi.getUsers(filters),
-    keepPreviousData: true,
-  });
+  }) as { data: AdminUser[] | undefined; isLoading: boolean; error: Error | null };
 
   const suspendMutation = useMutation({
     mutationFn: ({ userId, reason }: { userId: string; reason: string }) =>
@@ -296,8 +293,8 @@ export default function UsersManagement() {
       </div>
 
       {/* Users Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="overflow-x-auto">
+      <div className="bg-white rounded-lg border border-gray-200 overflow-visible">
+        <div className="overflow-x-auto relative">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -360,7 +357,7 @@ export default function UsersManagement() {
                     {getRoleBadge(user.role)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {new Date(user.created_at).toLocaleDateString()}
+                    {user.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <UserActionsDropdown

@@ -210,6 +210,7 @@ export default function SignInModal({
                   alt="Facebook"
                   width={24}
                   height={24}
+                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
                 />
               </button>
               <button
@@ -221,6 +222,7 @@ export default function SignInModal({
                   alt="Apple"
                   width={24}
                   height={24}
+                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
                 />
               </button>
               <GoogleAuthButton

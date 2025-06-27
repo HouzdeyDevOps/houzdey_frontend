@@ -7,6 +7,9 @@ import "react-phone-input-2/lib/style.css";
 import { authApi } from "@/api/auth";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { getOptimizedImageUrl } from "@/utils/imageUtils";
 
 interface UserProfile {
   id: string;
@@ -36,6 +39,20 @@ export default function PersonalInfoForm() {
     profilePicture: "/assets/images/avatar-placeholder.jpg",
   });
 
+  // Add custom input for DatePicker
+  const CustomInput = ({ value, onClick }: { value?: string; onClick?: () => void }) => (
+    <div className="relative">
+      <input
+        type="text"
+        value={value}
+        onClick={onClick}
+        readOnly
+        className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+        placeholder="Select date of birth"
+      />
+    </div>
+  );
+
   useEffect(() => {
     fetchUserData();
   }, []);
@@ -58,27 +75,6 @@ export default function PersonalInfoForm() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  // Helper function to get optimized image URL
-  const getImageSrc = (url: string) => {
-    if (!url || url === "/assets/images/avatar-placeholder.jpg") {
-      return "/assets/images/avatar-placeholder.jpg";
-    }
-    
-    // If it's a blob URL (preview), return as is
-    if (url.startsWith('blob:')) {
-      return url;
-    }
-    
-    // If it's a Cloudinary URL, add optimization parameters
-    if (url.includes('res.cloudinary.com')) {
-      // Add Cloudinary transformations for better loading
-      const transformations = 'w_200,h_200,c_fill,f_auto,q_auto';
-      return url.replace('/upload/', `/upload/${transformations}/`);
-    }
-    
-    return url;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,11 +215,23 @@ export default function PersonalInfoForm() {
 
         <div>
           <label className="block text-gray-700 mb-2">Date of birth</label>
-          <input
-            type="date"
-            value={formData.dateOfBirth}
-            onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+          <DatePicker
+            selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+            onChange={(date: Date | null) => {
+              if (date) {
+                setFormData({ ...formData, dateOfBirth: date.toISOString().split('T')[0] })
+              }
+            }}
+            customInput={<CustomInput />}
+            dateFormat="MMMM d, yyyy"
+            showYearDropdown
+            scrollableYearDropdown
+            yearDropdownItemNumber={100}
+            maxDate={new Date()}
+            placeholderText="Select date of birth"
             className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            calendarClassName="!bg-white !border !border-gray-200 !rounded-lg !shadow-lg !font-sans"
+            wrapperClassName="w-full"
           />
         </div>
 
@@ -265,11 +273,15 @@ export default function PersonalInfoForm() {
             <div className="relative w-24 h-24">
               {imageError ? (
                 <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                  <span className="text-gray-500 text-xs">No Image</span>
+                  <span className="text-gray-500 text-sm">?</span>
                 </div>
               ) : (
                 <Image
-                  src={getImageSrc(formData.profilePicture)}
+                  src={getOptimizedImageUrl(formData.profilePicture, {
+                    width: 96,
+                    height: 96,
+                    defaultImage: 'avatar-placeholder'
+                  })}
                   alt="Profile"
                   width={96}
                   height={96}
@@ -279,7 +291,8 @@ export default function PersonalInfoForm() {
                     height: '96px'
                   }}
                   onError={() => setImageError(true)}
-                  unoptimized={formData.profilePicture.startsWith('blob:') || formData.profilePicture.includes('res.cloudinary.com')}
+                  priority={true}
+                  unoptimized={formData.profilePicture.startsWith('blob:')}
                 />
               )}
             </div>
@@ -331,4 +344,5 @@ export default function PersonalInfoForm() {
       </form>
     </div>
   );
-} 
+}
+

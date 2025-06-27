@@ -257,6 +257,44 @@ export default function PropertyDetails() {
                       {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
                     </span>
                   </div>
+
+                  {/* Additional Fees Section - Show for both rentals and sales */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">Additional Fees</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Agency Fee */}
+                      {property.agency_fee && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                          <span className="text-gray-600">
+                            {property.listing_type === 'rent' 
+                              ? "Agency Fee"
+                              : "Agency Commission"}
+                          </span>
+                          <span className="font-medium">₦{property.agency_fee.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {/* Legal Fee */}
+                      {property.legal_fee && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                          <span className="text-gray-600">
+                            {property.listing_type === 'rent' 
+                              ? "Legal Fee"
+                              : "Legal Documentation Fee"}
+                          </span>
+                          <span className="font-medium">₦{property.legal_fee.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {/* Other Fees */}
+                      {property.other_fees && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg md:col-span-2">
+                          <span className="text-gray-600">Other Fees</span>
+                          <span className="font-medium">₦{property.other_fees.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* divider */}
@@ -325,11 +363,6 @@ export default function PropertyDetails() {
                       <p className="text-gray-600">{property?.host?.company}</p>
                     </div>
                   </div>
-                  {/* <p className="text-gray-600">James is an Agent</p>
-                  <p className="text-gray-600">
-                    James is an Agent and has been in the real estate business
-                    for over 10 years.
-                  </p> */}
                 </div>
 
                 {/* Reviews Section */}
