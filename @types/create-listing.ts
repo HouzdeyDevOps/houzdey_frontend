@@ -8,7 +8,7 @@ export interface CreateListingFormData {
   type: PropertyType;
   price: string;  // For backward compatibility
   listing_type: ListingType;
-  rental_price: string;  // Monthly rent
+  rental_price: string;  // Annual rent
   sale_price: string;    // Sale price
   amenities: { name: string; icon: string }[];
   description: string;

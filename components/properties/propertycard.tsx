@@ -51,8 +51,8 @@ function PropertyCard({ property }: { property: Property }) {
 
   return (
     <div
-      className="group cursor-pointer"
-      onClick={handlePropertyClick}
+    className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden h-fit max-w-sm mx-auto"
+    onClick={handlePropertyClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -113,10 +113,10 @@ function PropertyCard({ property }: { property: Property }) {
 
       <div className="p-4">
         <h3 className="font-semibold">{formatLocation(property.title)}</h3>
-        <p className="text-gray-600 dark:text-gray-400">{`${formatLocation(
+        <p className="text-gray-600">{`${formatLocation(
           property.lga
         )}, ${formatLocation(property.state)}`}</p>
-        <div className="flex gap-2 text-sm text-gray-600 dark:text-gray-400 mt-2">
+        <div className="flex gap-2 text-sm text-gray-600 mt-2">
           <span>{property.beds} bed</span>
           <span>•</span>
           <span>{property.baths} bath</span>
@@ -129,7 +129,7 @@ function PropertyCard({ property }: { property: Property }) {
           ) : (
             <p className="font-semibold">
               ₦ {(property.rental_price || property.price || 0).toLocaleString()}
-              <span className="text-sm font-normal text-gray-600 dark:text-gray-400">/month</span>
+              <span className="text-sm font-normal text-gray-600">/year</span>
             </p>
           )}
           <span className={`inline-block px-2 py-1 text-xs rounded-full mt-1 ${

@@ -4,6 +4,7 @@ import { AppProviders } from "./providers/providers";
 import CookieConsent from "@/components/CookieConsent";
 import Navbar from "@/components/navbar/Navbar";
 import ChatNotification from "@/components/chat/chat-notification";
+import HydrationFix from "@/components/HydrationFix";
 import { Toaster } from 'sonner';
 
 export const viewport = {
@@ -47,6 +48,7 @@ export default function RootLayout({
         suppressHydrationWarning
       >
         <AppProviders>
+          <HydrationFix />
           {children}
           <ChatNotification />
           <Toaster 

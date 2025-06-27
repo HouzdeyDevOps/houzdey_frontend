@@ -124,7 +124,7 @@ export default function PropertiesManagement() {
   const { data: properties, isLoading } = useQuery<AdminProperty[]>({
     queryKey: ['admin-properties', filters],
     queryFn: () => adminApi.getProperties(filters),
-    keepPreviousData: true,
+    // keepPreviousData: true,
   });
 
   const updateStatusMutation = useMutation({
@@ -203,7 +203,7 @@ export default function PropertiesManagement() {
       : (property.sale_price || property.price);
     
     return property.listing_type === 'rent' 
-      ? `₦${price.toLocaleString()}/month`
+      ? `₦${price.toLocaleString()}/year`
       : `₦${price.toLocaleString()}`;
   };
 

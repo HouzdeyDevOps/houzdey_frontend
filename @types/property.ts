@@ -7,7 +7,7 @@ export interface Property {
   id: string;
   title: string;
   price: number;  // For backward compatibility
-  rental_price?: number;  // Monthly rent price
+  rental_price?: number;  // Annual rent price
   sale_price?: number;    // Sale price
   listing_type: ListingType;
   type: string;

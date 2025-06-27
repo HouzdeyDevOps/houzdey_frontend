@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { SortOrder, SortBy } from '@/@types/property';
+import { useMounted } from '@/utils/hydration';
 
 interface SortingSelectProps {
   sortBy: SortBy;
@@ -8,35 +9,18 @@ interface SortingSelectProps {
 }
 
 const SortingSelect: React.FC<SortingSelectProps> = ({ sortBy, sortOrder, onSortChange }) => {
-  const [isClient, setIsClient] = useState(false);
+  const mounted = useMounted();
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    // Return a static version for SSR
-    return (
-      <select 
-        className="border rounded-lg px-3 py-2"
-        value={`${sortBy}-${sortOrder}`}
-        readOnly
-      >
-        <option value="created_at-desc">Newest to Oldest</option>
-        <option value="created_at-asc">Oldest to Newest</option>
-        <option value="price-asc">Price: Low to High</option>
-        <option value="price-desc">Price: High to Low</option>
-      </select>
-    );
-  }
+  const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (!mounted) return; // Prevent change events during SSR
+    const [sort_by, sort_order] = e.target.value.split('-');
+    onSortChange(sort_by as SortBy, sort_order as SortOrder);
+  };
 
   return (
     <select 
       className="border rounded-lg px-3 py-2"
-      onChange={(e) => {
-        const [sort_by, sort_order] = e.target.value.split('-');
-        onSortChange(sort_by as SortBy, sort_order as SortOrder);
-      }}
+      onChange={handleChange}
       value={`${sortBy}-${sortOrder}`}
       suppressHydrationWarning={true}
     >

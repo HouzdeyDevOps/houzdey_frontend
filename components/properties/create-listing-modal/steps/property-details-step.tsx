@@ -38,7 +38,7 @@ export default function PropertyDetailsStep({
           >
             <div className="text-center">
               <div className="text-lg font-semibold">For Rent</div>
-              <div className="text-sm text-gray-600">Monthly rental</div>
+              <div className="text-sm text-gray-600">Annual rental</div>
             </div>
           </button>
           <button
@@ -74,7 +74,7 @@ export default function PropertyDetailsStep({
         {/* Property Price - Dynamic based on listing type */}
         <div className="">
           <label className="block font-medium mb-1">
-            {formData.listing_type === ListingType.RENT ? "Monthly Rent" : "Sale Price"}
+            {formData.listing_type === ListingType.RENT ? "Annual Rent" : "Sale Price"}
           </label>
           <div className="relative mb-5">
             <span className="absolute left-3 top-[50%] -translate-y-1/2">
@@ -82,7 +82,7 @@ export default function PropertyDetailsStep({
             </span>
             <input
               type="text"
-              placeholder={formData.listing_type === ListingType.RENT ? "Enter monthly rent" : "Enter sale price"}
+              placeholder={formData.listing_type === ListingType.RENT ? "Enter annual rent" : "Enter sale price"}
               className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
               value={formData.listing_type === ListingType.RENT ? formData.rental_price : formData.sale_price}
               onChange={(e) => {

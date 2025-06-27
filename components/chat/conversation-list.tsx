@@ -160,6 +160,14 @@ export default function ConversationList({
               height={48}
               className="object-cover rounded-full"
             />
+            {/* Property indicator - small colored dot */}
+            <div 
+              className="absolute bottom-0 left-0 w-4 h-4 rounded-full border-2 border-white"
+              style={{ 
+                backgroundColor: `hsl(${(conversation.property_id.charCodeAt(0) * 137.508) % 360}, 70%, 60%)` 
+              }}
+              title={`Property: ${conversation.property?.title || conversation.property_id}`}
+            />
             {conversation.unread_count > 0 && (
               <div className="absolute -top-1 -right-2 bg-indigo-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {conversation.unread_count}
@@ -176,6 +184,10 @@ export default function ConversationList({
                   {formatMessageTime(conversation.last_message_time)}
                 </span>
               )}
+            </div>
+            {/* Property information - show what property this conversation is about */}
+            <div className="text-xs text-gray-400 mb-1 truncate">
+              {conversation.property?.title || `Property #${conversation.property_id}`}
             </div>
             <div className="flex items-center gap-2 min-w-0">
               <span

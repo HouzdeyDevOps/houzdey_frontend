@@ -649,7 +649,7 @@ export default function ChatWindow() {
   };
 
   // Handle right click on message
-  const handleMessageContextMenu = (
+  const handleMessageContextMenu = useCallback((
     e: React.MouseEvent,
     message: Message,
     fileUrl?: string
@@ -664,10 +664,10 @@ export default function ChatWindow() {
       fileUrl,
       isSender: message.sender_id === user?.id,
     });
-  };
+  }, [user?.id]);
 
   // Handle message deletion
-  const handleDeleteMessage = async (messageId: string) => {
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
     try {
       await chatApi.deleteMessage(messageId);
       // Remove message from state
@@ -677,7 +677,7 @@ export default function ChatWindow() {
       console.error("Failed to delete message:", error);
       setError("Failed to delete message. Please try again.");
     }
-  };
+  }, []);
 
   // Handle file download
   const handleDownload = async (fileUrl: string) => {
