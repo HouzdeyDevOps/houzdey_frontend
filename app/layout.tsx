@@ -17,15 +17,20 @@ export const metadata: Metadata = {
   description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
   keywords: "property rental, house rent, apartments, real estate, Nigeria housing",
   authors: [{ name: "Houzdey" }],
-  metadataBase: new URL('https://www.houzdey.com'),
-  alternates: {
-    canonical: '/',
-  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'),
   openGraph: {
     title: "Houzdey - Find Your Perfect Home",
     description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
     url: "https://www.houzdey.com/",
     siteName: "Houzdey",
+    images: [
+      {
+        url: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1687888425/houzdey-logo_p2we1a.png`,
+        width: 1200,
+        height: 630,
+        alt: 'Houzdey Logo',
+      },
+    ],
     type: "website",
   },
   twitter: {
@@ -41,12 +46,31 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const websiteJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    url: 'https://www.houzdey.com/',
+    name: 'Houzdey',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: 'https://www.houzdey.com/properties?q={search_term_string}',
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  };
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`antialiased transition-colors duration-200`}
         suppressHydrationWarning
       >
+        {/* SEO: Add WebSite JSON-LD structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
         <AppProviders>
           <HydrationFix />
           {children}
