@@ -17,6 +17,7 @@ export interface CreateListingFormData {
   description: string;
   images: string[];
   coverImage: string | null;
+  video: string | null;
   beds: string;
   baths: string;
   toilets: string;

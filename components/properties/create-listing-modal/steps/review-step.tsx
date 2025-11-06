@@ -47,6 +47,21 @@ const ReviewStep = ({ formData, setStep }: ReviewStepProps) => {
       value: formData.size ? `${formData.size} sqm` : null,
       step: 2,
     },
+    ...(formData.agency_fee ? [{
+      title: "Agency Fee",
+      value: formatPrice(formData.agency_fee),
+      step: 2,
+    }] : []),
+    ...(formData.legal_fee ? [{
+      title: "Legal Fee",
+      value: formatPrice(formData.legal_fee),
+      step: 2,
+    }] : []),
+    ...(formData.other_fees ? [{
+      title: "Other Fees",
+      value: formatPrice(formData.other_fees),
+      step: 2,
+    }] : []),
     {
       title: "Amenities",
       value: formData.amenities.map((a) => a.name).join(", "),

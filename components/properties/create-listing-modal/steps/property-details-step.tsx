@@ -9,6 +9,20 @@ interface PropertyDetailsStepProps {
   updateForm: (field: string, value: any) => void;
 }
 
+// Helper function to format number with thousand separators
+const formatNumberWithCommas = (value: string | number): string => {
+  if (!value) return "";
+  // Remove all non-digit characters
+  const numericValue = value.toString().replace(/\D/g, "");
+  // Add thousand separators
+  return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
+// Helper function to parse formatted number back to plain number
+const parseFormattedNumber = (value: string): string => {
+  return value.replace(/,/g, "");
+};
+
 export default function PropertyDetailsStep({
   formData,
   updateForm,
@@ -84,14 +98,15 @@ export default function PropertyDetailsStep({
               type="text"
               placeholder={formData.listing_type === ListingType.RENT ? "Enter annual rent" : "Enter sale price"}
               className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-              value={formData.listing_type === ListingType.RENT ? formData.rental_price : formData.sale_price}
+              value={formatNumberWithCommas(formData.listing_type === ListingType.RENT ? formData.rental_price : formData.sale_price)}
               onChange={(e) => {
+                const rawValue = parseFormattedNumber(e.target.value);
                 if (formData.listing_type === ListingType.RENT) {
-                  updateForm("rental_price", e.target.value);
-                  updateForm("price", e.target.value); // For backward compatibility
+                  updateForm("rental_price", rawValue);
+                  updateForm("price", rawValue); // For backward compatibility
                 } else {
-                  updateForm("sale_price", e.target.value);
-                  updateForm("price", e.target.value); // For backward compatibility
+                  updateForm("sale_price", rawValue);
+                  updateForm("price", rawValue); // For backward compatibility
                 }
               }}
             />
@@ -112,8 +127,8 @@ export default function PropertyDetailsStep({
                 type="text"
                 placeholder="Enter agency fee"
                 className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                value={formData.agency_fee || ""}
-                onChange={(e) => updateForm("agency_fee", e.target.value)}
+                value={formatNumberWithCommas(formData.agency_fee || "")}
+                onChange={(e) => updateForm("agency_fee", parseFormattedNumber(e.target.value))}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -132,8 +147,8 @@ export default function PropertyDetailsStep({
                 type="text"
                 placeholder="Enter legal fee"
                 className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                value={formData.legal_fee || ""}
-                onChange={(e) => updateForm("legal_fee", e.target.value)}
+                value={formatNumberWithCommas(formData.legal_fee || "")}
+                onChange={(e) => updateForm("legal_fee", parseFormattedNumber(e.target.value))}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
@@ -152,8 +167,8 @@ export default function PropertyDetailsStep({
                 type="text"
                 placeholder="Enter other fees"
                 className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                value={formData.other_fees || ""}
-                onChange={(e) => updateForm("other_fees", e.target.value)}
+                value={formatNumberWithCommas(formData.other_fees || "")}
+                onChange={(e) => updateForm("other_fees", parseFormattedNumber(e.target.value))}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">

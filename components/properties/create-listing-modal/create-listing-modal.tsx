@@ -43,6 +43,7 @@ export default function CreateListingModal({
     description: "",
     images: [],
     coverImage: null,
+    video: null,
     beds: "",
     baths: "",
     toilets: "",

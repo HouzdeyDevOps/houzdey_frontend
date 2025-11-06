@@ -87,6 +87,18 @@ export const propertyApi = {
         form.append("images", new File([imageFile], "image.jpg"));
       }
 
+      // Handle video
+      if (formData.video) {
+        try {
+          const videoBlob = await fetch(formData.video).then(r => r.blob());
+          const videoExtension = videoBlob.type.split('/')[1] || 'mp4';
+          form.append("video", new File([videoBlob], `property-video.${videoExtension}`, { type: videoBlob.type }));
+        } catch (error) {
+          console.error("Error processing video:", error);
+          // Continue without video if there's an error
+        }
+      }
+
       const token = localStorage.getItem("token");
       
       const response = await axios.post(`${API_BASE_URL}/api/v1/properties`, form, {
