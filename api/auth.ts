@@ -34,13 +34,14 @@ export const authApi = {
   // async signin(data: UserSignInParams) {
   async signin(data: UserSignInParams): Promise<SignInResponse> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/signin`, {
+      const response = await axios.post(`${API_BASE_URL}/${API_VERSION}/users/login`, {
         email: data.email,
         password: data.password,
       });
 
-      // Store token in localStorage
+      // Store both access and refresh tokens
       localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
 
       // Set default authorization header
       axios.defaults.headers.common[
@@ -174,11 +175,12 @@ export const authApi = {
         { code: code }
       );
 
+      // Store both access and refresh tokens
+      localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      
       // Set token in axios defaults
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
-      
-      // Store token in localStorage
-      localStorage.setItem("token", response.data.access_token);
 
       return response.data;
     } catch (error: any) {
@@ -198,7 +200,10 @@ export const authApi = {
         }
       );
 
+      // Store both access and refresh tokens
       localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      
       axios.defaults.headers.common[
         "Authorization"
       ] = `Bearer ${response.data.access_token}`;
@@ -240,11 +245,12 @@ export const authApi = {
         { code }
       );
 
+      // Store both access and refresh tokens
+      localStorage.setItem("token", response.data.access_token);
+      localStorage.setItem("refresh_token", response.data.refresh_token);
+      
       // Set token in axios defaults
       axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
-      
-      // Store token in localStorage
-      localStorage.setItem("token", response.data.access_token);
 
       return response.data;
     } catch (error: any) {
@@ -358,6 +364,65 @@ export const authApi = {
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || "Failed to deactivate account");
+    }
+  },
+
+  async refreshAccessToken(): Promise<string> {
+    try {
+      const refreshToken = localStorage.getItem("refresh_token");
+      
+      if (!refreshToken) {
+        throw new Error("No refresh token available");
+      }
+
+      const response = await axios.post(
+        `${API_BASE_URL}/${API_VERSION}/users/refresh`,
+        { refresh_token: refreshToken }
+      );
+
+      // Store new access token
+      localStorage.setItem("token", response.data.access_token);
+      
+      // Update axios default header
+      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
+
+      return response.data.access_token;
+    } catch (error: any) {
+      // If refresh fails, clear tokens and redirect to login
+      localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
+      delete axios.defaults.headers.common["Authorization"];
+      
+      throw new Error("Session expired. Please login again.");
+    }
+  },
+
+  async logout(): Promise<void> {
+    try {
+      const token = localStorage.getItem("token");
+      
+      if (token) {
+        // Call backend logout to blacklist the token
+        await axios.post(
+          `${API_BASE_URL}/${API_VERSION}/users/logout`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        );
+      }
+    } catch (error) {
+      // Even if backend call fails, still clear local storage
+      console.error("Logout error:", error);
+    } finally {
+      // Clear tokens from storage
+      localStorage.removeItem("token");
+      localStorage.removeItem("refresh_token");
+      
+      // Remove authorization header
+      delete axios.defaults.headers.common["Authorization"];
     }
   },
 };
