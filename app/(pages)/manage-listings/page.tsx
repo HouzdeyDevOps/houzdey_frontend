@@ -9,6 +9,7 @@ import { propertyApi } from "@/api/properties";
 import { toast } from "sonner";
 import { Property } from "@/@types/property";
 import ProtectedRoute from "@/components/auth/protected-route";
+import CreateListingModal from "@/components/properties/create-listing-modal/create-listing-modal";
 
 type SortOption = "newest" | "oldest";
 
@@ -17,6 +18,8 @@ export default function ManageListing() {
   const [listedProperties, setListedProperties] = useState<Property[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOption>("newest");
   const [activeStatus, setActiveStatus] = useState("all");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
   // Fetch user's properties
   const fetchUserProperties = async () => {
@@ -45,6 +48,20 @@ export default function ManageListing() {
     } catch (error: any) {
       toast.error(error.message || "Failed to delete property");
     }
+  };
+
+  // Handle property edit
+  const handleEditListing = (property: Property) => {
+    setEditingProperty(property);
+    setIsEditModalOpen(true);
+  };
+
+  // Handle edit modal close
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingProperty(null);
+    // Refresh properties list after edit
+    fetchUserProperties();
   };
 
   // Filter properties based on status
@@ -155,11 +172,20 @@ export default function ManageListing() {
                   key={property.id}
                   property={property}
                   onDelete={() => handleDeleteListing(property.id)}
+                  onEdit={handleEditListing}
                 />
               ))}
             </div>
           )}
         </div>
+
+        {/* Edit Listing Modal */}
+        <CreateListingModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          property={editingProperty}
+          mode="edit"
+        />
       </div>
     </ProtectedRoute>
   );

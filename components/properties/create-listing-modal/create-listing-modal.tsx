@@ -10,6 +10,7 @@ import {
 } from "./steps";
 
 import { CreateListingFormData as FormData, PropertyType, StepProps, ListingType } from "@/@types/create-listing";
+import { Property } from "@/@types/property";
 import ExitModal from "./exit-modal";
 import LoadingModal from "./loading-modal";
 import SuccessModal from "./success-modal";
@@ -18,6 +19,8 @@ import { propertyApi } from "@/api/properties";
 interface CreateListingModalProps {
   isOpen: boolean;
   onClose: () => void;
+  property?: Property | null; // Optional property for editing
+  mode?: 'create' | 'edit';
 }
 
 const TOTAL_STEPS = 4;
@@ -25,6 +28,8 @@ const TOTAL_STEPS = 4;
 export default function CreateListingModal({
   isOpen,
   onClose,
+  property = null,
+  mode = 'create'
 }: CreateListingModalProps) {
   const [step, setStep] = useState(1);
   const [showExitModal, setShowExitModal] = useState(false);
@@ -32,30 +37,64 @@ export default function CreateListingModal({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    type: PropertyType.Apartment,
-    price: "",
-    listing_type: ListingType.RENT,
-    rental_price: "",
-    sale_price: "",
-    amenities: [],
-    description: "",
-    images: [],
-    coverImage: null,
-    video: null,
-    beds: "",
-    baths: "",
-    toilets: "",
-    condition: "",
-    furnishing: "",
-    address: "",
-    state: "",
-    lga: "",
-    ward: "",
-    estate: "",
-    size: "",
-  });
+  const getInitialFormData = (): FormData => {
+    if (property && mode === 'edit') {
+      // Cast property to any to access fields that might exist in the database but not in the type
+      const prop = property as any;
+      
+      return {
+        title: property.title || "",
+        type: property.type as PropertyType,
+        price: property.price?.toString() || "",
+        listing_type: property.listing_type || ListingType.RENT,
+        rental_price: property.rental_price?.toString() || "",
+        sale_price: property.sale_price?.toString() || "",
+        amenities: property.amenities || [],
+        description: property.description || "",
+        images: property.images || [],
+        coverImage: property.images?.[0] || null,
+        video: property.video || null,
+        beds: property.beds?.toString() || "",
+        baths: property.baths?.toString() || "",
+        toilets: prop.toilets?.toString() || "",
+        condition: prop.condition || "",
+        furnishing: prop.furnishing || "",
+        address: property.address || "",
+        state: property.state || "",
+        lga: property.lga || "",
+        ward: property.ward || "",
+        estate: property.estate || "",
+        size: property.size || "",
+      };
+    }
+
+    return {
+      title: "",
+      type: PropertyType.Apartment,
+      price: "",
+      listing_type: ListingType.RENT,
+      rental_price: "",
+      sale_price: "",
+      amenities: [],
+      description: "",
+      images: [],
+      coverImage: null,
+      video: null,
+      beds: "",
+      baths: "",
+      toilets: "",
+      condition: "",
+      furnishing: "",
+      address: "",
+      state: "",
+      lga: "",
+      ward: "",
+      estate: "",
+      size: "",
+    };
+  };
+
+  const [formData, setFormData] = useState<FormData>(getInitialFormData());
 
   const updateForm = useCallback((field: string, value: any) => {
     setFormData(prev => ({
@@ -145,7 +184,12 @@ export default function CreateListingModal({
         }
       }
 
-      await propertyApi.createProperty(formData);
+      if (mode === 'edit' && property) {
+        await propertyApi.updateProperty(property.id, formData);
+      } else {
+        await propertyApi.createProperty(formData);
+      }
+      
       setIsPosting(false);
       setShowSuccessModal(true);
       
@@ -158,12 +202,12 @@ export default function CreateListingModal({
       // return () => clearTimeout(timeoutId);
     } catch (error) {
       setIsPosting(false);
-      console.error("Failed to create listing:", error);
-      setValidationError("Failed to create listing. Please try again.");
+      console.error(`Failed to ${mode === 'edit' ? 'update' : 'create'} listing:`, error);
+      setValidationError(`Failed to ${mode === 'edit' ? 'update' : 'create'} listing. Please try again.`);
     }
-  }, [formData, validateStep, onClose]);
+  }, [formData, validateStep, onClose, mode, property]);
 
-  // Reset form when modal is opened/closed
+  // Reset form when modal is opened/closed or property changes
   useEffect(() => {
     if (!isOpen) {
       setStep(1);
@@ -171,8 +215,11 @@ export default function CreateListingModal({
       setShowExitModal(false);
       setIsPosting(false);
       setShowSuccessModal(false);
+    } else {
+      // When modal opens, reset form data based on mode
+      setFormData(getInitialFormData());
     }
-  }, [isOpen]);
+  }, [isOpen, property, getInitialFormData]);
 
   if (!isOpen) return null;
 
@@ -198,7 +245,9 @@ export default function CreateListingModal({
                 <ChevronLeft className="w-5 h-5" />
               </button>
             )}
-            <h2 className="text-xl font-semibold">Create a listing</h2>
+            <h2 className="text-xl font-semibold">
+              {mode === 'edit' ? 'Edit listing' : 'Create a listing'}
+            </h2>
             <button
               onClick={onClose}
               className="p-2 hover:bg-gray-100 rounded-full absolute right-5"
@@ -239,7 +288,7 @@ export default function CreateListingModal({
                   onClick={handleSubmit}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full"
                 >
-                  Post listing
+                  {mode === 'edit' ? 'Update listing' : 'Post listing'}
                 </button>
               </div>
             ) : (
@@ -263,6 +312,7 @@ export default function CreateListingModal({
       <LoadingModal isOpen={isPosting} />
       <SuccessModal
         isOpen={showSuccessModal}
+        mode={mode}
         onClose={() => {
           setShowSuccessModal(false);
           // refresh page

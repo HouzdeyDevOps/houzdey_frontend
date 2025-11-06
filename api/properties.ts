@@ -214,4 +214,94 @@ export const propertyApi = {
       );
     }
   },
+
+  async updateProperty(id: string, formData: CreateListingFormData): Promise<any> {
+    try {
+      const form = new FormData();
+      
+      // Generate the title using our utility function
+      const generatedTitle = generatePropertyTitle(formData);
+      
+      // Basic fields
+      form.append("title", generatedTitle);
+      form.append("type", formData.type);
+      form.append("price", formData.price.toString());
+      form.append("listing_type", formData.listing_type);
+      if (formData.rental_price) {
+        form.append("rental_price", formData.rental_price.toString());
+      }
+      if (formData.sale_price) {
+        form.append("sale_price", formData.sale_price.toString());
+      }
+      form.append("description", formData.description);
+      form.append("amenities", JSON.stringify(formData.amenities));
+
+      // Handle numeric fields
+      const beds = Number(formData.beds);
+      const baths = Number(formData.baths);
+      const toilets = Number(formData.toilets);
+
+      form.append("beds", (isNaN(beds) || beds < 0 ? 0 : beds).toString());
+      form.append("baths", (isNaN(baths) || baths < 0 ? 0 : baths).toString());
+      form.append("toilets", (isNaN(toilets) || toilets < 0 ? 0 : toilets).toString());
+
+      // Other fields
+      form.append("condition", formData.condition);
+      form.append("furnishing", formData.furnishing);
+      form.append("address", formData.address);
+      form.append("state", formData.state);
+      form.append("lga", formData.lga);
+      form.append("ward", formData.ward);
+      form.append("estate", formData.estate || "");
+      form.append("size", formData.size || "");
+
+      // Handle images - only upload new blob URLs
+      if (formData.coverImage && formData.coverImage.startsWith('blob:')) {
+        const coverImageFile = await fetch(formData.coverImage).then(r => r.blob());
+        form.append("images", new File([coverImageFile], "cover.jpg"));
+      }
+      
+      for (const imageUrl of formData.images) {
+        if (imageUrl.startsWith('blob:')) {
+          const imageFile = await fetch(imageUrl).then(r => r.blob());
+          form.append("images", new File([imageFile], "image.jpg"));
+        }
+      }
+
+      // Handle video
+      if (formData.video && formData.video.startsWith('blob:')) {
+        try {
+          const videoBlob = await fetch(formData.video).then(r => r.blob());
+          const videoExtension = videoBlob.type.split('/')[1] || 'mp4';
+          form.append("video", new File([videoBlob], `property-video.${videoExtension}`, { type: videoBlob.type }));
+        } catch (error) {
+          console.error("Error processing video:", error);
+        }
+      }
+
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        throw new Error("Authentication required. Please log in again.");
+      }
+      
+      const response = await axios.put(`${API_BASE_URL}/api/v1/properties/${id}`, form, {
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "multipart/form-data",
+          "Authorization": `Bearer ${token}`
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to update property";
+      console.error("Property update error:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        detail: error.response?.data?.detail,
+        error: error.response?.data
+      });
+      throw new Error(errorMessage);
+    }
+  },
 };
