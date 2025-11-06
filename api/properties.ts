@@ -74,7 +74,7 @@ export const propertyApi = {
       form.append("lga", formData.lga);
       form.append("ward", formData.ward);
       form.append("estate", formData.estate || "");
-      form.append("size", formData.size);
+      form.append("size", formData.size || "");
 
       // Handle images
       if (formData.coverImage) {
