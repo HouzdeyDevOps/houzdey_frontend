@@ -25,12 +25,10 @@ export class ChatService {
 
     // If socket is already connected, resolve immediately
     if (this.socket?.connected) {
-      console.log("Socket already connected");
       return Promise.resolve();
     }
 
     this.connectionPromise = new Promise((resolve, reject) => {
-      console.log("Initializing socket connection with token");
       
       // Clean up existing socket if any
       if (this.socket) {
@@ -50,13 +48,11 @@ export class ChatService {
 
       // Set up event listeners
       this.socket.on("connect", () => {
-        console.log("Socket connected successfully");
         this.notifyConnectionHandlers(true);
         resolve();
       });
 
       this.socket.on('connect_confirmed', (data: { user_id: string }) => {
-        console.log("Connection confirmed for user:", data.user_id);
         // Request status updates for all users after connection is confirmed
         if (this.socket && data.user_id) {
         this.socket.emit('get_user_status', { user_id: data.user_id });
@@ -64,7 +60,6 @@ export class ChatService {
       });
 
       this.socket.on('new_message', (message) => {
-        console.log("New message received:", message);
         this.messageHandlers.forEach(handler => handler(message));
       });
       
@@ -74,14 +69,11 @@ export class ChatService {
       });
 
       this.socket.on('typing_status', (status) => {
-        console.log("Typing status received:", status);
         this.typingHandlers.forEach(handler => handler(status));
       });
 
       this.socket.on('user_status', (status) => {
-        console.log("User status update received:", status);
         if (status && status.user_id && status.status) {
-          console.log(`Updating status for user ${status.user_id} to ${status.status}`);
           this.userStatusHandlers.forEach(handler => handler(status));
         } else {
           console.warn("Received invalid user status update:", status);
@@ -89,7 +81,6 @@ export class ChatService {
       });
 
       this.socket.on('messages_read', (data: { conversation_id: string }) => {
-        console.log("Messages marked as read in conversation:", data.conversation_id);
         this.readStatusHandlers.forEach(handler => handler(data.conversation_id));
       });
 
@@ -101,13 +92,13 @@ export class ChatService {
       });
 
       this.socket.on('disconnect', (reason) => {
-        console.log("Socket disconnected:", reason);
+
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
         
         // Attempt to reconnect if not intentionally disconnected
         if (reason !== "io client disconnect") {
-          console.log("Attempting to reconnect...");
+  
           const token = localStorage.getItem("token");
           if (token) {
             setTimeout(() => {
@@ -134,7 +125,7 @@ export class ChatService {
 
 
   public async joinConversation(conversationId: string): Promise<void> {
-    console.log("Joining conversation:", conversationId);
+
     
     // Ensure socket is connected before joining
     if (!this.socket?.connected) {
@@ -165,7 +156,7 @@ export class ChatService {
     conversationId: string,
     content: string
   ): Promise<void> {
-    console.log(`Attempting to send message to conversation ${conversationId}:`, content);
+
     
     if (!this.socket?.connected) {
       console.warn("Socket not connected, attempting to reconnect");
@@ -212,7 +203,7 @@ export class ChatService {
       return;
     }
 
-    console.log(`Sending typing status for conversation ${conversationId}:`, isTyping);
+
     this.socket.emit("typing_status", {
       conversation_id: conversationId,
       is_typing: isTyping
@@ -230,7 +221,7 @@ export class ChatService {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
-      console.log("Socket disconnected manually");
+
     }
   }
 
@@ -271,15 +262,13 @@ export class ChatService {
       console.warn("Cannot get user status: socket not connected");
       return;
     }
-    console.log("Requesting status for user:", userId);
     this.socket.emit('get_user_status', { user_id: userId });
   }
 
   public onUserStatus(handler: (status: UserStatus) => void): () => void {
-    console.log("Registering user status handler");
-    this.userStatusHandlers.push(handler);
+   this.userStatusHandlers.push(handler);
     return () => {
-      console.log("Removing user status handler");
+
       this.userStatusHandlers = this.userStatusHandlers.filter(h => h !== handler);
     };
   }

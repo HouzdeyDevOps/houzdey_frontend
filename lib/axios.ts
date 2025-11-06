@@ -68,18 +68,23 @@ axiosInstance.interceptors.response.use(
         isRefreshing = false;
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/signin';
+        window.location.href = '/';
         return Promise.reject(error);
       }
 
       try {
         // Call refresh token endpoint
+        const refreshUrl = `${API_BASE_URL}/${API_VERSION}/users/refresh`;
+        console.log('Attempting token refresh at:', refreshUrl);
+        
         const response = await axios.post(
-          `${API_BASE_URL}/${API_VERSION}/users/refresh`,
+          refreshUrl,
           { refresh_token: refreshToken }
         );
 
         const newAccessToken = response.data.access_token;
+        
+        console.log('Token refresh successful');
         
         // Store new token
         localStorage.setItem('token', newAccessToken);
@@ -95,14 +100,15 @@ axiosInstance.interceptors.response.use(
         return axiosInstance(originalRequest);
       } catch (refreshError) {
         // Refresh failed, clear tokens and redirect to login
+        console.error('Token refresh failed:', refreshError);
         processQueue(refreshError, null);
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
         delete axiosInstance.defaults.headers.common['Authorization'];
         
-        // Redirect to signin page
+        // Redirect to home page (signin modal will open)
         if (typeof window !== 'undefined') {
-          window.location.href = '/signin';
+          window.location.href = '/';
         }
         
         return Promise.reject(refreshError);
