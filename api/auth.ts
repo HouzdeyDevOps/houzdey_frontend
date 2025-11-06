@@ -308,7 +308,7 @@ export const authApi = {
     try {
       const formData = new FormData();
       formData.append('email', email);
-      formData.append('code', code);
+      formData.append('reset_code', code);
       formData.append('new_password', newPassword);
 
       const response = await axios.post(

@@ -13,6 +13,7 @@ const preloadedState = {
     isLoading: false, 
     token: initializeAuth(),
     email: null,
+    verificationCode: null,
   }
 };
 

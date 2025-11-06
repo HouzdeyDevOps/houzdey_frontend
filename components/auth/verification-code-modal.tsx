@@ -12,6 +12,7 @@ import { setCurrentModal } from "@/store/slices/authModalSlice";
 import { useDispatch, useSelector } from "react-redux";
 import ResetPasswordModal from "./reset-password-modal";
 import { RootState } from "@/store/store";
+import { setVerificationCode as saveVerificationCode } from "@/store/slices/userAuthSlice";
 
 interface VerificationCodeModalProps {
   isOpen: boolean;
@@ -65,13 +66,15 @@ export default function VerificationCodeModal({
   const { mutate: verifyCode, isPending } = useMutation({
     mutationFn: () => authApi.verifyCode(email, verificationCode),
     onSuccess: () => {
-      setShowSuccess(true);
       if (mode === "forgotPassword") {
+        // Save verification code to Redux for use in ResetPasswordModal
+        dispatch(saveVerificationCode(verificationCode));
         showSuccessToast("Code verified successfully!");
-        setTimeout(() => {
-          dispatch(setCurrentModal("resetPassword"));
-        }, 2000);
+        // Go directly to reset password modal without showing success screen
+        dispatch(setCurrentModal("resetPassword"));
       } else if (mode === "signup") {
+        // For signup, show success screen before going to personal info
+        setShowSuccess(true);
         showSuccessToast("Email verified successfully!");
         setTimeout(() => {
           dispatch(setCurrentModal("personalInfo"));
@@ -86,7 +89,16 @@ export default function VerificationCodeModal({
   });
 
   const { mutate: resendCode, isPending: isResending } = useMutation({
-    mutationFn: () => authApi.resendCode(email),
+    mutationFn: () => {
+      // Use different endpoint based on mode
+      console.log("Resend code clicked, mode:", mode);
+      if (mode === "forgotPassword") {
+        console.log("Calling forgotPassword API");
+        return authApi.forgotPassword(email);
+      }
+      console.log("Calling resendCode API");
+      return authApi.resendCode(email);
+    },
     onSuccess: () => {
       showSuccessToast("Verification code resent successfully");
     },
@@ -238,7 +250,7 @@ export default function VerificationCodeModal({
       </div>
 
       <LoadingModal
-        isOpen={isPending || isResending}
+        isOpen={isPending}
         title="Verifying"
         message="Please wait while we verify your email"
         spinnerSize="sm"

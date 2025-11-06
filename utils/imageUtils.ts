@@ -17,7 +17,8 @@ export const getOptimizedImageUrl = (url: string | undefined, options: ImageOpti
     defaultImage = 'default-avatar'
   } = options;
 
-  if (!url) return `/assets/images/${defaultImage}.png`;
+  // Handle empty string, null, undefined, or whitespace-only URLs
+  if (!url || url.trim() === '') return `/assets/images/${defaultImage}.png`;
   
   if (url.includes('res.cloudinary.com')) {
     const transformations = `f_auto,q_auto:good,w_${width},h_${height},c_fill,d_${defaultImage}`;

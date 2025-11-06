@@ -20,6 +20,7 @@ interface AuthState {
   isLoading: boolean;
   token: string | null;
   email: string | null;
+  verificationCode: string | null;
 }
 
 const initialState: AuthState = {
@@ -28,6 +29,7 @@ const initialState: AuthState = {
   isLoading: false,
   token: null,
   email: null,
+  verificationCode: null,
 };
 
 const userAuthSlice = createSlice({
@@ -57,8 +59,11 @@ const userAuthSlice = createSlice({
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload;
     },
+    setVerificationCode: (state, action: PayloadAction<string>) => {
+      state.verificationCode = action.payload;
+    },
   },
 });
 
-export const { login, logout, updateUser, setEmail } = userAuthSlice.actions;
+export const { login, logout, updateUser, setEmail, setVerificationCode } = userAuthSlice.actions;
 export default userAuthSlice;
