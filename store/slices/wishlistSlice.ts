@@ -26,12 +26,26 @@ const wishlistSlice = createSlice({
   reducers: {
     setWishlistItems: (state, action: PayloadAction<string[]>) => {
       state.items = action.payload;
+      // Sync to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wishlist', JSON.stringify(action.payload));
+      }
     },
     addToWishlist: (state, action: PayloadAction<string>) => {
-      state.items.push(action.payload);
+      if (!state.items.includes(action.payload)) {
+        state.items.push(action.payload);
+        // Sync to localStorage
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('wishlist', JSON.stringify(state.items));
+        }
+      }
     },
     removeFromWishlist: (state, action: PayloadAction<string>) => {
       state.items = state.items.filter(id => id !== action.payload);
+      // Sync to localStorage
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('wishlist', JSON.stringify(state.items));
+      }
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;

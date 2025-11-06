@@ -1,15 +1,17 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 
-type ModalType = 'signup' | 'verification' | 'personalInfo' | 'success' | 'error' | 'exit' | 'signin' | 'none';
+type ModalType = 'signup' | 'verification' | 'personalInfo' | 'success' | 'error' | 'exit' | 'signin' | 'none' | 'forgotPassword' | 'resetPassword';
 
 
 interface AuthModalState {
   currentModal: ModalType;
+  mode: null | 'signup' | 'forgotPassword';
 }
 
 const initialState: AuthModalState = {
-  currentModal: 'none'
+  currentModal: 'none',
+  mode: null,
 };
 
 
@@ -22,9 +24,12 @@ const authModalSlice = createSlice({
     },
     closeModal: (state) => {
       state.currentModal = 'none';
-    }
+    },
+    setMode: (state, action: PayloadAction<'signup' | 'forgotPassword'>) => {
+      state.mode = action.payload;
+    },
   },
 });
 
-export const { setCurrentModal, closeModal } = authModalSlice.actions;
+export const { setCurrentModal, closeModal, setMode } = authModalSlice.actions;
 export default authModalSlice;

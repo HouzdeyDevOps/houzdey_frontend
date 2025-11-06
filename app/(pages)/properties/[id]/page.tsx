@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, MessageCircle, Phone, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import Navbar from "@/components/navbar/Navbar";
 import ImageGalleryModal from "./image-gallary-modal";
@@ -15,6 +15,9 @@ import { formatLocation } from "@/utils/formatLocation";
 import { generateGoogleMapsEmbedUrl } from "@/utils/mapUtils";
 import { PropertyDetailSkeleton } from "@/components/ui/property-skeleton";
 import { chatApi } from "@/api/chat";
+import { authApi } from "@/api/auth";
+import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Review {
   id: number;
@@ -43,6 +46,7 @@ interface Property {
     image: string;
     company: string;
     role: string;
+    phone_number?: string;
   };
   reviews: Review[];
 }
@@ -55,7 +59,12 @@ export default function PropertyDetails() {
   const [property, setProperty] = useState<PropertyDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
+  const { user } = useAuth();
+
+  // Check if current user is the property owner
+  const isOwner = property && user && property.owner_id === user.id;
 
   useEffect(() => {
     const fetchPropertyDetails = async () => {
@@ -95,6 +104,16 @@ export default function PropertyDetails() {
     }
   };
 
+  const handlePhoneVerified = async (phoneNumber: string) => {
+    try {
+      // Refresh property data to get updated host info
+      const data = await propertyApi.getPropertyById(id as string);
+      setProperty(data);
+    } catch (err) {
+      console.error('Error refreshing property data:', err);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -107,7 +126,7 @@ export default function PropertyDetails() {
     return (
       <div className="min-h-screen bg-white">
         <Navbar showSearch={false} showPropertyTypeFilters={false} />
-        <div className="max-w-7xl mx-auto px-4 py-4 mt-24">
+        <div className="max-w-7xl mx-auto px-8 py-4 mt-24">
           <div className="flex items-center gap-2 mb-4">
             <Link
               href="/properties"
@@ -131,15 +150,13 @@ export default function PropertyDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-white px-4">
+    <div className="min-h-screen bg-white">
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-
-      <main className="max-w-7xl mx-auto px-4 py-4 mt-24">
+      <main className="max-w-7xl mx-auto px-8 py-4 mt-24">
         {/* Back button and title */}
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 mb-4">
-            <Link href="/" className="flex items-center text-gray-600">
-              <ChevronLeft className="w-5 h-5" />
+            <div className="flex items-center gap-2 mb-10">
+            <Link href="/" className="flex items-center text-gray-600 font-semibold text-2xl">
+              <ChevronLeft className="w-6 h-6" />
               <span>Back</span>
             </Link>
           </div>
@@ -224,9 +241,60 @@ export default function PropertyDetails() {
                         : ""
                     } ${property.lga}, ${property.state}`}
                   </p>
-                  <p className="text-2xl font-semibold">
-                    ₦ {property.price.toLocaleString()} / year
-                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-2xl font-semibold">
+                      {property.listing_type === 'sale' ? (
+                        <>₦ {(property.sale_price || property.price).toLocaleString()}</>
+                      ) : (
+                        <>₦ {(property.rental_price || property.price).toLocaleString()} / year</>
+                      )}
+                    </p>
+                    <span className={`px-3 py-1 text-sm rounded-full ${
+                      property.listing_type === 'sale' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-blue-100 text-blue-800'
+                    }`}>
+                      {property.listing_type === 'sale' ? 'For Sale' : 'For Rent'}
+                    </span>
+                  </div>
+
+                  {/* Additional Fees Section - Show for both rentals and sales */}
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-lg font-semibold mb-4">Additional Fees</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Agency Fee */}
+                      {property.agency_fee && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                          <span className="text-gray-600">
+                            {property.listing_type === 'rent' 
+                              ? "Agency Fee"
+                              : "Agency Commission"}
+                          </span>
+                          <span className="font-medium">₦{property.agency_fee.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {/* Legal Fee */}
+                      {property.legal_fee && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                          <span className="text-gray-600">
+                            {property.listing_type === 'rent' 
+                              ? "Legal Fee"
+                              : "Legal Documentation Fee"}
+                          </span>
+                          <span className="font-medium">₦{property.legal_fee.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {/* Other Fees */}
+                      {property.other_fees && (
+                        <div className="flex justify-between items-center p-3 bg-white rounded-lg md:col-span-2">
+                          <span className="text-gray-600">Other Fees</span>
+                          <span className="font-medium">₦{property.other_fees.toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 {/* divider */}
@@ -295,11 +363,6 @@ export default function PropertyDetails() {
                       <p className="text-gray-600">{property?.host?.company}</p>
                     </div>
                   </div>
-                  {/* <p className="text-gray-600">James is an Agent</p>
-                  <p className="text-gray-600">
-                    James is an Agent and has been in the real estate business
-                    for over 10 years.
-                  </p> */}
                 </div>
 
                 {/* Reviews Section */}
@@ -338,18 +401,73 @@ export default function PropertyDetails() {
             {/* Right Column - Sticky Host Information */}
             <div className="lg:col-span-1">
               <div className="sticky top-40">
-                <div className="border rounded-xl p-6">
-                  <button 
-                    onClick={handleContactHost}
-                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700"
-                  >
-                    Contact Host
-                  </button>
+                <div className="border rounded-xl p-6 space-y-4">
+                  {isOwner ? (
+                    /* Owner View - Show property management options */
+                    <div className="space-y-3">
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <h3 className="text-sm font-medium text-green-800 mb-2">
+                          Your Property
+                        </h3>
+                        <p className="text-sm text-green-700">
+                          This is your property listing. You can manage it from your dashboard.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => router.push('/manage-listings')}
+                        className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
+                      >
+                        Manage Listing
+                      </button>
+                    </div>
+                  ) : (
+                    /* Visitor View - Show contact options */
+                    <>
+                      {property.host.phone_number ? (
+                        <>
+                          <button 
+                            onClick={handleContactHost}
+                            className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
+                          >
+                            <MessageCircle className="w-5 h-5" />
+                            Chat with Host
+                          </button>
+                          <a 
+                            href={`tel:${property.host.phone_number}`}
+                            className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
+                          >
+                            <Phone className="w-5 h-5" />
+                            Call Host
+                          </a>
+                        </>
+                      ) : (
+                        <div className="bg-yellow-50 p-4 rounded-lg">
+                          <div className="flex items-start gap-3">
+                            <AlertTriangle className="w-5 h-5 text-yellow-600 mt-0.5" />
+                            <div>
+                              <h3 className="text-sm font-medium text-yellow-800">
+                                Contact information not available
+                              </h3>
+                              <p className="mt-1 text-sm text-yellow-700">
+                                The host hasn't provided contact information yet.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               </div>
             </div>
           </div>
-        </div>
+
+        {/* Phone Verification Modal */}
+        <PhoneVerificationModal
+          isOpen={showPhoneVerificationModal}
+          onClose={() => setShowPhoneVerificationModal(false)}
+          onVerified={handlePhoneVerified}
+        />
       </main>
     </div>
   );

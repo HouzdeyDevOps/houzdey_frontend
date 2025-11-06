@@ -3,8 +3,14 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 export interface User {
   id: string;
   email: string;
+  first_name?: string;
+  last_name?: string;
   name?: string;
   profile_picture?: string;
+  phone_number?: string;
+  phone_verified?: boolean;
+  status?: string;
+  role?: string;
 }
 
 
@@ -13,6 +19,7 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   token: string | null;
+  email: string | null;
 }
 
 const initialState: AuthState = {
@@ -20,6 +27,7 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   token: null,
+  email: null,
 };
 
 const userAuthSlice = createSlice({
@@ -39,14 +47,18 @@ const userAuthSlice = createSlice({
       state.token = null;
       state.isAuthenticated = false;
       localStorage.removeItem('token');
+      localStorage.removeItem('wishlist');
     },
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       const auth = JSON.parse(localStorage.getItem('auth') || '{}');
       localStorage.setItem('auth', JSON.stringify({ ...auth, user: action.payload }));
     },
+    setEmail: (state, action: PayloadAction<string>) => {
+      state.email = action.payload;
+    },
   },
 });
 
-export const { login, logout, updateUser } = userAuthSlice.actions;
+export const { login, logout, updateUser, setEmail } = userAuthSlice.actions;
 export default userAuthSlice;

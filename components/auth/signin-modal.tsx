@@ -4,7 +4,7 @@ import { useState } from "react";
 import { X, ChevronLeft, Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useMutation } from "@tanstack/react-query";
 import ForgotPasswordModal from "./forgot-password-modal";
 import { login } from "@/store/slices/userAuthSlice";
@@ -14,7 +14,7 @@ import { signinSchema } from "@/utils/validationSchema";
 import { closeModal, setCurrentModal } from "@/store/slices/authModalSlice";
 import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
-import { AuthError, SignInResponse } from "@/@types/auth";
+import { AuthError } from "@/@types/auth";
 import GoogleAuthButton from "./GoogleAuthButton";
 import VerificationCodeModal from "./verification-code-modal";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
@@ -22,13 +22,11 @@ import { showSuccessToast, showErrorToast } from "@/utils/toast";
 interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToSignUp?: () => void;
 }
 
 export default function SignInModal({
   isOpen,
   onClose,
-  onSwitchToSignUp,
 }: SignInModalProps) {
   const [formData, setFormData] = useState({
     email: "",
@@ -36,12 +34,12 @@ export default function SignInModal({
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showError, setShowError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
-  const [showVerificationCodeModal, setShowVerificationCodeModal] = useState(false);
+  const [showVerificationCodeModal, setShowVerificationCodeModal] =
+    useState(false);
 
   const dispatch = useDispatch();
 
@@ -111,44 +109,12 @@ export default function SignInModal({
     }
   };
 
-  const handleResendVerification = async () => {
-    setIsResendingVerification(true);
-    try {
-      await authApi.resendVerificationEmail(formData.email);
-      showSuccessToast("Verification email sent successfully");
-      setShowVerificationCodeModal(true);
-    } catch (err: any) {
-      const message = err.message || "Failed to resend verification email";
-      setError({
-        type: "GENERAL_ERROR",
-        message: message,
-      });
-      setErrorMessage(message);
-      showErrorToast(message);
-      setShowError(true);
-    } finally {
-      setIsResendingVerification(false);
-    }
-  };
-
   const handleSwitchToSignUp = () => {
     dispatch(setCurrentModal("signup"));
   };
 
   if (!isOpen) return null;
 
-  if (showForgotPassword) {
-    return (
-      <ForgotPasswordModal
-        isOpen={showForgotPassword}
-        onClose={() => {
-          setShowForgotPassword(false);
-          onClose();
-        }}
-        onBack={() => setShowForgotPassword(false)}
-      />
-    );
-  }
 
   return (
     <>
@@ -171,24 +137,7 @@ export default function SignInModal({
             </button>
           </div>
 
-          {/* {error && (
-            <div className="mb-4 p-4 rounded-lg bg-red-50 text-red-600">
-              <p>{error.message}</p>
-              {error.type === "UNVERIFIED_EMAIL" && (
-                <button
-                  onClick={handleResendVerification}
-                  disabled={isResendingVerification}
-                  className="text-sm text-indigo-600 hover:text-indigo-700 mt-2"
-                >
-                  {isResendingVerification
-                    ? "Sending..."
-                    : "Resend verification email"}
-                </button>
-              )}
-            </div>
-          )} */}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block text-gray-700 mb-2">Email address</label>
               <input
@@ -228,9 +177,13 @@ export default function SignInModal({
                   )}
                 </button>
               </div>
+            </div>
+
+            <div className="flex justify-between items-center">
               <button
-                onClick={() => setShowForgotPassword(true)}
-                className="text-indigo-600 text-sm block mt-2 hover:underline"
+                type="button"
+                onClick={() => dispatch(setCurrentModal('forgotPassword'))}
+                className="text-indigo-600 text-sm hover:underline"
               >
                 Forgot password?
               </button>
@@ -257,6 +210,7 @@ export default function SignInModal({
                   alt="Facebook"
                   width={24}
                   height={24}
+                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
                 />
               </button>
               <button
@@ -268,9 +222,10 @@ export default function SignInModal({
                   alt="Apple"
                   width={24}
                   height={24}
+                  style={{ width: "24px", height: "24px", objectFit: "contain" }}
                 />
               </button>
-              <GoogleAuthButton 
+              <GoogleAuthButton
                 onError={(message) => {
                   setErrorMessage(message);
                   setShowError(true);
@@ -305,7 +260,7 @@ export default function SignInModal({
         isOpen={isPending}
         title="Signing in"
         message="Please wait while we verify your credentials"
-      />{" "}
+      />
       <ErrorModal
         isOpen={showError}
         onClose={() => setShowError(false)}
@@ -317,11 +272,6 @@ export default function SignInModal({
           onBack={() => setShowVerificationCodeModal(false)}
           onClose={() => setShowVerificationCodeModal(false)}
           email={formData.email}
-          onVerify={() => {
-            setShowVerificationCodeModal(false);
-            // Automatically sign in after verification
-            handleSubmit({ preventDefault: () => {} } as React.FormEvent);
-          }}
         />
       )}
     </>

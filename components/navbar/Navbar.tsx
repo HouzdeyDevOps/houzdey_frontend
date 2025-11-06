@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState } from "react";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X, AlertTriangle, Menu, MessageSquare, List, Heart, Settings, LogOut, Bell } from "lucide-react";
 import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import SignUpModal from "../auth/signup-modal";
@@ -11,10 +11,15 @@ import FilterModal from "../properties/filter-modal";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
 import ProfileDropdown from "./ProfileDropdown";
+import NotificationDropdown from "./NotificationDropdown";
 import { RootState } from "@/store/store";
 import SignInModal from "../auth/signin-modal";
 import { PropertyFilters } from "@/@types/property";
 import { useRouter } from "next/navigation";
+import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
+import { User, logout } from "@/store/slices/userAuthSlice";
+import ForgotPasswordModal from "../auth/forgot-password-modal";
+import ResetPasswordModal from "../auth/reset-password-modal";
 
 interface NavbarProps {
   showSearch: boolean;
@@ -37,17 +42,193 @@ const Navbar = ({
   const [showSignUp, setShowSignUp] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [filterCount, setFilterCount] = useState(0);
+  const [showPhoneVerificationModal, setShowPhoneVerificationModal] =
+    useState(false);
   const dispatch = useDispatch();
   const router = useRouter();
   const user = useSelector((state: RootState) => state.userAuth.user);
   const currentModal = useSelector(
     (state: RootState) => state.authModal.currentModal
   );
+  const email = useSelector((state: RootState) => state.userAuth.email);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const MobileMenu = () => (
+    <div className={`sticky inset-0 bg-black bg-opacity-50 z-50 lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div className="sticky inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl overflow-y-auto">
+        <div className="flex justify-end p-4">
+          <button onClick={toggleMobileMenu} className="p-2">
+            <X className="h-6 w-6" />
+          </button>
+        </div>
+        <div className="px-4 py-2 space-y-6">
+          {user ? (
+            <div className="flex items-center gap-3 px-2">
+              <Image
+                src={user?.profile_picture || "/assets/images/default-avatar.png"}
+                alt="Profile"
+                width={40}
+                height={40}
+                className="rounded-full"
+              />
+              <div>
+                <p className="font-semibold">{user.name || 'User'}</p>
+                <p className="text-sm text-gray-600">{user.email}</p>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Mobile Search */}
+          {showSearch && (
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search Properties, Locations ..."
+                  className="w-full px-4 py-3 border shadow-sm rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                  onChange={(e) => onSearchChange?.(e.target.value)}
+                />
+                <button className="absolute right-1.5 top-1/2 -translate-y-1/2 bg-indigo-600 text-white rounded-full p-2">
+                  <Search />
+                </button>
+              </div>
+              <button
+                onClick={() => {
+                  onFilterClick?.();
+                  toggleMobileMenu();
+                }}
+                className="flex items-center gap-2 p-2 w-full hover:bg-gray-50 rounded-lg"
+              >
+                <SlidersHorizontal className="w-5 h-5 text-indigo-600" />
+                <span>Filters {filterCount > 0 && `(${filterCount})`}</span>
+              </button>
+            </div>
+          )}
+
+          {/* Mobile Property Type Filters */}
+          {showPropertyTypeFilters && (
+            <div className="py-2 border-t">
+              <PropertyTypeNav />
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="space-y-4 border-t pt-4">
+            {showListingButton && (
+              <button
+                onClick={() => {
+                  if (user) {
+                    setShowCreateListing(true);
+                  } else {
+                    dispatch(setCurrentModal("signup"));
+                  }
+                  toggleMobileMenu();
+                }}
+                className="w-full px-4 py-3 font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
+              >
+                Create listing
+              </button>
+            )}
+            {!user && (
+              <button
+                onClick={() => {
+                  dispatch(closeModal());
+                  dispatch(setCurrentModal("signup"));
+                  toggleMobileMenu();
+                }}
+                className="w-full px-4 py-2 font-bold text-indigo-600 hover:bg-indigo-50 rounded-xl"
+              >
+                Sign up
+              </button>
+            )}
+          </div>
+
+          {/* User Menu Items */}
+          {user && (
+            <div className="space-y-1 border-t pt-4">
+              <div className="flex items-center justify-between px-4 py-2 hover:bg-gray-50 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Bell className="w-5 h-5 text-gray-500" />
+                  <span>Notifications</span>
+                </div>
+                <NotificationDropdown />
+              </div>
+              <Link
+                href="/chat"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
+                onClick={toggleMobileMenu}
+              >
+                <MessageSquare className="w-5 h-5 text-gray-500" />
+                <span>Chats</span>
+              </Link>
+              <Link
+                href="/manage-listings"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
+                onClick={toggleMobileMenu}
+              >
+                <List className="w-5 h-5 text-gray-500" />
+                <span>Manage listings</span>
+              </Link>
+              <Link
+                href="/favourites"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
+                onClick={toggleMobileMenu}
+              >
+                <Heart className="w-5 h-5 text-gray-500" />
+                <span>Favourites</span>
+              </Link>
+              <Link
+                href="/profile"
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
+                onClick={toggleMobileMenu}
+              >
+                <Settings className="w-5 h-5 text-gray-500" />
+                <span>Settings</span>
+              </Link>
+              <button
+                onClick={() => {
+                  dispatch(logout());
+                  toggleMobileMenu();
+                }}
+                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg text-red-600 w-full"
+              >
+                <LogOut className="w-5 h-5" />
+                <span>Sign out</span>
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div>
       {/* nav bar */}
+
       <div className="fixed top-0 left-0 right-0 z-50 bg-white">
+        {user?.phone_verified === false && (
+          <div className="bg-blue-50 border-l-4 border-blue-400 p-4">
+            <div className="flex items-center justify-center">
+              <AlertTriangle className="h-5 w-5 text-blue-400" />
+              <div className="ml-3">
+                <p className="text-sm text-blue-700">
+                  Please verify your phone number to enable all features
+                  <button
+                    onClick={() => setShowPhoneVerificationModal(true)}
+                    className="ml-2 font-medium text-blue-700 underline hover:text-blue-600"
+                  >
+                    Verify now
+                  </button>
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
         <header
           className={`relative border-b ${
             showPropertyTypeFilters ? "p-4" : "p-2"
@@ -63,12 +244,14 @@ const Navbar = ({
                 alt="Houzdey"
                 width={180}
                 height={40}
-                style={{ height: "auto" }}
-                priority 
+                style={{ width: "auto", height: "80px" }}
+                priority
               />
             </button>
+            
+            {/* Desktop Search */}
             {showSearch && (
-              <div className="flex-1 max-w-lg mx-8">
+              <div className="hidden lg:flex flex-1 max-w-lg mx-8">
                 <div className="relative flex flex-1 items-center justify-center gap-x-2">
                   <div className="relative flex-1">
                     <input
@@ -96,7 +279,8 @@ const Navbar = ({
               </div>
             )}
 
-            <div className="flex gap-4 justify-end items-center">
+            {/* Desktop Navigation */}
+            <div className="hidden lg:flex gap-4 justify-end items-center">
               {showListingButton && (
                 <button
                   onClick={
@@ -123,17 +307,26 @@ const Navbar = ({
                 </button>
               )}
             </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={toggleMobileMenu}
+              className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+            >
+              <Menu className="h-6 w-6" />
+            </button>
           </div>
         </header>
 
-        {/* Property Type Filters */}
+        {/* Desktop Property Type Filters */}
         {showPropertyTypeFilters && (
-          <>
-            <nav className="border-b px-4 py-2">
-              <PropertyTypeNav />
-            </nav>
-          </>
+          <nav className="border-b px-4 py-2 hidden lg:block">
+            <PropertyTypeNav />
+          </nav>
         )}
+
+        {/* Mobile Menu */}
+        <MobileMenu />
 
         {/* Add the modal component: */}
         <CreateListingModal
@@ -152,7 +345,6 @@ const Navbar = ({
           onClose={() => {
             dispatch(closeModal());
           }}
-          onSwitchToSignUp={() => dispatch(setCurrentModal("signup"))}
         />
         <FilterModal
           isOpen={showFilters}
@@ -161,6 +353,32 @@ const Navbar = ({
             onFilterChange?.(filters);
             setFilterCount(Object.keys(filters).length);
           }}
+        />
+
+        {/* Add PhoneVerificationModal */}
+        <PhoneVerificationModal
+          isOpen={showPhoneVerificationModal && !user?.phone_verified}
+          onClose={() => setShowPhoneVerificationModal(false)}
+          onVerified={(phoneNumber: string) => {
+            // Update user state with verified phone number
+            dispatch({
+              type: "userAuth/updateUser",
+              payload: { phone_verified: true, phone_number: phoneNumber },
+            });
+          }}
+        />
+
+        <ForgotPasswordModal
+          isOpen={currentModal === "forgotPassword"}
+          onClose={() => dispatch(closeModal())}
+          onBack={() => dispatch(setCurrentModal("signin"))}
+        />
+
+        <ResetPasswordModal
+          isOpen={currentModal === 'resetPassword'}
+          onClose={() => dispatch(closeModal())}
+          onBack={() => dispatch(setCurrentModal('forgotPassword'))}
+          email={email || ''}
         />
       </div>
     </div>

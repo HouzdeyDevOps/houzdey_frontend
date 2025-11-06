@@ -18,6 +18,7 @@ import { z } from "zod";
 import { closeModal, setCurrentModal } from "@/store/slices/authModalSlice";
 import ExitModal from "./exit-modal";
 import { RootState } from "@/store/store";
+import SuccessModal from "./success-modal";
 
 interface PersonalInfoModalProps {
   isOpen: boolean;
@@ -30,7 +31,6 @@ export default function PersonalInfoModal({
   onClose,
   email,
 }: PersonalInfoModalProps) {
-  const router = useRouter();
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     firstName: "",
@@ -70,9 +70,7 @@ export default function PersonalInfoModal({
       return response;
     },
     onSuccess: (data) => {
-      // dispatch(login({ user: data.user }));
-      // router.push("/");
-      dispatch(setCurrentModal("success")); 
+      dispatch(setCurrentModal("success"));
       onClose();
     },
     onError: (error: Error) => {
@@ -326,6 +324,19 @@ export default function PersonalInfoModal({
         onClose={handleContinue}
         onConfirm={handleExit}
       />
+
+      {currentModal === "success" && (
+        <SuccessModal
+          isOpen={true}
+          onClose={() => {
+            dispatch(closeModal());
+            // router.push("/");
+          }}
+          title="Welcome to Houzdey!"
+          message="Your account has been created successfully. You can now start exploring properties."
+          buttonText="Get Started"
+        />
+      )}
     </>
   );
 }

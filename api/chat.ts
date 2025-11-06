@@ -14,6 +14,7 @@ export class ChatService {
   private connectionHandlers: ((connected: boolean) => void)[] = [];
   private errorHandlers: ((error: Error) => void)[] = [];
   private userStatusHandlers: ((status: UserStatus) => void)[] = [];
+  private readStatusHandlers: ((conversationId: string) => void)[] = [];
   private connectionPromise: Promise<void> | null = null;
 
   public async initializeConnection(token: string): Promise<void> {
@@ -85,6 +86,11 @@ export class ChatService {
         } else {
           console.warn("Received invalid user status update:", status);
         }
+      });
+
+      this.socket.on('messages_read', (data: { conversation_id: string }) => {
+        console.log("Messages marked as read in conversation:", data.conversation_id);
+        this.readStatusHandlers.forEach(handler => handler(data.conversation_id));
       });
 
       this.socket.on('connect_error', (error) => {
@@ -277,6 +283,17 @@ export class ChatService {
       this.userStatusHandlers = this.userStatusHandlers.filter(h => h !== handler);
     };
   }
+
+  public onReadStatus(handler: (conversationId: string) => void): () => void {
+    this.readStatusHandlers.push(handler);
+    return () => {
+      this.readStatusHandlers = this.readStatusHandlers.filter(h => h !== handler);
+    };
+  }
+
+  public offReadStatus(handler: (conversationId: string) => void): void {
+    this.readStatusHandlers = this.readStatusHandlers.filter(h => h !== handler);
+  }
 }
 
 export const chatService = new ChatService();
@@ -343,4 +360,36 @@ export const chatApi = {
     );
   },
 
+  async deleteMessage(messageId: string): Promise<void> {
+    try {
+      await axios.delete(
+        `${API_BASE_URL}/api/v1/chat/messages/${messageId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      throw new Error("Failed to delete message");
+    }
+  },
+
+  async markMessagesAsRead(conversationId: string): Promise<void> {
+    try {
+      await axios.post(
+        `${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/read`,
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+    } catch (error) {
+      console.error("Error marking messages as read:", error);
+      throw new Error("Failed to mark messages as read");
+    }
+  },
 };

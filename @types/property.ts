@@ -1,7 +1,18 @@
+export enum ListingType {
+  RENT = 'rent',
+  SALE = 'sale'
+}
+
 export interface Property {
   id: string;
   title: string;
   price: number;
+  rental_price?: number;
+  sale_price?: number;
+  listing_type: ListingType;
+  agency_fee?: number;
+  legal_fee?: number;
+  other_fees?: number;
   type: string;
   beds: number;
   baths: number;
@@ -13,6 +24,7 @@ export interface Property {
   size?: string;
   estate?: string;
   owner_id: string;
+  status: string;
   amenities: Array<{
     name: string;
     icon: string;
@@ -42,6 +54,7 @@ export interface PropertyFilters {
   state?: string;
   lga?: string;
   amenities?: string[];
+  listing_type?: string;  // New: Filter by rent or sale
   sort_by?: SortBy;
   sort_order?: SortOrder;
   page?: number;
@@ -74,6 +87,7 @@ export interface PropertyDetail extends Property {
     image: string;
     company: string;
     role: string;
+    phone_number: string;
   };
   reviews: {
     id: number;

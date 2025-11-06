@@ -1,15 +1,167 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
-import { Message, Conversation, UserStatus, ChatService as ChatServiceType } from "@/@types/chat";
+import type {
+  Message,
+  Conversation,
+  UserStatus,
+  ChatService as ChatServiceType,
+} from "@/@types/chat";
 import { chatApi, chatService } from "@/api/chat";
-import { MoreVertical, Send } from "lucide-react";
+import {
+  MoreVertical,
+  Send,
+  Mic,
+  Image as ImageIcon,
+  StopCircle,
+  Check,
+  CheckCheck,
+} from "lucide-react";
 import Image from "next/image";
 import ReportModal from "./report-modal";
 import { useAuth } from "@/hooks/useAuth";
 import { formatChatTime, formatLastSeen } from "@/utils/date";
 import ChatHeaderSkeleton from "../ui/chat-header-skeleton";
+import { uploadService } from "@/services/upload";
+import MessageContextMenu from "./message-context-menu";
+import React from "react";
+import ImageViewerModal from './image-viewer-modal';
+import { getOptimizedImageUrl } from "@/utils/imageUtils";
+
+// Add this new Message component before the ChatWindow component
+interface MessageProps {
+  message: Message;
+  isCurrentUser: boolean;
+  unreadMessages: Set<string>;
+  observer: React.RefObject<IntersectionObserver | null>;
+  onMessageContextMenu: (e: React.MouseEvent, message: Message, fileUrl?: string) => void;
+}
+
+const Message = React.memo(({ message, isCurrentUser, unreadMessages, observer, onMessageContextMenu }: MessageProps) => {
+  const messageRef = useRef<HTMLDivElement>(null);
+  const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (
+      messageRef.current &&
+      !isCurrentUser &&
+      unreadMessages.has(message.id) &&
+      observer.current
+    ) {
+      observer.current.observe(messageRef.current);
+      return () => {
+        if (messageRef.current && observer.current) {
+          observer.current.unobserve(messageRef.current);
+        }
+      };
+    }
+  }, [message.id, isCurrentUser, unreadMessages, observer]);
+
+  const handleImageClick = (fileUrl: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedImageUrl(fileUrl);
+    setIsImageViewerOpen(true);
+  };
+
+  const renderMessageContent = (message: Message) => {
+    try {
+      const parsedContent = JSON.parse(message.content);
+
+      if (parsedContent.type === "image") {
+        return (
+          <>
+            <div
+              className="relative w-32 h-32 cursor-pointer"
+              onClick={(e) => handleImageClick(parsedContent.file_url, e)}
+              onContextMenu={(e) =>
+                onMessageContextMenu(e, message, parsedContent.file_url)
+              }
+            >
+              <Image
+                src={parsedContent.file_url || ""}
+                alt="Shared image"
+                width={128}
+                height={128}
+                className="object-cover rounded-lg"
+                style={{
+                  width: '128px',
+                  height: '128px'
+                }}
+                sizes="128px"
+              />
+            </div>
+            <ImageViewerModal
+              imageUrl={selectedImageUrl}
+              isOpen={isImageViewerOpen}
+              onClose={() => setIsImageViewerOpen(false)}
+            />
+          </>
+        );
+      } else if (parsedContent.type === "voice") {
+        return (
+          <div
+            className="flex items-center gap-2"
+            onContextMenu={(e) =>
+              onMessageContextMenu(e, message, parsedContent.file_url)
+            }
+          >
+            <audio
+              controls
+              src={parsedContent.file_url}
+              className="max-w-[200px]"
+            />
+            <span className="text-sm text-gray-500">
+              {Math.floor(parsedContent.duration || 0)}s
+            </span>
+          </div>
+        );
+      }
+    } catch (e) {
+      // Regular text message
+      return (
+        <div onContextMenu={(e) => onMessageContextMenu(e, message)}>
+          {message.content}
+        </div>
+      );
+    }
+  };
+
+  return (
+    <div
+      ref={messageRef}
+      data-message-id={message.id}
+      className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}
+    >
+      <div
+        className={`max-w-[70%] ${
+          isCurrentUser
+            ? "bg-indigo-600 text-white rounded-l-2xl rounded-tr-2xl"
+            : "bg-gray-100 text-gray-900 rounded-r-2xl rounded-tl-2xl"
+        } px-4 py-2 relative group`}
+        onContextMenu={(e) => onMessageContextMenu(e, message)}
+      >
+        {renderMessageContent(message)}
+        <div className="text-xs mt-1 text-gray-400 flex items-center">
+          {formatChatTime(message.created_at)}
+          {isCurrentUser && (
+            <span className="ml-2">
+              {message.read ? (
+                <CheckCheck className="w-4 h-4 text-gray-50" />
+              ) : (
+                <Check className="w-4 h-4 text-gray-50" />
+              )}
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+Message.displayName = 'Message';
 
 export default function ChatWindow() {
   const { id: conversationIdParam } = useParams();
@@ -30,7 +182,29 @@ export default function ChatWindow() {
   const [otherUserTyping, setOtherUserTyping] = useState(false);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [otherUserStatus, setOtherUserStatus] = useState<UserStatus | null>(null);
+  const [otherUserStatus, setOtherUserStatus] = useState<UserStatus | null>(
+    null
+  );
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+  const recordingTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [recordingError, setRecordingError] = useState<string | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    messageId: string;
+    showDownload: boolean;
+    fileUrl?: string;
+    isSender: boolean;
+  } | null>(null);
+  const [unreadMessages, setUnreadMessages] = useState<Set<string>>(new Set());
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   useEffect(() => {
     const loadConversation = async () => {
@@ -40,7 +214,10 @@ export default function ChatWindow() {
         setConversation(data);
         // Request initial status when conversation loads
         if (data?.other_user?.id) {
-          console.log("Requesting initial status for user:", data.other_user.id);
+          console.log(
+            "Requesting initial status for user:",
+            data.other_user.id
+          );
           chatService.getUserStatus(data.other_user.id);
         }
       } catch (error) {
@@ -57,7 +234,12 @@ export default function ChatWindow() {
     const handleUserStatus = (status: UserStatus) => {
       console.log("Processing user status update:", status);
       if (status.user_id === conversation.other_user?.id) {
-        console.log("Updating status for user:", status.user_id, "to:", status.status);
+        console.log(
+          "Updating status for user:",
+          status.user_id,
+          "to:",
+          status.status
+        );
         setOtherUserStatus(status);
       }
     };
@@ -86,11 +268,14 @@ export default function ChatWindow() {
   useEffect(() => {
     if (!isConnected && conversation?.other_user?.id) {
       console.log("Connection lost, marking user as offline");
-      setOtherUserStatus(prev => ({
-        ...prev,
-        status: 'offline',
-        last_seen: new Date().toISOString(),
-      } as UserStatus));
+      setOtherUserStatus(
+        (prev) =>
+          ({
+            ...prev,
+            status: "offline",
+            last_seen: new Date().toISOString(),
+          } as UserStatus)
+      );
     }
   }, [isConnected, conversation?.other_user?.id]);
 
@@ -112,7 +297,7 @@ export default function ChatWindow() {
       const unsubscribeConnection = chatService.onConnection((connected) => {
         console.log("Connection status changed:", connected);
         setIsConnected(connected);
-        
+
         // Re-request user status when connection is restored
         if (connected && conversation?.other_user?.id) {
           console.log("Re-requesting user status after reconnection");
@@ -131,11 +316,14 @@ export default function ChatWindow() {
       const unsubscribeMessage = chatService.onMessage((message: Message) => {
         // Also update user status when receiving a message
         if (message.sender_id === conversation?.other_user?.id) {
-          setOtherUserStatus(prev => ({
-            ...prev,
-            status: 'online',
-            last_seen: new Date().toISOString(),
-          } as UserStatus));
+          setOtherUserStatus(
+            (prev) =>
+              ({
+                ...prev,
+                status: "online",
+                last_seen: new Date().toISOString(),
+              } as UserStatus)
+          );
         }
         setMessages((prev) => {
           // Check if this is a pending message being confirmed
@@ -173,11 +361,14 @@ export default function ChatWindow() {
         ) {
           setOtherUserTyping(status.is_typing);
           // Update user status when they're typing
-          setOtherUserStatus(prev => ({
-            ...prev,
-            status: 'online',
-            last_seen: new Date().toISOString(),
-          } as UserStatus));
+          setOtherUserStatus(
+            (prev) =>
+              ({
+                ...prev,
+                status: "online",
+                last_seen: new Date().toISOString(),
+              } as UserStatus)
+          );
         }
       });
 
@@ -210,7 +401,24 @@ export default function ChatWindow() {
   useEffect(() => {
     const initialize = async () => {
       const cleanup = await initializeChat();
-      return cleanup;
+      
+      // Add handler for messages_read event
+      const unsubscribeReadStatus = chatService.onReadStatus((conversationId) => {
+        if (conversationId === conversationIdParam) {
+          setMessages((prevMessages) =>
+            prevMessages.map((msg) => ({
+              ...msg,
+              read: true,
+            }))
+          );
+        }
+      });
+      
+      const originalCleanup = await cleanup;
+      return () => {
+        if (originalCleanup) originalCleanup();
+        unsubscribeReadStatus();
+      };
     };
 
     const cleanupPromise = initialize();
@@ -294,6 +502,318 @@ export default function ChatWindow() {
     setShowDropdown(false);
   };
 
+  // Handle image selection
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !conversationId) return;
+
+    // Preview the image
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+      setSelectedFile(file);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Handle image upload
+  const handleImageUpload = async () => {
+    if (!selectedFile || !conversationId || isUploading) return;
+
+    setIsUploading(true);
+    setError(null);
+    try {
+      const fileUrl = await uploadService.uploadFile(selectedFile, "image");
+      await chatService.sendMessage(
+        conversationId,
+        JSON.stringify({ type: "image", file_url: fileUrl })
+      );
+      // Clear preview and selected file
+      setImagePreview(null);
+      setSelectedFile(null);
+    } catch (error) {
+      console.error("Failed to upload image:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to upload image. Please try again."
+      );
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
+    }
+  };
+
+  // Cancel image preview
+  const handleCancelPreview = () => {
+    setImagePreview(null);
+    setSelectedFile(null);
+  };
+
+  // Start voice recording
+  const startRecording = async () => {
+    try {
+      setRecordingError(null);
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+      audioChunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (event) => {
+        audioChunksRef.current.push(event.data);
+      };
+
+      mediaRecorder.start(1000); // Record in 1-second chunks
+      setIsRecording(true);
+      setRecordingTime(0);
+
+      // Start timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime((prev) => {
+          // Stop recording if it exceeds 5 minutes
+          if (prev >= 300) {
+            stopRecording();
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    } catch (error) {
+      console.error("Failed to start recording:", error);
+      setRecordingError(
+        "Failed to start recording. Please check your microphone permissions."
+      );
+    }
+  };
+
+  // Stop voice recording
+  const stopRecording = async () => {
+    if (!mediaRecorderRef.current || !conversationId) return;
+
+    try {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+      }
+
+      mediaRecorderRef.current.onstop = async () => {
+        const audioBlob = new Blob(audioChunksRef.current, {
+          type: "audio/webm",
+        });
+        setIsUploading(true);
+        try {
+          const fileUrl = await uploadService.uploadFile(
+            new File([audioBlob], "voice-message.webm", { type: "audio/webm" }),
+            "voice"
+          );
+          await chatService.sendMessage(
+            conversationId,
+            JSON.stringify({
+              type: "voice",
+              file_url: fileUrl,
+              duration: recordingTime,
+            })
+          );
+        } catch (error) {
+          console.error("Failed to upload voice message:", error);
+          setError(
+            error instanceof Error
+              ? error.message
+              : "Failed to upload voice message. Please try again."
+          );
+        } finally {
+          setIsUploading(false);
+        }
+      };
+
+      // Stop all tracks
+      mediaRecorderRef.current.stream
+        .getTracks()
+        .forEach((track) => track.stop());
+    } catch (error) {
+      console.error("Failed to stop recording:", error);
+      setRecordingError("Failed to stop recording. Please try again.");
+      setIsRecording(false);
+    }
+  };
+
+  // Format recording time
+  const formatRecordingTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  };
+
+  // Handle mic button click
+  const handleMicClick = () => {
+    if (isRecording) {
+      stopRecording();
+    } else {
+      startRecording();
+    }
+  };
+
+  // Handle right click on message
+  const handleMessageContextMenu = useCallback((
+    e: React.MouseEvent,
+    message: Message,
+    fileUrl?: string
+  ) => {
+    e.preventDefault();
+    const showDownload = fileUrl !== undefined;
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      messageId: message.id,
+      showDownload,
+      fileUrl,
+      isSender: message.sender_id === user?.id,
+    });
+  }, [user?.id]);
+
+  // Handle message deletion
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    try {
+      await chatApi.deleteMessage(messageId);
+      // Remove message from state
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      setContextMenu(null);
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      setError("Failed to delete message. Please try again.");
+    }
+  }, []);
+
+  // Handle file download
+  const handleDownload = async (fileUrl: string) => {
+    try {
+      const response = await fetch(fileUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = fileUrl.split("/").pop() || "download";
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      setContextMenu(null);
+    } catch (error) {
+      console.error("Failed to download file:", error);
+      setError("Failed to download file. Please try again.");
+    }
+  };
+
+  // Add markMessagesAsRead function
+  const markMessagesAsRead = useCallback(async () => {
+    if (!conversationId || unreadMessages.size === 0) return;
+    
+    try {
+      await chatApi.markMessagesAsRead(conversationId);
+      setUnreadMessages(new Set());
+    } catch (error) {
+      console.error("Failed to mark messages as read:", error);
+    }
+  }, [conversationId, unreadMessages]);
+
+  // Set up intersection observer for message read detection
+  useEffect(() => {
+    const options = {
+      root: null,
+      rootMargin: '0px',
+      threshold: 0.5,
+    };
+
+    observerRef.current = new IntersectionObserver((entries) => {
+      const hasUnreadInView = entries.some(entry => {
+        if (entry.isIntersecting) {
+          const messageId = entry.target.getAttribute('data-message-id');
+          return messageId && unreadMessages.has(messageId);
+        }
+        return false;
+      });
+
+      if (hasUnreadInView) {
+        markMessagesAsRead();
+      }
+    }, options);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [markMessagesAsRead]);
+
+  // Update message handling to track unread messages
+  useEffect(() => {
+    const handleNewMessage = (message: Message) => {
+      setMessages((prev) => {
+        // Check if this is a pending message being confirmed
+        const pendingIndex = prev.findIndex(
+          (m) =>
+            m.pending &&
+            m.content === message.content &&
+            m.sender_id === message.sender_id
+        );
+
+        if (pendingIndex !== -1) {
+          // Replace pending message with confirmed message
+          const newMessages = [...prev];
+          newMessages[pendingIndex] = message;
+          return newMessages;
+        }
+
+        // Check if we already have this message
+        const existingIndex = prev.findIndex((m) => m.id === message.id);
+        if (existingIndex !== -1) {
+          return prev;
+        }
+
+        // If it's a new message and not from current user, mark as unread
+        if (message.sender_id !== user?.id) {
+          setUnreadMessages(prev => new Set(prev).add(message.id));
+        }
+
+        return [...prev, message];
+      });
+      scrollToBottom();
+    };
+
+    const unsubscribe = chatService.onMessage(handleNewMessage);
+    return () => unsubscribe();
+  }, [user?.id]);
+
+  // Update initial message loading to track unread messages
+  useEffect(() => {
+    const loadInitialMessages = async () => {
+      if (!conversationId) return;
+      try {
+        const initialMessages = await chatApi.getMessages(conversationId);
+        setMessages(initialMessages);
+        
+        // Track unread messages
+        const unreadIds = new Set(
+          initialMessages
+            .filter(msg => !msg.read && msg.sender_id !== user?.id)
+            .map(msg => msg.id)
+        );
+        setUnreadMessages(unreadIds);
+        
+        if (unreadIds.size > 0) {
+          markMessagesAsRead();
+        }
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+        setError("Failed to load messages");
+      }
+    };
+
+    loadInitialMessages();
+  }, [conversationId, user?.id]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Chat Header - Fixed */}
@@ -305,19 +825,29 @@ export default function ChatWindow() {
             <div className="w-10 h-10 rounded-full mr-3 relative">
               <Image
                 src={
-                  conversation?.other_user?.profile_picture ||
-                  "/assets/images/avatar-placeholder.jpg"
+                  getOptimizedImageUrl(
+                    conversation?.other_user?.profile_picture,
+                    { width: 40, height: 40, defaultImage: "avatar-placeholder" }
+                  )
                 }
                 alt={`${conversation?.other_user?.first_name} ${conversation?.other_user?.last_name}`}
                 width={40}
                 height={40}
                 className="object-cover rounded-full"
+                style={{
+                  width: '40px',
+                  height: '40px'
+                }}
               />
-              <div 
+              <div
                 className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white z-50 ${
-                  otherUserStatus?.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
+                  otherUserStatus?.status === "online"
+                    ? "bg-green-500"
+                    : "bg-gray-400"
                 }`}
-                title={otherUserStatus?.status === 'online' ? 'Online' : 'Offline'}
+                title={
+                  otherUserStatus?.status === "online" ? "Online" : "Offline"
+                }
               />
             </div>
             <div>
@@ -330,11 +860,11 @@ export default function ChatWindow() {
                   : conversation?.property?.title}
               </div>
               <div className="text-sm text-gray-500">
-                {otherUserStatus?.status === 'online' 
-                  ? 'Online'
-                  : otherUserStatus?.last_seen 
-                    ? `Last seen ${formatLastSeen(otherUserStatus.last_seen)}`
-                    : 'Offline'}
+                {otherUserStatus?.status === "online"
+                  ? "Online"
+                  : otherUserStatus?.last_seen
+                  ? `Last seen ${formatLastSeen(otherUserStatus.last_seen)}`
+                  : "Offline"}
               </div>
             </div>
           </div>
@@ -346,7 +876,6 @@ export default function ChatWindow() {
           >
             <MoreVertical className="w-5 h-5 text-gray-500" />
           </button>
-     
         </div>
       </div>
 
@@ -358,64 +887,16 @@ export default function ChatWindow() {
               Start a conversation...
             </div>
           ) : (
-            messages.map((message, index) => {
-              const isLastMessage = index === messages.length - 1;
-              const showDate =
-                index === 0 ||
-                new Date(message.created_at).toDateString() !==
-                  new Date(messages[index - 1].created_at).toDateString();
-
-              return (
-                <div key={message.id}>
-                  {showDate && (
-                    <div className="text-center my-4 flex items-center justify-center">
-                      <div className="border-t border-gray-200 w-full" />
-                      <span className="text-sm text-gray-500 px-4 whitespace-nowrap">
-                        {new Date(message.created_at).toDateString() ===
-                        new Date().toDateString()
-                          ? "Today"
-                          : new Date(message.created_at).toLocaleDateString()}
-                      </span>
-                      <div className="border-t border-gray-200 w-full" />
-                    </div>
-                  )}
-                  <div
-                    className={`flex ${
-                      message.sender_id === user?.id
-                        ? "justify-end"
-                        : "justify-start"
-                    }`}
-                  >
-                    <div className="max-w-[70%]">
-                      <div
-                        className={`rounded-2xl px-4 py-2 ${
-                          message.sender_id === user?.id
-                            ? "bg-indigo-600 text-white"
-                            : "bg-gray-100 text-gray-900"
-                        } ${message.pending ? "opacity-70" : ""}`}
-                      >
-                        {message.content}
-                      </div>
-                      <div
-                        className={`flex items-center mt-1 text-xs text-gray-500 ${
-                          message.sender_id === user?.id
-                            ? "justify-end"
-                            : "justify-start"
-                        }`}
-                      >
-                        {formatChatTime(message.created_at)}
-                        {message.pending && " • Sending..."}
-                        {isLastMessage &&
-                          message.sender_id === user?.id &&
-                          message.read && (
-                            <span className="ml-1 text-indigo-600">Seen</span>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })
+            messages.map((message) => (
+              <Message
+                key={message.id}
+                message={message}
+                isCurrentUser={message.sender_id === user?.id}
+                unreadMessages={unreadMessages}
+                observer={observerRef}
+                onMessageContextMenu={handleMessageContextMenu}
+              />
+            ))
           )}
           {otherUserTyping && (
             <div className="flex items-start mb-4">
@@ -443,97 +924,104 @@ export default function ChatWindow() {
         </div>
       </div>
 
+      {error && (
+        <div className="bg-red-100 text-red-700 px-4 py-2 text-sm">{error}</div>
+      )}
+
+      {recordingError && (
+        <div className="bg-red-100 text-red-700 px-4 py-2 text-sm">
+          {recordingError}
+        </div>
+      )}
+
+      {/* Image Preview */}
+      {imagePreview && (
+        <div className="p-4 border-t bg-gray-50">
+          <div className="flex items-center gap-4">
+            <div className="relative w-20 h-20">
+              <Image
+                src={imagePreview}
+                alt="Preview"
+                width={80}
+                height={80}
+                className="object-cover rounded-lg"
+                style={{
+                  width: '80px',
+                  height: '80px'
+                }}
+                sizes="80px"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleImageUpload}
+                disabled={isUploading}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {isUploading ? "Sending..." : "Send"}
+              </button>
+              <button
+                onClick={handleCancelPreview}
+                className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Message Input - Fixed */}
       <div className="p-4 border-t bg-white relative">
         <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-          <div className="flex-1">
+          <div className="flex-1 flex items-center gap-2">
+            <label className="cursor-pointer">
+              <input
+                type="file"
+                id="imageUpload"
+                accept="image/*"
+                className="hidden"
+                onChange={handleImageSelect}
+                disabled={isUploading || isRecording}
+              />
+              <ImageIcon
+                className={`w-6 h-6 ${
+                  isUploading
+                    ? "text-gray-400"
+                    : "text-blue-500 hover:text-blue-600"
+                }`}
+              />
+            </label>
             <input
               type="text"
               value={newMessage}
               onChange={handleInputChange}
-              placeholder="Are you open to negotiations?"
-              className="w-full px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white"
+              placeholder={
+                isRecording ? "Recording..." : "Are you open to negotiations?"
+              }
+              disabled={isRecording}
+              className="w-full px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white disabled:opacity-50"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <div className="group relative">
-              <button
-                type="button"
-                className="p-2 text-gray-600 hover:text-gray-800 relative"
-              >
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 5V19M5 12H19"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
-
-              {/* Hoverable Dropup Menu */}
-              <div className="absolute bottom-full right-0 mb-2 invisible group-hover:visible opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200">
-                <div className="bg-white rounded-lg shadow-lg border p-2 space-y-2 min-w-[160px]">
-                  <button
-                    type="button"
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                      <circle cx="8.5" cy="8.5" r="1.5" />
-                      <path d="M21 15l-5-5L5 21" />
-                    </svg>
-                    <span>Image</span>
-                  </button>
-                  <button
-                    type="button"
-                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 rounded-md flex items-center gap-2"
-                  >
-                    <svg
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    >
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                      <path d="M14 2v6h6" />
-                      <line x1="16" y1="13" x2="8" y2="13" />
-                      <line x1="16" y1="17" x2="8" y2="17" />
-                      <line x1="10" y1="9" x2="8" y2="9" />
-                    </svg>
-                    <span>Document</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={!newMessage.trim() || !isConnected}
-              className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-             <Send />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={newMessage.trim() ? handleSendMessage : handleMicClick}
+            disabled={!isConnected}
+            className="p-2 flex  bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isRecording ? (
+              <>
+                <StopCircle className="w-6 h-6" />
+                <span className="ml-2">
+                  {formatRecordingTime(recordingTime)}
+                </span>
+              </>
+            ) : newMessage.trim() ? (
+              <Send />
+            ) : (
+              <Mic />
+            )}
+          </button>
         </form>
       </div>
 
@@ -545,21 +1033,49 @@ export default function ChatWindow() {
 
       {/* Dropdown Menu */}
       {showDropdown && (
-            <div className="absolute right-7 top-[8rem] mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
-              <button
-                onClick={handleReport}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Report User
-              </button>
-              <button
-                onClick={handleBlock}
-                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-              >
-                Block User
-              </button>
-            </div>
-          )}
+        <div className="absolute right-7 top-[8rem] mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20">
+          <button
+            onClick={handleReport}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Report User
+          </button>
+          <button
+            onClick={handleBlock}
+            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+          >
+            Block User
+          </button>
+        </div>
+      )}
+
+      {isUploading && (
+        <div className="mt-2">
+          <div className="h-2 bg-gray-200 rounded">
+            <div
+              className="h-full bg-blue-500 rounded transition-all duration-300"
+              style={{ width: `${uploadProgress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Add context menu */}
+      {contextMenu && (
+        <MessageContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          onClose={() => setContextMenu(null)}
+          onDelete={() => handleDeleteMessage(contextMenu.messageId)}
+          onDownload={
+            contextMenu.fileUrl
+              ? () => handleDownload(contextMenu.fileUrl!)
+              : undefined
+          }
+          showDownload={contextMenu.showDownload}
+          isSender={contextMenu.isSender}
+        />
+      )}
     </div>
   );
 }

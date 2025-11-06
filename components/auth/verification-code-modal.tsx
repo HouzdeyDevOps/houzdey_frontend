@@ -8,14 +8,22 @@ import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import Image from "next/image";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
+import { setCurrentModal } from "@/store/slices/authModalSlice";
+import { useDispatch, useSelector } from "react-redux";
+import ResetPasswordModal from "./reset-password-modal";
+import { RootState } from "@/store/store";
 
 interface VerificationCodeModalProps {
   isOpen: boolean;
   onBack: () => void;
   onClose: () => void;
   email: string;
-  onVerify: (code: string) => void;
+  showSocialLogin?: boolean;
+  showSignInLink?: boolean;
   handleSwitchToSignIn?: () => void;
+  title?: string;
+  description?: string;
+  successMessage?: string;
 }
 
 export default function VerificationCodeModal({
@@ -23,23 +31,52 @@ export default function VerificationCodeModal({
   onBack,
   onClose,
   email,
-  onVerify,
+  showSocialLogin = false,
+  showSignInLink = false,
   handleSwitchToSignIn,
+  title = "Verification code",
+  description,
+  successMessage,
 }: VerificationCodeModalProps) {
   const [verificationCode, setVerificationCode] = useState("");
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showSuccess, setShowSuccess] = useState(false);
+  const dispatch = useDispatch();
+  const currentModal = useSelector(
+    (state: RootState) => state.authModal.currentModal
+  );
+  const mode = useSelector((state: RootState) => state.authModal.mode);
+  const defaultDescription =
+    mode === "signup"
+      ? "Check your email inbox for a verification code we just sent. Copy the code and paste it here to verify your identity and continue."
+      : "We've sent a verification code to your email. Enter it here to reset your password.";
+
+  const defaultSuccessMessage =
+    mode === "signup"
+      ? "Your email has been successfully verified. Redirecting..."
+      : "Code verified successfully. You can now reset your password.";
+
+  const finalDescription = description || defaultDescription;
+  const finalSuccessMessage = successMessage || defaultSuccessMessage;
+
+  console.log("mode", mode);
 
   const { mutate: verifyCode, isPending } = useMutation({
     mutationFn: () => authApi.verifyCode(email, verificationCode),
     onSuccess: () => {
       setShowSuccess(true);
-      showSuccessToast("Email verified successfully!");
-      // Wait for 2 seconds to show success message before closing
-      setTimeout(() => {
-        onVerify(verificationCode);
-      }, 2000);
+      if (mode === "forgotPassword") {
+        showSuccessToast("Code verified successfully!");
+        setTimeout(() => {
+          dispatch(setCurrentModal("resetPassword"));
+        }, 2000);
+      } else if (mode === "signup") {
+        showSuccessToast("Email verified successfully!");
+        setTimeout(() => {
+          dispatch(setCurrentModal("personalInfo"));
+        }, 2000);
+      }
     },
     onError: (error: Error) => {
       setErrorMessage(error.message);
@@ -77,9 +114,7 @@ export default function VerificationCodeModal({
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
               <h3 className="text-xl font-semibold mb-2">Email Verified!</h3>
-              <p className="text-gray-600">
-                Your email has been successfully verified. Redirecting...
-              </p>
+              <p className="text-gray-600">{finalSuccessMessage}</p>
             </div>
           ) : (
             <>
@@ -90,17 +125,13 @@ export default function VerificationCodeModal({
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-2xl font-semibold">Verification code</h2>
+                <h2 className="text-2xl font-semibold">{title}</h2>
                 <div className="w-9" />
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <p className="text-gray-600 mb-6">
-                    Check your email inbox for a verification code we just sent.
-                    Copy the code and paste it here to verify your identity and
-                    continue.
-                  </p>
+                  <p className="text-gray-600 mb-6">{finalDescription}</p>
                   <label className="block text-gray-700 mb-2">
                     Verification code
                   </label>
@@ -123,62 +154,72 @@ export default function VerificationCodeModal({
                   {isResending ? "Resending..." : "Resend code"}
                 </button>
 
-                <div className="relative text-center">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300"></div>
-                  </div>
-                  <div className="relative">
-                    <span className="px-2 text-gray-500 bg-white">
-                      Or continue with
-                    </span>
-                  </div>
-                </div>
+                {showSocialLogin && (
+                  <>
+                    <div className="relative text-center">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative">
+                        <span className="px-2 text-gray-500 bg-white">
+                          Or continue with
+                        </span>
+                      </div>
+                    </div>
 
-                <div className="flex justify-center gap-4 my-5">
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
-                    <Image
-                      src="/assets/icons/facebook.png"
-                      alt="Facebook"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
-                    <Image
-                      src="/assets/icons/apple.png"
-                      alt="Apple"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                  <button
-                    type="button"
-                    className="p-3 border rounded-full hover:bg-gray-50"
-                  >
-                    <Image
-                      src="/assets/icons/google.png"
-                      alt="Google"
-                      width={24}
-                      height={24}
-                    />
-                  </button>
-                </div>
+                    <div className="flex justify-center gap-4 my-5">
+                      <button
+                        type="button"
+                        className="p-3 border rounded-full hover:bg-gray-50"
+                      >
+                        <Image
+                          src="/assets/icons/facebook_icon.png"
+                          alt="Facebook"
+                          width={24}
+                          height={24}
+                          style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        className="p-3 border rounded-full hover:bg-gray-50"
+                      >
+                        <Image
+                          src="/assets/icons/apple.png"
+                          alt="Apple"
+                          width={24}
+                          height={24}
+                          style={{ width: "24px", height: "24px", objectFit: "contain" }}
+                        />
+                      </button>
+                      <button
+                        type="button"
+                        className="p-3 border rounded-full hover:bg-gray-50"
+                      >
+                        <Image
+                          src="/assets/icons/google.png"
+                          alt="Google"
+                          width={24}
+                          height={24}
+                        />
+                      </button>
+                    </div>
+                  </>
+                )}
 
-                <div className="text-center text-sm my-5">
-                  <span className="text-gray-600">Already have an account?</span>{" "}
-                  <button
-                    onClick={handleSwitchToSignIn}
-                    className="text-indigo-600 hover:text-indigo-700 font-medium"
-                  >
-                    Login
-                  </button>
-                </div>
+                {showSignInLink && handleSwitchToSignIn && (
+                  <div className="text-center text-sm my-5">
+                    <span className="text-gray-600">
+                      Already have an account?
+                    </span>{" "}
+                    <button
+                      onClick={handleSwitchToSignIn}
+                      className="text-indigo-600 hover:text-indigo-700 font-medium"
+                    >
+                      Login
+                    </button>
+                  </div>
+                )}
 
                 {/* divider */}
                 <div className="border-b border-gray-300" />
@@ -207,6 +248,13 @@ export default function VerificationCodeModal({
         isOpen={showError}
         onClose={() => setShowError(false)}
         message={errorMessage}
+      />
+
+      <ResetPasswordModal
+        isOpen={currentModal === "resetPassword"}
+        onClose={onClose}
+        onBack={() => dispatch(setCurrentModal("forgotPassword"))}
+        email={email}
       />
     </>
   );

@@ -45,7 +45,14 @@ export const propertyApi = {
       form.append("title", generatedTitle);
       console.log(generatedTitle, "generatedTitle");  
       form.append("type", formData.type);
-      form.append("price", formData.price.toString());
+      form.append("price", formData.price.toString()); // For backward compatibility
+      form.append("listing_type", formData.listing_type);
+      if (formData.rental_price) {
+        form.append("rental_price", formData.rental_price.toString());
+      }
+      if (formData.sale_price) {
+        form.append("sale_price", formData.sale_price.toString());
+      }
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 
@@ -131,6 +138,56 @@ export const propertyApi = {
       }
       throw new Error(
         error.response?.data?.detail || 'Failed to fetch property details'
+      );
+    }
+  },
+
+  async getUserProperties(): Promise<Property[]> {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${API_BASE_URL}/api/v1/properties/users/me/properties`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to fetch user properties");
+    }
+  },
+
+  async deleteProperty(id: string): Promise<void> {
+    try {
+      const token = localStorage.getItem("token");
+      await axios.delete(`${API_BASE_URL}/api/v1/properties/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error: any) {
+      throw new Error(error.response?.data?.detail || "Failed to delete property");
+    }
+  },
+
+  async updatePropertyStatus(id: string, status: string): Promise<void> {
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("status", status);
+
+      await axios.patch(
+        `${API_BASE_URL}/api/v1/properties/${id}/status`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.detail || "Failed to update property status"
       );
     }
   },

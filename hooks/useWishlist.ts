@@ -11,14 +11,23 @@ export const useWishlist = () => {
 
   useEffect(() => {
     const fetchWishlist = async () => {
-      if (!isAuthenticated) return;
+      if (!isAuthenticated) {
+        dispatch(setWishlistItems([]));
+        return;
+      }
       
       try {
         dispatch(setLoading(true));
-        const wishlistData = await wishlistApi.getWishlist();
-        dispatch(setWishlistItems(wishlistData));
+        const wishlistData = await wishlistApi.getWishlistIds();
+        
+        // Extract property IDs from the wishlist response
+        const propertyIds: string[] = wishlistData.items || [];
+        
+        dispatch(setWishlistItems(propertyIds));
       } catch (error) {
+        console.error('Failed to fetch wishlist:', error);
         dispatch(setError('Failed to fetch wishlist'));
+        dispatch(setWishlistItems([]));
       } finally {
         dispatch(setLoading(false));
       }
