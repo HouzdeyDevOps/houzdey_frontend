@@ -115,12 +115,14 @@ export const authApi = {
 
   async updatePersonalInfo(formData: FormData) {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/${API_VERSION}/users/personal-info`,
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${API_BASE_URL}/${API_VERSION}/users/me`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`
           },
         }
       );

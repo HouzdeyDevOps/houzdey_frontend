@@ -101,6 +101,12 @@ export const propertyApi = {
 
       const token = localStorage.getItem("token");
       
+      if (!token) {
+        throw new Error("Authentication required. Please log in again.");
+      }
+      
+      console.log("Sending create property request with token:", token ? "Token exists" : "No token");
+      
       const response = await axios.post(`${API_BASE_URL}/api/v1/properties`, form, {
         headers: {
           "Accept": "application/json",
@@ -110,8 +116,13 @@ export const propertyApi = {
       });
       return response.data;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || "Failed to create property";
-      console.error("Property creation error:", error.response?.data);
+      const errorMessage = error.response?.data?.detail || error.message || "Failed to create property";
+      console.error("Property creation error:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        detail: error.response?.data?.detail,
+        error: error.response?.data
+      });
       throw new Error(errorMessage);
     }
   },

@@ -307,6 +307,23 @@ export default function PropertyDetails() {
                   </p>
                 </div>
 
+                {/* Property Video Section */}
+                {property.video && (
+                  <div className="mt-10">
+                    <h2 className="text-lg font-semibold mb-4">Property Video</h2>
+                    <div className="relative bg-black rounded-lg overflow-hidden">
+                      <video
+                        src={property.video}
+                        controls
+                        className="w-full max-h-[500px] object-contain"
+                        poster={property.images[0]}
+                      >
+                        Your browser does not support the video tag.
+                      </video>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Amenities</h2>
                   <div className="grid grid-cols-2 gap-4">
