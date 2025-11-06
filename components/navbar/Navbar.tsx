@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { Search, SlidersHorizontal, X, AlertTriangle, Menu, MessageSquare, List, Heart, Settings, LogOut, Bell } from "lucide-react";
 import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
@@ -112,7 +112,9 @@ const Navbar = ({
           {/* Mobile Property Type Filters */}
           {showPropertyTypeFilters && (
             <div className="py-2 border-t">
-              <PropertyTypeNav />
+              <Suspense fallback={<div>Loading...</div>}>
+                <PropertyTypeNav />
+              </Suspense>
             </div>
           )}
 
@@ -321,7 +323,9 @@ const Navbar = ({
         {/* Desktop Property Type Filters */}
         {showPropertyTypeFilters && (
           <nav className="border-b px-4 py-2 hidden lg:block">
-            <PropertyTypeNav />
+            <Suspense fallback={<div>Loading...</div>}>
+              <PropertyTypeNav />
+            </Suspense>
           </nav>
         )}
 

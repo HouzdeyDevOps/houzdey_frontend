@@ -47,7 +47,7 @@ export const reviewsApi = {
     const params = new URLSearchParams();
     
     Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (value !== undefined && value !== null && String(value) !== '') {
         params.append(key, value.toString());
       }
     });
