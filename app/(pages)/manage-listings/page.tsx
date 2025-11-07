@@ -87,7 +87,7 @@ export default function ManageListing() {
         />
 
         {/* Title Section */}
-        <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
+        <div className="w-full mx-auto mt-24">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div className="flex items-center gap-6">
               <Link href="/" className="hover:text-gray-600">
