@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from 'react';
 import { Editor } from '@tiptap/react';
 import {
   Bold,
@@ -34,6 +35,24 @@ interface BlogEditorMenuBarProps {
 }
 
 export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
+  const [, setUpdateTrigger] = useState(0);
+
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => {
+      setUpdateTrigger(prev => prev + 1);
+    };
+
+    editor.on('selectionUpdate', handleUpdate);
+    editor.on('transaction', handleUpdate);
+
+    return () => {
+      editor.off('selectionUpdate', handleUpdate);
+      editor.off('transaction', handleUpdate);
+    };
+  }, [editor]);
+
   if (!editor) return null;
 
   const addImage = () => {
@@ -120,8 +139,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setParagraph().run();
+              editor.chain().focus().setParagraph().run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('paragraph') ? 'bg-gray-300 text-blue-600' : ''
@@ -134,8 +152,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 1 }).run();
+              editor.chain().focus().toggleHeading({ level: 1 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 1 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -148,8 +165,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 2 }).run();
+              editor.chain().focus().toggleHeading({ level: 2 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 2 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -162,8 +178,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 3 }).run();
+              editor.chain().focus().toggleHeading({ level: 3 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 3 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -176,8 +191,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 4 }).run();
+              editor.chain().focus().toggleHeading({ level: 4 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 4 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -190,8 +204,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 5 }).run();
+              editor.chain().focus().toggleHeading({ level: 5 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 5 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -204,8 +217,7 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              const { from, to } = editor.state.selection;
-              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 6 }).run();
+              editor.chain().focus().toggleHeading({ level: 6 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 6 }) ? 'bg-gray-300 text-blue-600' : ''

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -11,7 +11,7 @@ import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import CodeBlock from '@tiptap/extension-code-block';
 import { BlogCreate, BlogUpdate, BlogStatus, BlogCategory } from '@/@types/blog';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2, Sparkles, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useBlogForm } from '@/hooks/useBlogForm';
 import BlogEditorMenuBar from './blog/BlogEditorMenuBar';
@@ -25,6 +25,10 @@ interface BlogFormProps {
 }
 
 export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit = false }: BlogFormProps) {
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
   const {
     formData,
     tagInput,
@@ -83,11 +87,116 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
     },
   });
 
+  // Track changes to set unsaved state
   useEffect(() => {
     if (editor && (initialValues as any)?.content && editor.getHTML() !== (initialValues as any).content) {
       editor.commands.setContent((initialValues as any).content);
+      setHasUnsavedChanges(false);
     }
   }, [editor, initialValues]);
+
+  // Mark as changed when editor content changes
+  useEffect(() => {
+    if (!editor) return;
+
+    const handleUpdate = () => {
+      setHasUnsavedChanges(true);
+      
+      // Auto-save to localStorage after 3 seconds of inactivity
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+      
+      autoSaveTimerRef.current = setTimeout(() => {
+        saveToLocalStorage();
+      }, 3000);
+    };
+
+    editor.on('update', handleUpdate);
+
+    return () => {
+      editor.off('update', handleUpdate);
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [editor]);
+
+  // Mark as changed when form data changes
+  useEffect(() => {
+    setHasUnsavedChanges(true);
+  }, [formData]);
+
+  // Warn before leaving page with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasUnsavedChanges]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const savedDraft = loadFromLocalStorage();
+    if (savedDraft && !isEdit && editor) {
+      const shouldRestore = confirm('Found an unsaved draft. Would you like to restore it?');
+      if (shouldRestore) {
+        // Restore form data
+        if (savedDraft.title) handleChange('title', savedDraft.title);
+        if (savedDraft.slug) handleChange('slug', savedDraft.slug);
+        if (savedDraft.excerpt) handleChange('excerpt', savedDraft.excerpt);
+        if (savedDraft.category) handleChange('category', savedDraft.category);
+        if (savedDraft.tags) handleChange('tags', savedDraft.tags);
+        if (savedDraft.featured_image) handleChange('featured_image', savedDraft.featured_image);
+        if (savedDraft.status) handleChange('status', savedDraft.status);
+        if (savedDraft.seo_title) handleChange('seo_title', savedDraft.seo_title);
+        if (savedDraft.seo_description) handleChange('seo_description', savedDraft.seo_description);
+        
+        // Restore editor content
+        if (savedDraft.content) {
+          editor.commands.setContent(savedDraft.content);
+        }
+        
+        toast.success('Draft restored');
+        setHasUnsavedChanges(false);
+      } else {
+        clearLocalStorage();
+      }
+    }
+  }, [isEdit, editor]);
+
+  const saveToLocalStorage = () => {
+    if (!editor) return;
+    
+    const draft = {
+      ...formData,
+      content: editor.getHTML(),
+      savedAt: new Date().toISOString(),
+    };
+    
+    localStorage.setItem('blog_draft', JSON.stringify(draft));
+    setLastSaved(new Date());
+    toast.success('Draft auto-saved', { duration: 2000 });
+  };
+
+  const loadFromLocalStorage = () => {
+    try {
+      const saved = localStorage.getItem('blog_draft');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const clearLocalStorage = () => {
+    localStorage.removeItem('blog_draft');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,6 +225,10 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
       content,
     };
 
+    // Clear unsaved state and localStorage on successful submit
+    setHasUnsavedChanges(false);
+    clearLocalStorage();
+    
     onSubmit(submitData);
   };
 
@@ -248,6 +361,21 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
         }
       `}</style>
       <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Auto-save indicator */}
+      {lastSaved && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+          <div className="flex items-center">
+            <Save className="w-4 h-4 text-green-600 mr-2" />
+            <span className="text-sm text-green-800">
+              Draft auto-saved at {lastSaved.toLocaleTimeString()}
+            </span>
+          </div>
+          {hasUnsavedChanges && (
+            <span className="text-xs text-orange-600">● Unsaved changes</span>
+          )}
+        </div>
+      )}
+      
       <div className="bg-white rounded-lg border p-6 space-y-6">
         {/* Title & Slug */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
