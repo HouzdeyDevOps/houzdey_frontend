@@ -61,7 +61,6 @@ export default function VerificationCodeModal({
   const finalDescription = description || defaultDescription;
   const finalSuccessMessage = successMessage || defaultSuccessMessage;
 
-  console.log("mode", mode);
 
   const { mutate: verifyCode, isPending } = useMutation({
     mutationFn: () => authApi.verifyCode(email, verificationCode),

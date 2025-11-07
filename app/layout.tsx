@@ -12,32 +12,55 @@ export const viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Houzdey - Find Your Perfect Home",
-  description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
-  keywords: "property rental, house rent, apartments, real estate, Nigeria housing",
+  title: {
+    default: "Houzdey - Find Your Perfect Home in Nigeria",
+    template: "%s | Houzdey", // Used by child pages
+  },
+  description: "Discover and rent or buy your ideal home with Houzdey. Browse apartments, houses, and more properties for rent and sale across Nigeria.",
+  keywords: "property rental, house rent, apartments, real estate, Nigeria housing, houses for sale, property for sale, Lagos property, Abuja property",
   authors: [{ name: "Houzdey" }],
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'),
   openGraph: {
-    title: "Houzdey - Find Your Perfect Home",
-    description: "Discover and rent your ideal home with Houzdey. Browse apartments, houses, and more with our easy-to-use property rental platform.",
-    url: "https://www.houzdey.com/",
+    title: "Houzdey - Find Your Perfect Home in Nigeria",
+    description: "Discover and rent or buy your ideal home with Houzdey. Browse apartments, houses, and more properties for rent and sale across Nigeria.",
+    url: "/",
     siteName: "Houzdey",
     images: [
       {
-        url: `https://res.cloudinary.com/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload/v1687888425/houzdey-logo_p2we1a.png`,
+        url: '/assets/images/houzdey-og-image.png', // Use a default OG image
         width: 1200,
         height: 630,
-        alt: 'Houzdey Logo',
+        alt: 'Houzdey - Find Your Perfect Home',
       },
     ],
+    locale: 'en_NG',
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Houzdey - Find Your Perfect Home",
-    description: "Discover and rent your ideal home with Houzdey",
+    title: "Houzdey - Find Your Perfect Home in Nigeria",
+    description: "Discover and rent or buy your ideal home with Houzdey",
+    site: "@houzdey", // Add your Twitter handle if available
   },
-  robots: "index, follow",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    // Add when you have them
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+  },
 };
 
 export default function RootLayout({
@@ -48,16 +71,31 @@ export default function RootLayout({
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    url: 'https://www.houzdey.com/',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com',
     name: 'Houzdey',
+    description: 'Find your perfect home - properties for rent and sale across Nigeria',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: 'https://www.houzdey.com/properties?q={search_term_string}',
+        urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/properties?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
+  };
+
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Houzdey',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com',
+    logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/assets/images/houzdey-logo.png`,
+    sameAs: [
+      // Add your social media URLs here
+      // 'https://www.facebook.com/houzdey',
+      // 'https://twitter.com/houzdey',
+      // 'https://www.instagram.com/houzdey',
+    ],
   };
   return (
     <html lang="en" suppressHydrationWarning>
@@ -69,6 +107,11 @@ export default function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        {/* SEO: Add Organization JSON-LD structured data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
         <AppProviders>
           <HydrationFix />

@@ -74,7 +74,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
   const handleSwitchToSignIn = () => {
     dispatch(setCurrentModal("signin"));
   };
-  console.log(currentModal);
+
 
   const handleCloseModal = () => {
     if (currentModal === "signup") {
