@@ -18,6 +18,12 @@ export class ChatService {
   private connectionPromise: Promise<void> | null = null;
 
   public async initializeConnection(token: string): Promise<void> {
+    // Validate token exists and is not empty
+    if (!token || token.trim() === '') {
+      console.error("Cannot initialize socket connection: No valid token provided");
+      return Promise.reject(new Error("No valid authentication token"));
+    }
+
     // If we already have a connection promise pending, return it
     if (this.connectionPromise) {
       return this.connectionPromise;
@@ -88,23 +94,32 @@ export class ChatService {
         console.error("Socket connection error:", error);
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
+        
+        // If authentication fails, disconnect and don't retry
+        if (error.message && error.message.includes("auth")) {
+          console.error("Socket authentication failed. Stopping reconnection attempts.");
+          if (this.socket) {
+            this.socket.disconnect();
+          }
+        }
+        
         reject(error);
       });
 
       this.socket.on('disconnect', (reason) => {
-
+        console.log("Socket disconnected:", reason);
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
         
-        // Attempt to reconnect if not intentionally disconnected
-        if (reason !== "io client disconnect") {
-  
-          const token = localStorage.getItem("token");
-          if (token) {
-            setTimeout(() => {
-              this.initializeConnection(token);
-            }, 1000);
-          }
+        // Do NOT manually reconnect - socket.io-client handles this automatically
+        // with the reconnection settings already configured
+        // Only log the disconnect reason
+        if (reason === "io server disconnect") {
+          console.log("Server disconnected the socket. Manual reconnection may be needed.");
+        } else if (reason === "io client disconnect") {
+          console.log("Client disconnected the socket intentionally.");
+        } else {
+          console.log("Socket disconnected, will auto-reconnect if configured.");
         }
       });
 

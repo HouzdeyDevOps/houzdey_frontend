@@ -214,10 +214,7 @@ export default function ChatWindow() {
         setConversation(data);
         // Request initial status when conversation loads
         if (data?.other_user?.id) {
-          console.log(
-            "Requesting initial status for user:",
-            data.other_user.id
-          );
+
           chatService.getUserStatus(data.other_user.id);
         }
       } catch (error) {
@@ -232,14 +229,8 @@ export default function ChatWindow() {
     if (!conversation?.other_user?.id) return;
 
     const handleUserStatus = (status: UserStatus) => {
-      console.log("Processing user status update:", status);
+
       if (status.user_id === conversation.other_user?.id) {
-        console.log(
-          "Updating status for user:",
-          status.user_id,
-          "to:",
-          status.status
-        );
         setOtherUserStatus(status);
       }
     };
@@ -253,7 +244,6 @@ export default function ChatWindow() {
     // Set up periodic status check
     const statusInterval = setInterval(() => {
       if (conversation.other_user?.id) {
-        // console.log("Periodic status check for user:", conversation.other_user.id);
         chatService.getUserStatus(conversation.other_user.id);
       }
     }, 30000); // Check every 30 seconds
@@ -267,7 +257,6 @@ export default function ChatWindow() {
   // Add effect to handle connection changes
   useEffect(() => {
     if (!isConnected && conversation?.other_user?.id) {
-      console.log("Connection lost, marking user as offline");
       setOtherUserStatus(
         (prev) =>
           ({
@@ -295,12 +284,10 @@ export default function ChatWindow() {
 
       // Set up connection status handler
       const unsubscribeConnection = chatService.onConnection((connected) => {
-        console.log("Connection status changed:", connected);
         setIsConnected(connected);
 
         // Re-request user status when connection is restored
         if (connected && conversation?.other_user?.id) {
-          console.log("Re-requesting user status after reconnection");
           chatService.getUserStatus(conversation.other_user.id);
         }
       });
