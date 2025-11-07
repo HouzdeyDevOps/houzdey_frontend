@@ -32,3 +32,5 @@ next-env.d.ts
 .next
 .next/
 out
+
+.open-next
