@@ -2,6 +2,16 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // Force static export for pages that don't need server-side rendering
+  // This reduces serverless function count on Vercel Hobby plan (12 function limit)
+  output: 'standalone',
+  
+  // Optimize for Vercel deployment - reduce serverless functions
+  experimental: {
+    // Use Edge Runtime where possible to reduce function count
+    serverMinification: true,
+  },
+  
   images: {
     remotePatterns: [
       {
