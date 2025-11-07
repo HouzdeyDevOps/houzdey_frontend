@@ -16,7 +16,8 @@ import {
   Shield,
   BarChart3,
   MessageSquare,
-  Bell
+  Bell,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Image from 'next/image';
@@ -69,6 +70,12 @@ const navigationItems = [
   {
     title: 'Content',
     items: [
+      {
+        title: 'Blog',
+        href: '/admin/blog',
+        icon: BookOpen,
+        description: 'Manage blog posts'
+      },
       {
         title: 'Reports',
         href: '/admin/reports',

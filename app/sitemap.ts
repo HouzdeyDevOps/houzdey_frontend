@@ -2,6 +2,27 @@ import { MetadataRoute } from 'next'
 import { getAllPropertiesForSitemap } from '@/lib/server-api'
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+// Helper to fetch all blog posts for sitemap
+async function getAllBlogsForSitemap() {
+  try {
+    const res = await fetch(`${apiUrl}/api/v1/blog?limit=500`, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    })
+    
+    if (!res.ok) {
+      console.error('Failed to fetch blogs for sitemap')
+      return []
+    }
+    
+    const data = await res.json()
+    return data.blogs || []
+  } catch (error) {
+    console.error('Error fetching blogs for sitemap:', error)
+    return []
+  }
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Static routes with priorities and change frequencies
@@ -17,6 +38,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -53,5 +80,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }))
 
-  return [...staticRoutes, ...propertyRoutes]
+  // Fetch dynamic blog routes
+  const blogs = await getAllBlogsForSitemap()
+  const blogRoutes: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
+    url: `${baseUrl}/blog/${blog.slug}`,
+    lastModified: new Date(blog.updated_at || blog.created_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticRoutes, ...propertyRoutes, ...blogRoutes]
 } 
