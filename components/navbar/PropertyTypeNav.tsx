@@ -17,7 +17,7 @@ export default function PropertyTypeNav() {
   useEffect(() => {
     const type = searchParams.get('type');
     if (type && (!currentPropertyType || !currentPropertyType.includes(type))) {
-      console.log('Setting initial property type from URL:', type);
+
       dispatch(setFilters({
         property_type: [type],
         page: 1
@@ -39,19 +39,17 @@ export default function PropertyTypeNav() {
   );
 
   const handlePropertyTypeClick = (type: string | null) => {
-    console.log('Property type clicked:', type);
-    console.log('Current property type:', currentPropertyType);
 
     const filterUpdate = {
       property_type: type ? [type] : undefined,
       page: 1
     };
-    console.log('Dispatching filter update:', filterUpdate);
+
     dispatch(setFilters(filterUpdate));
 
     const queryString = type ? createQueryString("type", type) : createQueryString("type", null);
     const newPath = pathname + (queryString ? "?" + queryString : "");
-    console.log('Updating URL to:', newPath);
+
     router.push(newPath);
   };
 

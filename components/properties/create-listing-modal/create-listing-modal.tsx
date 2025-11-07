@@ -168,14 +168,33 @@ export default function CreateListingModal({
   }, []);
 
   const handleSaveAsDraft = useCallback(async () => {
+    setIsPosting(true);
     try {
-      // Save as draft logic here
-      // await saveDraft(formData);
-      onClose();
+      // Create property with draft status
+      const draftFormData = {
+        ...formData,
+        status: 'draft'
+      };
+      
+      if (mode === 'edit' && property) {
+        await propertyApi.updateProperty(property.id, draftFormData);
+      } else {
+        await propertyApi.createProperty(draftFormData);
+      }
+      
+      setIsPosting(false);
+      setShowSuccessModal(true);
+      
+      // Close modal after short delay
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
+      setIsPosting(false);
       console.error("Failed to save draft:", error);
+      setValidationError("Failed to save draft. Please try again.");
     }
-  }, [onClose]);
+  }, [formData, onClose, mode, property]);
 
   const handleSubmit = useCallback(async () => {
     setIsPosting(true);

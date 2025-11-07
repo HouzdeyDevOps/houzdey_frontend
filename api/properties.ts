@@ -87,6 +87,7 @@ export const propertyApi = {
       form.append("ward", formData.ward);
       form.append("estate", formData.estate || "");
       form.append("size", formData.size || "");
+      form.append("status", formData.status || "available");
 
       // Handle images
       if (formData.coverImage) {
@@ -278,6 +279,9 @@ export const propertyApi = {
       form.append("ward", formData.ward);
       form.append("estate", formData.estate || "");
       form.append("size", formData.size || "");
+      if (formData.status) {
+        form.append("status", formData.status);
+      }
 
       // Handle images - only upload new blob URLs
       if (formData.coverImage && formData.coverImage.startsWith('blob:')) {
