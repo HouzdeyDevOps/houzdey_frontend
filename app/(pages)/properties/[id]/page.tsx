@@ -49,7 +49,7 @@ export async function generateMetadata(
   // Build SEO-optimized title
   const title = `${property.title} - ${priceDisplay} | Houzdey`;
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com';
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com';
   const propertyUrl = `${baseUrl}/properties/${property.id}`;
 
   return {
@@ -121,7 +121,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     name: property.title,
     description: property.description,
     image: property.images,
-    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/properties/${property.id}`,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${property.id}`,
     address: {
       "@type": "PostalAddress",
       streetAddress: property.address,
@@ -155,19 +155,19 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}`,
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}`,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Properties",
-        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/properties`,
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: property.title,
-        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/properties/${id}`,
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${id}`,
       },
     ],
   };

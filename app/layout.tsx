@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   description: "Discover and rent or buy your ideal home with Houzdey. Browse apartments, houses, and more properties for rent and sale across Nigeria.",
   keywords: "property rental, house rent, apartments, real estate, Nigeria housing, houses for sale, property for sale, Lagos property, Abuja property",
   authors: [{ name: "Houzdey" }],
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'),
   openGraph: {
     title: "Houzdey - Find Your Perfect Home in Nigeria",
     description: "Discover and rent or buy your ideal home with Houzdey. Browse apartments, houses, and more properties for rent and sale across Nigeria.",
@@ -71,14 +71,14 @@ export default function RootLayout({
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com',
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com',
     name: 'Houzdey',
     description: 'Find your perfect home - properties for rent and sale across Nigeria',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
         '@type': 'EntryPoint',
-        urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/properties?q={search_term_string}`,
+        urlTemplate: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties?q={search_term_string}`,
       },
       'query-input': 'required name=search_term_string',
     },
@@ -88,8 +88,8 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'Houzdey',
-    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com',
-    logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'}/assets/images/houzdey-logo.png`,
+    url: process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com',
+    logo: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/assets/images/houzdey-logo.png`,
     sameAs: [
       // Add your social media URLs here
       // 'https://www.facebook.com/houzdey',
