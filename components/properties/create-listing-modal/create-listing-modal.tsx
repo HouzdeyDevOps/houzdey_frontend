@@ -37,7 +37,7 @@ export default function CreateListingModal({
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  const getInitialFormData = (): FormData => {
+  const getInitialFormData = useCallback((): FormData => {
     if (property && mode === 'edit') {
       // Cast property to any to access fields that might exist in the database but not in the type
       const prop = property as any;
@@ -92,9 +92,9 @@ export default function CreateListingModal({
       estate: "",
       size: "",
     };
-  };
+  }, [property, mode]);
 
-  const [formData, setFormData] = useState<FormData>(getInitialFormData());
+  const [formData, setFormData] = useState<FormData>(() => getInitialFormData());
 
   const updateForm = useCallback((field: string, value: any) => {
     setFormData(prev => ({

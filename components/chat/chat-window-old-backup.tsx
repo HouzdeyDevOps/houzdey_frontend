@@ -51,66 +51,9 @@ export default function ChatWindow() {
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const observerRef = useRef<IntersectionObserver | null>(null);
 
-  // Helper functions
-  function handleNewMessage(message: Message) {
-    setMessages((prev) => {
-      const pendingIndex = prev.findIndex(
-        (m) =>
-          m.pending &&
-          m.content === message.content &&
-          m.sender_id === message.sender_id
-      );
-
-      if (pendingIndex !== -1) {
-        const newMessages = [...prev];
-        newMessages[pendingIndex] = message;
-        return newMessages;
-      }
-
-      const existingIndex = prev.findIndex((m) => m.id === message.id);
-      if (existingIndex !== -1) {
-        return prev;
-      }
-
-      if (message.sender_id !== user?.id) {
-        setUnreadMessages(prev => new Set(prev).add(message.id));
-      }
-
-      return [...prev, message];
-    });
-    scrollToBottom();
-  }
-
-  function handleReadStatus(conversationId: string) {
-    if (conversationId === conversationIdParam) {
-      setMessages((prevMessages) =>
-        prevMessages.map((msg) => ({
-          ...msg,
-          read: true,
-        }))
-      );
-    }
-  }
-
-  async function handleSendVoice(fileUrl: string, duration: number) {
-    if (!conversationId) return;
-    await chatService.sendMessage(
-      conversationId,
-      JSON.stringify({
-        type: "voice",
-        file_url: fileUrl,
-        duration: duration,
-      })
-    );
-  }
-
-  function scrollToBottom() {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }
-
   // Custom hooks
   const { isConnected, error, isLoading, initializeChat, setError } = useChatConnection({
-    conversationId: conversationId || null,
+    conversationId,
     userId: user?.id,
     otherUserId: conversation?.other_user?.id,
     onMessage: handleNewMessage,
@@ -128,51 +71,11 @@ export default function ChatWindow() {
     stopRecording,
     formatRecordingTime
   } = useVoiceRecording({
-    conversationId: conversationId || null,
+    conversationId,
     onSendVoice: handleSendVoice
   });
 
   const [isImageUploading, setIsImageUploading] = useState(false);
-
-  // Callbacks
-  const markMessagesAsRead = useCallback(async () => {
-    if (!conversationId || unreadMessages.size === 0) return;
-    
-    try {
-      await chatApi.markMessagesAsRead(conversationId);
-      setUnreadMessages(new Set());
-    } catch (error) {
-      console.error("Failed to mark messages as read:", error);
-    }
-  }, [conversationId, unreadMessages]);
-
-  const handleMessageContextMenu = useCallback((
-    e: React.MouseEvent,
-    message: Message,
-    fileUrl?: string
-  ) => {
-    e.preventDefault();
-    const showDownload = fileUrl !== undefined;
-    setContextMenu({
-      x: e.clientX,
-      y: e.clientY,
-      messageId: message.id,
-      showDownload,
-      fileUrl,
-      isSender: message.sender_id === user?.id,
-    });
-  }, [user?.id]);
-
-  const handleDeleteMessage = useCallback(async (messageId: string) => {
-    try {
-      await chatApi.deleteMessage(messageId);
-      setMessages((prev) => prev.filter((m) => m.id !== messageId));
-      setContextMenu(null);
-    } catch (error) {
-      console.error("Failed to delete message:", error);
-      setError("Failed to delete message. Please try again.");
-    }
-  }, [setError]);
 
   // Load conversation
   useEffect(() => {
@@ -292,7 +195,74 @@ export default function ChatWindow() {
     };
   }, [markMessagesAsRead]);
 
-  // Event handlers
+  // Helper functions
+  function scrollToBottom() {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  function handleNewMessage(message: Message) {
+    setMessages((prev) => {
+      const pendingIndex = prev.findIndex(
+        (m) =>
+          m.pending &&
+          m.content === message.content &&
+          m.sender_id === message.sender_id
+      );
+
+      if (pendingIndex !== -1) {
+        const newMessages = [...prev];
+        newMessages[pendingIndex] = message;
+        return newMessages;
+      }
+
+      const existingIndex = prev.findIndex((m) => m.id === message.id);
+      if (existingIndex !== -1) {
+        return prev;
+      }
+
+      if (message.sender_id !== user?.id) {
+        setUnreadMessages(prev => new Set(prev).add(message.id));
+      }
+
+      return [...prev, message];
+    });
+    scrollToBottom();
+  }
+
+  function handleReadStatus(conversationId: string) {
+    if (conversationId === conversationIdParam) {
+      setMessages((prevMessages) =>
+        prevMessages.map((msg) => ({
+          ...msg,
+          read: true,
+        }))
+      );
+    }
+  }
+
+  async function handleSendVoice(fileUrl: string, duration: number) {
+    if (!conversationId) return;
+    await chatService.sendMessage(
+      conversationId,
+      JSON.stringify({
+        type: "voice",
+        file_url: fileUrl,
+        duration: duration,
+      })
+    );
+  }
+
+  const markMessagesAsRead = useCallback(async () => {
+    if (!conversationId || unreadMessages.size === 0) return;
+    
+    try {
+      await chatApi.markMessagesAsRead(conversationId);
+      setUnreadMessages(new Set());
+    } catch (error) {
+      console.error("Failed to mark messages as read:", error);
+    }
+  }, [conversationId, unreadMessages]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
 
@@ -382,6 +352,34 @@ export default function ChatWindow() {
       startRecording();
     }
   };
+
+  const handleMessageContextMenu = useCallback((
+    e: React.MouseEvent,
+    message: Message,
+    fileUrl?: string
+  ) => {
+    e.preventDefault();
+    const showDownload = fileUrl !== undefined;
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      messageId: message.id,
+      showDownload,
+      fileUrl,
+      isSender: message.sender_id === user?.id,
+    });
+  }, [user?.id]);
+
+  const handleDeleteMessage = useCallback(async (messageId: string) => {
+    try {
+      await chatApi.deleteMessage(messageId);
+      setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      setContextMenu(null);
+    } catch (error) {
+      console.error("Failed to delete message:", error);
+      setError("Failed to delete message. Please try again.");
+    }
+  }, [setError]);
 
   const handleDownload = async (fileUrl: string) => {
     try {
@@ -523,3 +521,5 @@ export default function ChatWindow() {
     </div>
   );
 }
+
+ 
