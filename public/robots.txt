@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemaps
-Sitemap: https://www.houzdey.com/sitemap.xml
+Sitemap: https://houzdey.com/sitemap.xml
 
 # Crawl-delay (reduced for faster indexing)
 Crawl-delay: 1

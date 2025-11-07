@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 import { getAllPropertiesForSitemap } from '@/lib/server-api'
 
-const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 // Helper to fetch all blog posts for sitemap
