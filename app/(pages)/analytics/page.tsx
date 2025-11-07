@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
           showSearch={false} 
           showPropertyTypeFilters={false} 
         />
-        <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
+        <div className="w-full mx-auto mt-24">
           <PropertyAnalyticsDashboard />
         </div>
       </main>

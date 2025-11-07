@@ -19,7 +19,7 @@ class UploadService {
     }
   }
 
-  async uploadFile(file: File, type: 'image' | 'voice'): Promise<string> {
+  async uploadFile(file: File, type: 'image' | 'voice', context: string = 'chat'): Promise<string> {
     try {
       this.validateFileSize(file);
       this.validateFileType(file, type);
@@ -27,6 +27,7 @@ class UploadService {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('type', type);
+      formData.append('context', context);
 
       const response = await axios.post(`${API_BASE_URL}/api/v1/upload`, formData, {
         headers: {

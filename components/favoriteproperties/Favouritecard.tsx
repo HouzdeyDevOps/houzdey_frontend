@@ -102,9 +102,9 @@ export default function FavouriteCard({ property }: { property: FavoriteCardProp
               </div>
               <div className="absolute right-0 mt-2 w-60 bg-white border rounded-3xl shadow-md z-20">
                 <ul className="py-2 text-gray-700">
-                  <li className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("add")}>Add Note</li>
-                  <li className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("edit")}>Edit Note</li>
-                  <li className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("delete")}>Delete Listing</li>
+                  <li key="add-note" className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("add")}>Add Note</li>
+                  <li key="edit-note" className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("edit")}>Edit Note</li>
+                  <li key="delete-listing" className="px-2 py-2 m-2 bg-gray-100 cursor-pointer rounded-lg" onClick={() => openModal("delete")}>Delete Listing</li>
                 </ul>
               </div>
               </>

@@ -18,11 +18,13 @@ import { formatLocation } from "@/utils/formatLocation";
 interface ListingManageCardProps {
   property: Property;
   onDelete: (id: string) => void;
+  onEdit: (property: Property) => void;
 }
 
 export default function ListingManageCard({
   property,
   onDelete,
+  onEdit,
 }: ListingManageCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -155,7 +157,10 @@ export default function ListingManageCard({
                 <ul className="py-2 px-2 text-gray-700">
                   <li
                     className="px-2 py-2 m-2 hover:bg-gray-100 cursor-pointer rounded-lg font-semibold text-base"
-                    onClick={() => setModalOpen(true)}
+                    onClick={() => {
+                      onEdit(property);
+                      setDropdownOpen(false);
+                    }}
                   >
                     Edit listing
                   </li>

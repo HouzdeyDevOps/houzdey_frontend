@@ -90,16 +90,25 @@ export default function ProfileDropdown() {
         className="flex items-center focus:outline-none"
       >
         {imageError ? (
-          <div className="w-[50px] h-[50px] rounded-full bg-gray-200 flex items-center justify-center">
-            <span className="text-gray-500 text-xs">?</span>
-          </div>
+          <Image
+            src="/assets/images/default-avatar.png"
+            alt="Profile"
+            width={50}
+            height={50}
+            className="rounded-full object-cover border border-gray-300"
+            style={{
+              width: '50px',
+              height: '50px'
+            }}
+            priority={true}
+          />
         ) : (
           <Image
             src={getOptimizedImageUrl(user?.profile_picture, { width: 50, height: 50 })}
             alt="Profile"
             width={50}
             height={50}
-            className="rounded-full object-cover"
+            className="rounded-full object-cover border border-gray-300"
             style={{
               width: '50px',
               height: '50px'

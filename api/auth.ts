@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosInstance from "@/lib/axios";
 import { AuthError, SignInResponse, UserSignInParams } from "@/@types/auth";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
@@ -92,7 +93,7 @@ export const authApi = {
 
   async getCurrentUser() {
     try {
-      const response = await axios.get(`${API_BASE_URL}/${API_VERSION}/users/me`);
+      const response = await axiosInstance.get(`/${API_VERSION}/users/me`);
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch user data");
@@ -115,12 +116,14 @@ export const authApi = {
 
   async updatePersonalInfo(formData: FormData) {
     try {
-      const response = await axios.post(
-        `${API_BASE_URL}/${API_VERSION}/users/personal-info`,
+      const token = localStorage.getItem("token");
+      const response = await axios.put(
+        `${API_BASE_URL}/${API_VERSION}/users/me`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            "Authorization": `Bearer ${token}`
           },
         }
       );
@@ -308,7 +311,7 @@ export const authApi = {
     try {
       const formData = new FormData();
       formData.append('email', email);
-      formData.append('code', code);
+      formData.append('reset_code', code);
       formData.append('new_password', newPassword);
 
       const response = await axios.post(

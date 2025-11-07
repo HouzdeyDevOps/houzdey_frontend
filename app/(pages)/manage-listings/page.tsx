@@ -9,6 +9,7 @@ import { propertyApi } from "@/api/properties";
 import { toast } from "sonner";
 import { Property } from "@/@types/property";
 import ProtectedRoute from "@/components/auth/protected-route";
+import CreateListingModal from "@/components/properties/create-listing-modal/create-listing-modal";
 
 type SortOption = "newest" | "oldest";
 
@@ -17,6 +18,8 @@ export default function ManageListing() {
   const [listedProperties, setListedProperties] = useState<Property[]>([]);
   const [sortOrder, setSortOrder] = useState<SortOption>("newest");
   const [activeStatus, setActiveStatus] = useState("all");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingProperty, setEditingProperty] = useState<Property | null>(null);
 
   // Fetch user's properties
   const fetchUserProperties = async () => {
@@ -47,6 +50,20 @@ export default function ManageListing() {
     }
   };
 
+  // Handle property edit
+  const handleEditListing = (property: Property) => {
+    setEditingProperty(property);
+    setIsEditModalOpen(true);
+  };
+
+  // Handle edit modal close
+  const handleEditModalClose = () => {
+    setIsEditModalOpen(false);
+    setEditingProperty(null);
+    // Refresh properties list after edit
+    fetchUserProperties();
+  };
+
   // Filter properties based on status
   const filteredProperties = listedProperties.filter((property) => {
     if (activeStatus === "all") return true;
@@ -70,7 +87,7 @@ export default function ManageListing() {
         />
 
         {/* Title Section */}
-        <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
+        <div className="w-full mx-auto mt-32 px-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
             <div className="flex items-center gap-6">
               <Link href="/" className="hover:text-gray-600">
@@ -155,11 +172,20 @@ export default function ManageListing() {
                   key={property.id}
                   property={property}
                   onDelete={() => handleDeleteListing(property.id)}
+                  onEdit={handleEditListing}
                 />
               ))}
             </div>
           )}
         </div>
+
+        {/* Edit Listing Modal */}
+        <CreateListingModal
+          isOpen={isEditModalOpen}
+          onClose={handleEditModalClose}
+          property={editingProperty}
+          mode="edit"
+        />
       </div>
     </ProtectedRoute>
   );

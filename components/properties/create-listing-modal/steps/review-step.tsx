@@ -47,6 +47,21 @@ const ReviewStep = ({ formData, setStep }: ReviewStepProps) => {
       value: formData.size ? `${formData.size} sqm` : null,
       step: 2,
     },
+    ...(formData.agency_fee ? [{
+      title: "Agency Fee",
+      value: formatPrice(formData.agency_fee),
+      step: 2,
+    }] : []),
+    ...(formData.legal_fee ? [{
+      title: "Legal Fee",
+      value: formatPrice(formData.legal_fee),
+      step: 2,
+    }] : []),
+    ...(formData.other_fees ? [{
+      title: "Other Fees",
+      value: formatPrice(formData.other_fees),
+      step: 2,
+    }] : []),
     {
       title: "Amenities",
       value: formData.amenities.map((a) => a.name).join(", "),
@@ -145,6 +160,22 @@ const ReviewStep = ({ formData, setStep }: ReviewStepProps) => {
           ))}
         </div>
       </div>
+
+      {/* Property Video */}
+      {formData.video && (
+        <div className="space-y-2">
+          <h4 className="font-medium">Property video</h4>
+          <div className="relative bg-black rounded-lg overflow-hidden">
+            <video
+              src={formData.video}
+              controls
+              className="w-full max-h-[400px] object-contain"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

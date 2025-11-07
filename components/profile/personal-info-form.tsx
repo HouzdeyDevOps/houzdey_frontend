@@ -10,6 +10,8 @@ import { Loader2 } from "lucide-react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getOptimizedImageUrl } from "@/utils/imageUtils";
+import { useDispatch } from "react-redux";
+import { updateUser } from "@/store/slices/userAuthSlice";
 
 interface UserProfile {
   id: string;
@@ -23,6 +25,7 @@ interface UserProfile {
 }
 
 export default function PersonalInfoForm() {
+  const dispatch = useDispatch();
   const [userData, setUserData] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -142,6 +145,17 @@ export default function PersonalInfoForm() {
         setFormData(prev => ({
           ...prev,
           profilePicture: response.profile_picture_url
+        }));
+      }
+      
+      // Update Redux store with the new user data
+      if (userData) {
+        dispatch(updateUser({
+          ...userData,
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          phone_number: formData.phoneNumber,
+          profile_picture: response.profile_picture_url || userData.profile_picture
         }));
       }
       

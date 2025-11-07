@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notificationsApi } from "@/api/notifications";
 import { Notification } from "@/@types/notifications";
 import { formatDistanceToNow } from "date-fns";
+import NotificationSettingsModal from "@/components/modals/NotificationSettingsModal";
 
 interface NotificationDropdownProps {
   className?: string;
@@ -13,6 +14,7 @@ interface NotificationDropdownProps {
 const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [showAll, setShowAll] = useState(false);
@@ -176,16 +178,16 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className =
                       >
                         Clear all notifications
                       </button>
-                      <Link
-                        href="/notification-settings"
-                        className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
+                      <button
                         onClick={() => {
+                          setSettingsModalOpen(true);
                           setIsOpen(false);
                           setSettingsOpen(false);
                         }}
+                        className="block w-full px-4 py-2 text-left hover:bg-gray-50 text-sm"
                       >
                         Notification settings
-                      </Link>
+                      </button>
                     </div>
                   )}
                 </div>
@@ -297,6 +299,12 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className =
           </div>
         </>
       )}
+
+      {/* Notification Settings Modal */}
+      <NotificationSettingsModal 
+        isOpen={settingsModalOpen} 
+        onClose={() => setSettingsModalOpen(false)} 
+      />
     </div>
   );
 };

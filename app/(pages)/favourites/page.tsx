@@ -70,8 +70,8 @@ export default function Favourite() {
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value as SortOption)}
               >
-                <option value="newest">Newest to Oldest</option>
-                <option value="oldest">Oldest to Newest</option>
+                <option key="newest" value="newest">Newest to Oldest</option>
+                <option key="oldest" value="oldest">Oldest to Newest</option>
               </select>
             </div>
           </div>
@@ -82,9 +82,11 @@ export default function Favourite() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {loading ? (
               // Show loading skeletons
-              Array.from({ length: 8 }, (_, index) => (
-                <PropertyCardSkeleton key={`skeleton-${index}`} />
-              ))
+              <>
+                {Array.from({ length: 8 }, (_, index) => (
+                  <PropertyCardSkeleton key={`skeleton-${index}`} />
+                ))}
+              </>
             ) : sortedProperties.length === 0 ? (
               <div className="col-span-full flex justify-center items-center py-12">
                 <div className="text-center">
@@ -93,9 +95,11 @@ export default function Favourite() {
                 </div>
               </div>
             ) : (
-              sortedProperties.map((property: Property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))
+              <>
+                {sortedProperties.map((property: Property) => (
+                  <PropertyCard key={property.id} property={property} />
+                ))}
+              </>
             )}
           </div>
         </div>

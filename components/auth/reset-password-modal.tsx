@@ -7,8 +7,9 @@ import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import SuccessModal from "./success-modal";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCurrentModal } from "@/store/slices/authModalSlice";
+import { RootState } from "@/store/store";
 
 interface ResetPasswordModalProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function ResetPasswordModal({
   email,
 }: ResetPasswordModalProps) {
   const dispatch = useDispatch();
+  const verificationCode = useSelector((state: RootState) => state.userAuth.verificationCode);
   const [formData, setFormData] = useState({
     password: "",
     confirmPassword: "",
@@ -47,9 +49,16 @@ export default function ResetPasswordModal({
       return;
     }
 
+    if (!verificationCode) {
+      setErrorMessage("Verification code is missing. Please try again.");
+      showErrorToast("Verification code is missing. Please try again.");
+      setShowError(true);
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await authApi.forgotPassword(email);
+      await authApi.resetPassword(email, verificationCode, formData.password);
       setIsLoading(false);
       setShowSuccess(true);
       showSuccessToast("Password reset successfully!");
@@ -97,7 +106,7 @@ export default function ResetPasswordModal({
                   }
                   required
                   minLength={8}
-                  pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$"
+                  pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$"
                   title="Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one number"
                 />
                 <button

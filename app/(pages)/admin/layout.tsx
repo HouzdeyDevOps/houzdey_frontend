@@ -11,7 +11,7 @@ interface AdminLayoutProps {
 }
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
-  const { user, isAuthenticated } = useSelector((state: RootState) => state.userAuth);
+  const { user, isAuthenticated, isInitialized } = useSelector((state: RootState) => state.userAuth);
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [hasAccess, setHasAccess] = useState(false);
@@ -22,25 +22,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    if (!isMounted) return;
+    if (!isMounted || !isInitialized) return;
 
-    // Add a small delay to ensure auth state is fully loaded
-    const checkAccess = setTimeout(() => {
-      const userHasAccess = isAuthenticated && user && (user.role === "admin" || user.role === "super_admin");
-      
-      if (!userHasAccess) {
-        router.push("/");
-      } else {
-        setHasAccess(true);
-      }
-      setIsLoading(false);
-    }, 100); // Small delay to let auth state settle
-
-    return () => clearTimeout(checkAccess);
-  }, [isAuthenticated, user, router, isMounted]);
+    // Check access after auth state is initialized
+    const userHasAccess = isAuthenticated && user && (user.role === "admin" || user.role === "super_admin");
+    
+    if (!userHasAccess) {
+      router.push("/");
+    } else {
+      setHasAccess(true);
+    }
+    setIsLoading(false);
+  }, [isAuthenticated, user, router, isMounted, isInitialized]);
 
   // Show loading state while checking authentication (avoid hydration mismatch)
-  if (!isMounted || isLoading) {
+  if (!isMounted || isLoading || !isInitialized) {
     return (
       <div className="flex h-screen bg-gray-50 items-center justify-center">
         <div className="text-center">

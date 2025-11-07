@@ -17,6 +17,7 @@ export interface CreateListingFormData {
   description: string;
   images: string[];
   coverImage: string | null;
+  video: string | null;
   beds: string;
   baths: string;
   toilets: string;
@@ -28,6 +29,7 @@ export interface CreateListingFormData {
   ward: string;
   estate: string;
   size?: string;
+  status?: string;
 }
 
 export interface StepProps {
@@ -37,6 +39,7 @@ export interface StepProps {
 
 export enum PropertyType {
   Apartment = "Apartment",
+  Land = "Land",
   Bedsitter = "Bedsitter",
   BlockOfFlats = "Block of Flats",
   Bungalow = "Bungalow",

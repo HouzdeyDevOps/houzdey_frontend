@@ -18,16 +18,20 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   token: string | null;
   email: string | null;
+  verificationCode: string | null;
 }
 
 const initialState: AuthState = {
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
   token: null,
   email: null,
+  verificationCode: null,
 };
 
 const userAuthSlice = createSlice({
@@ -38,6 +42,7 @@ const userAuthSlice = createSlice({
       state.user = action.payload.user;
       state.token = action.payload.token;
       state.isAuthenticated = true;
+      state.isInitialized = true;
 
      // Store in localStorage for persistence
      localStorage.setItem('token', JSON.stringify(action.payload));
@@ -49,6 +54,9 @@ const userAuthSlice = createSlice({
       localStorage.removeItem('token');
       localStorage.removeItem('wishlist');
     },
+    setInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       const auth = JSON.parse(localStorage.getItem('auth') || '{}');
@@ -57,8 +65,11 @@ const userAuthSlice = createSlice({
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload;
     },
+    setVerificationCode: (state, action: PayloadAction<string>) => {
+      state.verificationCode = action.payload;
+    },
   },
 });
 
-export const { login, logout, updateUser, setEmail } = userAuthSlice.actions;
+export const { login, logout, setInitialized, updateUser, setEmail, setVerificationCode } = userAuthSlice.actions;
 export default userAuthSlice;

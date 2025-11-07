@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { login } from '@/store/slices/userAuthSlice';
+import { login, setInitialized } from '@/store/slices/userAuthSlice';
 import { setWishlistItems } from '@/store/slices/wishlistSlice';
 import { authApi } from '@/api/auth';
 import { wishlistApi } from '@/api/wishlist';
@@ -21,9 +21,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const initializeAuth = async () => {
       const token = localStorage.getItem('token');
+      
       if (token) {
         try {
           const user = await authApi.getCurrentUser();
+          
           dispatch(login({
             user,
             token
@@ -32,19 +34,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Initialize wishlist for authenticated user
           try {
             const wishlistData = await wishlistApi.getWishlistIds();
-            // Extract property IDs from the wishlist response
             const propertyIds = wishlistData.items || [];
             dispatch(setWishlistItems(propertyIds));
           } catch (wishlistError) {
-            console.error('Failed to load wishlist:', wishlistError);
             // Don't fail auth if wishlist fails to load
           }
         } catch (error) {
           localStorage.removeItem('token');
-          // Clear wishlist when auth fails
+          localStorage.removeItem('refresh_token');
           dispatch(setWishlistItems([]));
         }
       }
+      
+      // Set initialized to true whether we have a token or not
+      dispatch(setInitialized(true));
       setIsInitialized(true);
     };
 

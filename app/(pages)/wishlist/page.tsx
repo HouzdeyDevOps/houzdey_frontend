@@ -36,7 +36,7 @@ export default function WishlistPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Navbar showSearch={false} showPropertyTypeFilters={false} />
-        <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
+        <div className="w-full mx-auto mt-24">
           <div className="text-center">
             <p className="text-xl text-gray-600">Please log in to view your wishlist</p>
           </div>
@@ -48,7 +48,7 @@ export default function WishlistPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-      <div className="max-w-7xl mx-auto px-8 py-8 mt-24">
+      <div className="w-full mx-auto mt-24">
         <div className="flex items-center gap-3 mb-8">
           <Heart className="w-6 h-6 text-indigo-600" />
           <h1 className="text-2xl font-bold">My Wishlist</h1>

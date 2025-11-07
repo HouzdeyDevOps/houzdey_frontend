@@ -7,12 +7,14 @@ import Link from "next/link";
 import { notificationsApi } from "@/api/notifications";
 import { Notification } from "@/@types/notifications";
 import { formatDistanceToNow } from "date-fns";
+import NotificationSettingsModal from "@/components/modals/NotificationSettingsModal";
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<'all' | 'unread' | 'read'>('all');
+  const [settingsModalOpen, setSettingsModalOpen] = useState(false);
 
   useEffect(() => {
     fetchNotifications();
@@ -111,13 +113,13 @@ export default function NotificationsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Link
-                href="/notification-settings"
+              <button
+                onClick={() => setSettingsModalOpen(true)}
                 className="flex items-center gap-2 px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
               >
                 <Settings className="w-4 h-4" />
                 Settings
-              </Link>
+              </button>
               {unreadCount > 0 && (
                 <button
                   onClick={handleMarkAllAsRead}
@@ -277,6 +279,12 @@ export default function NotificationsPage() {
           )}
         </div>
       </div>
+
+      {/* Notification Settings Modal */}
+      <NotificationSettingsModal 
+        isOpen={settingsModalOpen} 
+        onClose={() => setSettingsModalOpen(false)} 
+      />
     </div>
   );
 } 

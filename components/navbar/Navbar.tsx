@@ -126,7 +126,7 @@ const Navbar = ({
                   if (user) {
                     setShowCreateListing(true);
                   } else {
-                    dispatch(setCurrentModal("signup"));
+                    dispatch(setCurrentModal("signin"));
                   }
                   toggleMobileMenu();
                 }}
@@ -288,7 +288,7 @@ const Navbar = ({
                   onClick={
                     user
                       ? () => setShowCreateListing(true)
-                      : () => dispatch(setCurrentModal("signup"))
+                      : () => dispatch(setCurrentModal("signin"))
                   }
                   className="px-4 py-3 font-semibold bg-indigo-600 text-white rounded-xl hover:bg-indigo-700"
                 >

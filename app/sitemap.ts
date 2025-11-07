@@ -1,42 +1,25 @@
 import { MetadataRoute } from 'next'
+import { getAllPropertiesForSitemap } from '@/lib/server-api'
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.houzdey.com'
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
-// Fetch dynamic properties for sitemap with pagination
-async function getProperties() {
+// Helper to fetch all blog posts for sitemap
+async function getAllBlogsForSitemap() {
   try {
-    const allProperties = []
-    let page = 1
-    let hasMore = true
+    const res = await fetch(`${apiUrl}/api/v1/blog?limit=500`, {
+      next: { revalidate: 3600 } // Cache for 1 hour
+    })
     
-    // Fetch up to 10 pages (500 properties max for sitemap)
-    while (hasMore && page <= 10) {
-      const response = await fetch(`${apiUrl}/api/v1/properties?limit=50&page=${page}`, {
-        next: { revalidate: 3600 } // Revalidate every hour
-      })
-      
-      if (!response.ok) break
-      
-      const data = await response.json()
-      const properties = data.properties || []
-      
-      if (properties.length === 0) {
-        hasMore = false
-      } else {
-        allProperties.push(...properties)
-        page++
-        
-        // If we got less than 50, we've reached the end
-        if (properties.length < 50) {
-          hasMore = false
-        }
-      }
+    if (!res.ok) {
+      console.error('Failed to fetch blogs for sitemap')
+      return []
     }
     
-    return allProperties
+    const data = await res.json()
+    return data.blogs || []
   } catch (error) {
-    console.error('Error fetching properties for sitemap:', error)
+    console.error('Error fetching blogs for sitemap:', error)
     return []
   }
 }
@@ -55,6 +38,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: 'hourly',
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/blog`,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/about`,
@@ -82,14 +71,23 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Fetch dynamic property routes
-  const properties = await getProperties()
-  const propertyRoutes: MetadataRoute.Sitemap = properties.map((property: any) => ({
-    url: `${baseUrl}/properties/${property._id || property.id}`,
-    lastModified: new Date(property.updated_at || property.created_at || new Date()),
+  // Fetch dynamic property routes using server-side API
+  const properties = await getAllPropertiesForSitemap()
+  const propertyRoutes: MetadataRoute.Sitemap = properties.map((property) => ({
+    url: `${baseUrl}/properties/${property.id}`,
+    lastModified: new Date(property.created_at),
     changeFrequency: 'weekly' as const,
     priority: 0.7,
   }))
 
-  return [...staticRoutes, ...propertyRoutes]
+  // Fetch dynamic blog routes
+  const blogs = await getAllBlogsForSitemap()
+  const blogRoutes: MetadataRoute.Sitemap = blogs.map((blog: any) => ({
+    url: `${baseUrl}/blog/${blog.slug}`,
+    lastModified: new Date(blog.updated_at || blog.created_at),
+    changeFrequency: 'weekly' as const,
+    priority: 0.6,
+  }))
+
+  return [...staticRoutes, ...propertyRoutes, ...blogRoutes]
 } 

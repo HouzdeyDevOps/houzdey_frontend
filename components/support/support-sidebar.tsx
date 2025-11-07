@@ -1,6 +1,5 @@
 "use client";
 
-import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -31,11 +30,8 @@ export default function SupportSidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="bg-white rounded-xl shadow-sm min-h-screen sticky top-0">
+    <div className="bg-white rounded-xl shadow-sm min-h-screen sticky top-0 py-6">
       <h2 className="text-2xl font-semibold mb-8 flex items-center gap-2">
-        <span className="">
-          <ChevronLeft className="w-6 h-6" />
-        </span>
         Support
       </h2>
       <nav className="space-y-1">

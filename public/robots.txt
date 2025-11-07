@@ -4,10 +4,15 @@ Allow: /
 # Sitemaps
 Sitemap: https://www.houzdey.com/sitemap.xml
 
-# Crawl-delay
-Crawl-delay: 10
+# Crawl-delay (reduced for faster indexing)
+Crawl-delay: 1
 
 # Disallow sensitive routes
 Disallow: /api/
 Disallow: /admin/
-Disallow: /private/ 
+Disallow: /private/
+Disallow: /chat/
+Disallow: /profile/
+Disallow: /manage-listings/
+Disallow: /favourites/
+Disallow: /wishlist/ 

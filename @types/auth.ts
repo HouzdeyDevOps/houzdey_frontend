@@ -48,6 +48,7 @@ export interface SignInResponse {
     phone_number: string;
     status: string;
     profile_picture: string;
+    role: string;
   }
 }
 
@@ -69,6 +70,7 @@ export interface UserProfile {
   last_name: string;
   status: string;
   profile_picture: string;
+  role?: string;
 }
 
 export interface GoogleAuthParams {

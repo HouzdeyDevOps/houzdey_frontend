@@ -40,8 +40,8 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // If error is 401 or 403 (unauthorized/forbidden) and we haven't tried to refresh yet
+    if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       if (isRefreshing) {
         // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
@@ -63,7 +63,7 @@ axiosInstance.interceptors.response.use(
         // No refresh token, redirect to login
         localStorage.removeItem('token');
         localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
+        window.location.href = '/';
         return Promise.reject(error);
       }
 
@@ -98,7 +98,7 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('refresh_token');
         delete axiosInstance.defaults.headers.common['Authorization'];
         
-        window.location.href = '/login';
+        window.location.href = '/';
         return Promise.reject(refreshError);
       }
     }

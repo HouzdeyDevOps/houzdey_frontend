@@ -10,9 +10,11 @@ const preloadedState = {
   userAuth: {
     user: null,
     isAuthenticated: false,
-    isLoading: false, 
+    isLoading: false,
+    isInitialized: false,
     token: initializeAuth(),
     email: null,
+    verificationCode: null,
   }
 };
 

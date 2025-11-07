@@ -30,6 +30,7 @@ export interface Property {
     icon: string;
   }>;
   images: string[];
+  video?: string;
   created_at: string;
 }
 
