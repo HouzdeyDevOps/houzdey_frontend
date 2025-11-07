@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import BlogDetailClient from '@/components/blog/BlogDetailClient';
+import Navbar from '@/components/navbar/Navbar';
 
 // Server-side API call
 async function getBlogBySlug(slug: string) {
@@ -121,6 +122,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      
+      {/* Navigation */}
+      <Navbar showSearch={false} showPropertyTypeFilters={false} />
       
       {/* Client Component */}
       <BlogDetailClient blog={blog} />

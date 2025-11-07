@@ -6,6 +6,7 @@ import { blogApi } from '@/api/blog';
 import { BlogCategory } from '@/@types/blog';
 import BlogCard from '@/components/blog/BlogCard';
 import BlogSidebar from '@/components/blog/BlogSidebar';
+import Navbar from '@/components/navbar/Navbar';
 import { Search, Loader2 } from 'lucide-react';
 
 export default function BlogPage() {
@@ -31,7 +32,9 @@ export default function BlogPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <>
+      <Navbar showSearch={false} showPropertyTypeFilters={false} />
+      <div className="min-h-screen bg-gray-50 mt-20">
       {/* Hero Section */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -127,5 +130,6 @@ export default function BlogPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
