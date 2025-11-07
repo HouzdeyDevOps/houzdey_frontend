@@ -18,6 +18,7 @@ dist/
 .idea
 
 .env
+.env.production
 
 
 # Vercel
