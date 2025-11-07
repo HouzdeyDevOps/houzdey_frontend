@@ -53,6 +53,18 @@ export const propertyApi = {
       if (formData.sale_price) {
         form.append("sale_price", formData.sale_price.toString());
       }
+      
+      // Fee fields
+      if (formData.agency_fee) {
+        form.append("agency_fee", formData.agency_fee.toString());
+      }
+      if (formData.legal_fee) {
+        form.append("legal_fee", formData.legal_fee.toString());
+      }
+      if (formData.other_fees) {
+        form.append("other_fees", formData.other_fees.toString());
+      }
+      
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 
@@ -233,6 +245,18 @@ export const propertyApi = {
       if (formData.sale_price) {
         form.append("sale_price", formData.sale_price.toString());
       }
+      
+      // Fee fields
+      if (formData.agency_fee) {
+        form.append("agency_fee", formData.agency_fee.toString());
+      }
+      if (formData.legal_fee) {
+        form.append("legal_fee", formData.legal_fee.toString());
+      }
+      if (formData.other_fees) {
+        form.append("other_fees", formData.other_fees.toString());
+      }
+      
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 

@@ -22,6 +22,19 @@ const LocationFeaturesStep = ({
   const { data: lgas = [] } = useLGAs(selectedState);
   const { data: wards = [] } = useWards(selectedState, selectedLGA);
 
+  // Initialize location fields when editing
+  useEffect(() => {
+    if (formData.state && !selectedState) {
+      setSelectedState(formData.state);
+    }
+    if (formData.lga && !selectedLGA) {
+      setSelectedLGA(formData.lga);
+    }
+    if (formData.ward && !selectedWard) {
+      setSelectedWard(formData.ward);
+    }
+  }, [formData.state, formData.lga, formData.ward, selectedState, selectedLGA, selectedWard]);
+
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedLGA("");
