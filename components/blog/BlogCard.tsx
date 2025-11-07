@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { Clock, Calendar, Eye } from 'lucide-react';
 import { Blog } from '@/@types/blog';
 import { format } from 'date-fns';
+import { optimizeCloudinaryImage } from '@/utils/cloudinaryOptimize';
 
 interface BlogCardProps {
   blog: Blog;
@@ -16,12 +17,10 @@ export default function BlogCard({ blog }: BlogCardProps) {
       <article className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-300">
         {/* Featured Image */}
         <div className="relative h-48 w-full overflow-hidden">
-          <Image
-            src={blog.featured_image}
+          <img
+            src={optimizeCloudinaryImage(blog.featured_image, { width: 600, quality: 80 })}
             alt={blog.featured_image_alt || blog.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute top-4 left-4">
             <span className="bg-blue-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
@@ -78,11 +77,10 @@ export default function BlogCard({ blog }: BlogCardProps) {
           <div className="flex items-center text-sm text-gray-700">
             {blog.author_avatar && (
               <div className="relative w-8 h-8 rounded-full overflow-hidden mr-2">
-                <Image
-                  src={blog.author_avatar}
+                <img
+                  src={optimizeCloudinaryImage(blog.author_avatar, { width: 64, height: 64, crop: 'thumb' })}
                   alt={blog.author_name || 'Author'}
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               </div>
             )}

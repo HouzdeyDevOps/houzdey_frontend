@@ -10,6 +10,7 @@ import { blogApi } from '@/api/blog';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
 import BlogCard from './BlogCard';
+import { optimizeCloudinaryImage } from '@/utils/cloudinaryOptimize';
 
 interface BlogDetailClientProps {
   blog: Blog;
@@ -77,11 +78,10 @@ export default function BlogDetailClient({ blog }: BlogDetailClientProps) {
             <div className="flex items-center">
               {blog.author_avatar && (
                 <div className="relative w-10 h-10 rounded-full overflow-hidden mr-3">
-                  <Image
-                    src={blog.author_avatar}
+                  <img
+                    src={optimizeCloudinaryImage(blog.author_avatar, { width: 80, height: 80, crop: 'thumb' })}
                     alt={blog.author_name || 'Author'}
-                    fill
-                    className="object-cover"
+                    className="w-full h-full object-cover"
                   />
                 </div>
               )}
@@ -127,12 +127,10 @@ export default function BlogDetailClient({ blog }: BlogDetailClientProps) {
       {/* Featured Image */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="relative w-full h-96 rounded-lg overflow-hidden">
-          <Image
-            src={blog.featured_image}
+          <img
+            src={optimizeCloudinaryImage(blog.featured_image, { width: 1200, quality: 85 })}
             alt={blog.featured_image_alt || blog.title}
-            fill
-            className="object-cover"
-            priority
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

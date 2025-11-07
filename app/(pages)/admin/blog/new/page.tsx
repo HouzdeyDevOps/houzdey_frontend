@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMutation } from '@tanstack/react-query';
 import { blogApi } from '@/api/blog';
-import { BlogCreate, BlogStatus, BlogCategory } from '@/@types/blog';
+import { BlogCreate, BlogUpdate, BlogStatus, BlogCategory } from '@/@types/blog';
 import BlogForm from '@/components/admin/BlogForm';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
@@ -28,8 +28,8 @@ export default function NewBlogPage() {
     },
   });
 
-  const handleSubmit = (data: BlogCreate) => {
-    createMutation.mutate(data);
+  const handleSubmit = (data: BlogCreate | BlogUpdate) => {
+    createMutation.mutate(data as BlogCreate);
   };
 
   return (

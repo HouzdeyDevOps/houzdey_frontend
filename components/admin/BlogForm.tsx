@@ -1,27 +1,21 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Link from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
+import Underline from '@tiptap/extension-underline';
+import TextAlign from '@tiptap/extension-text-align';
+import Highlight from '@tiptap/extension-highlight';
+import CodeBlock from '@tiptap/extension-code-block';
 import { BlogCreate, BlogUpdate, BlogStatus, BlogCategory } from '@/@types/blog';
-import { blogApi } from '@/api/blog';
-import { 
-  Bold, 
-  Italic, 
-  List, 
-  ListOrdered, 
-  Quote, 
-  Heading2, 
-  Heading3,
-  Link2,
-  ImageIcon,
-  Loader2,
-  Sparkles
-} from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
+import { useBlogForm } from '@/hooks/useBlogForm';
+import BlogEditorMenuBar from './blog/BlogEditorMenuBar';
+import FeaturedImageUpload from './blog/FeaturedImageUpload';
 
 interface BlogFormProps {
   initialValues: Partial<BlogCreate | BlogUpdate>;
@@ -31,37 +25,54 @@ interface BlogFormProps {
 }
 
 export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit = false }: BlogFormProps) {
-  const [formData, setFormData] = useState({
-    title: initialValues.title || '',
-    slug: initialValues.slug || '',
-    excerpt: initialValues.excerpt || '',
-    category: initialValues.category || BlogCategory.TIPS_ADVICE,
-    tags: initialValues.tags || [],
-    featured_image: initialValues.featured_image || '',
-    status: initialValues.status || BlogStatus.DRAFT,
-    seo_title: initialValues.seo_title || '',
-    seo_description: initialValues.seo_description || '',
-  });
-
-  const [tagInput, setTagInput] = useState('');
-  const [isGeneratingSlug, setIsGeneratingSlug] = useState(false);
+  const {
+    formData,
+    tagInput,
+    isGeneratingSlug,
+    setTagInput,
+    handleChange,
+    handleGenerateSlug,
+    handleAddTag,
+    handleRemoveTag,
+  } = useBlogForm(initialValues);
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        heading: {
+          levels: [1, 2, 3, 4, 5, 6],
+        },
+        codeBlock: false,
+      }),
       Image,
       Link.configure({
         openOnClick: false,
+        HTMLAttributes: {
+          class: 'text-blue-600 underline hover:text-blue-800',
+        },
+      }),
+      Underline,
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Highlight.configure({
+        multicolor: false,
+      }),
+      CodeBlock.configure({
+        HTMLAttributes: {
+          class: 'bg-gray-100 rounded p-4 my-2 font-mono text-sm',
+        },
       }),
       Placeholder.configure({
         placeholder: 'Write your blog content here...',
       }),
     ],
     content: (initialValues as any)?.content || '',
+    editable: true,
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none focus:outline-none min-h-[400px] p-4',
+        class: 'tiptap-editor prose prose-lg max-w-none focus:outline-none min-h-[400px] p-4 border-0',
       },
     },
   });
@@ -71,40 +82,6 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
       editor.commands.setContent((initialValues as any).content);
     }
   }, [editor, initialValues]);
-
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleGenerateSlug = async () => {
-    if (!formData.title.trim()) {
-      toast.error('Please enter a title first');
-      return;
-    }
-
-    setIsGeneratingSlug(true);
-    try {
-      const response = await blogApi.generateSlug(formData.title);
-      handleChange('slug', response.slug);
-      toast.success('Slug generated successfully');
-    } catch (error) {
-      toast.error('Failed to generate slug');
-    } finally {
-      setIsGeneratingSlug(false);
-    }
-  };
-
-  const handleAddTag = () => {
-    const tag = tagInput.trim();
-    if (tag && !formData.tags.includes(tag)) {
-      handleChange('tags', [...formData.tags, tag]);
-      setTagInput('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    handleChange('tags', formData.tags.filter(tag => tag !== tagToRemove));
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,99 +113,135 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
     onSubmit(submitData);
   };
 
-  const MenuBar = () => {
-    if (!editor) return null;
-
-    return (
-      <div className="border-b border-gray-300 p-2 flex flex-wrap gap-1">
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('bold') ? 'bg-gray-200' : ''}`}
-          title="Bold"
-        >
-          <Bold size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('italic') ? 'bg-gray-200' : ''}`}
-          title="Italic"
-        >
-          <Italic size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('heading', { level: 2 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 2"
-        >
-          <Heading2 size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('heading', { level: 3 }) ? 'bg-gray-200' : ''}`}
-          title="Heading 3"
-        >
-          <Heading3 size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('bulletList') ? 'bg-gray-200' : ''}`}
-          title="Bullet List"
-        >
-          <List size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('orderedList') ? 'bg-gray-200' : ''}`}
-          title="Ordered List"
-        >
-          <ListOrdered size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('blockquote') ? 'bg-gray-200' : ''}`}
-          title="Quote"
-        >
-          <Quote size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const url = window.prompt('Enter link URL:');
-            if (url) {
-              editor.chain().focus().setLink({ href: url }).run();
-            }
-          }}
-          className={`p-2 rounded hover:bg-gray-100 ${editor.isActive('link') ? 'bg-gray-200' : ''}`}
-          title="Add Link"
-        >
-          <Link2 size={18} />
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            const url = window.prompt('Enter image URL:');
-            if (url) {
-              editor.chain().focus().setImage({ src: url }).run();
-            }
-          }}
-          className="p-2 rounded hover:bg-gray-100"
-          title="Add Image"
-        >
-          <ImageIcon size={18} />
-        </button>
-      </div>
-    );
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <>
+      <style jsx global>{`
+        /* TipTap Editor Heading Styles */
+        .tiptap-editor h1 {
+          font-size: 2.25em;
+          font-weight: 800;
+          line-height: 1.2;
+          margin-top: 0.67em;
+          margin-bottom: 0.67em;
+          color: #1a202c;
+        }
+        
+        .tiptap-editor h2 {
+          font-size: 1.875em;
+          font-weight: 700;
+          line-height: 1.3;
+          margin-top: 0.83em;
+          margin-bottom: 0.83em;
+          color: #1a202c;
+        }
+        
+        .tiptap-editor h3 {
+          font-size: 1.5em;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 1em;
+          margin-bottom: 1em;
+          color: #1a202c;
+        }
+        
+        .tiptap-editor h4 {
+          font-size: 1.25em;
+          font-weight: 600;
+          line-height: 1.4;
+          margin-top: 1.33em;
+          margin-bottom: 1.33em;
+          color: #2d3748;
+        }
+        
+        .tiptap-editor h5 {
+          font-size: 1.125em;
+          font-weight: 600;
+          line-height: 1.5;
+          margin-top: 1.67em;
+          margin-bottom: 1.67em;
+          color: #2d3748;
+        }
+        
+        .tiptap-editor h6 {
+          font-size: 1em;
+          font-weight: 600;
+          line-height: 1.6;
+          margin-top: 2.33em;
+          margin-bottom: 2.33em;
+          color: #4a5568;
+        }
+        
+        .tiptap-editor p {
+          margin-top: 1em;
+          margin-bottom: 1em;
+          line-height: 1.75;
+        }
+        
+        .tiptap-editor ul,
+        .tiptap-editor ol {
+          padding-left: 1.625em;
+          margin-top: 1em;
+          margin-bottom: 1em;
+        }
+        
+        .tiptap-editor li {
+          margin-top: 0.5em;
+          margin-bottom: 0.5em;
+        }
+        
+        .tiptap-editor blockquote {
+          border-left: 4px solid #3b82f6;
+          padding-left: 1em;
+          font-style: italic;
+          color: #4a5568;
+          margin: 1.5em 0;
+        }
+        
+        .tiptap-editor strong {
+          font-weight: 600;
+          color: #1a202c;
+        }
+        
+        .tiptap-editor em {
+          font-style: italic;
+        }
+        
+        .tiptap-editor code {
+          background-color: #f3f4f6;
+          padding: 0.2em 0.4em;
+          border-radius: 3px;
+          font-size: 0.875em;
+          font-family: 'Courier New', Courier, monospace;
+        }
+        
+        .tiptap-editor mark {
+          background-color: #fef08a;
+          padding: 0.125em 0;
+        }
+        
+        .tiptap-editor hr {
+          border: 0;
+          border-top: 2px solid #e5e7eb;
+          margin: 2em 0;
+        }
+        
+        .tiptap-editor img {
+          max-width: 100%;
+          height: auto;
+          border-radius: 0.5rem;
+          margin: 1em 0;
+        }
+        
+        /* Placeholder styling */
+        .tiptap-editor p.is-editor-empty:first-child::before {
+          color: #9ca3af;
+          content: attr(data-placeholder);
+          float: left;
+          height: 0;
+          pointer-events: none;
+        }
+      `}</style>
+      <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-white rounded-lg border p-6 space-y-6">
         {/* Title & Slug */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -331,37 +344,22 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Content <span className="text-red-500">*</span>
           </label>
-          <div className="border border-gray-300 rounded-lg overflow-hidden">
-            <MenuBar />
-            <EditorContent editor={editor} />
+          <div className="border border-gray-300 rounded-lg overflow-hidden bg-white shadow-sm">
+            <BlogEditorMenuBar editor={editor} />
+            <div className="max-h-[600px] overflow-y-auto">
+              <EditorContent editor={editor} />
+            </div>
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Use the toolbar to format your content. Tip: You can paste formatted text from Word or Google Docs.
+          </p>
         </div>
 
         {/* Featured Image */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Featured Image URL
-          </label>
-          <input
-            type="url"
-            value={formData.featured_image}
-            onChange={(e) => handleChange('featured_image', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder="https://example.com/image.jpg"
-          />
-          {formData.featured_image && (
-            <div className="mt-2">
-              <img 
-                src={formData.featured_image} 
-                alt="Preview" 
-                className="h-32 object-cover rounded-lg"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
-        </div>
+        <FeaturedImageUpload
+          value={formData.featured_image}
+          onChange={(url) => handleChange('featured_image', url)}
+        />
 
         {/* Tags */}
         <div>
@@ -471,5 +469,6 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
         </button>
       </div>
     </form>
+    </>
   );
 }
