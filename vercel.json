@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "functions": {
+    "app/**/*.tsx": {
+      "maxDuration": 10,
+      "memory": 1024
+    }
+  },
+  "regions": ["iad1"],
+  "framework": "nextjs"
+}
