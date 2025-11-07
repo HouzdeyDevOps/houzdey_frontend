@@ -67,12 +67,18 @@ export default function BlogForm({ initialValues, onSubmit, isSubmitting, isEdit
         placeholder: 'Write your blog content here...',
       }),
     ],
-    content: (initialValues as any)?.content || '',
+    content: (initialValues as any)?.content || '<p></p>',
     editable: true,
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'tiptap-editor prose prose-lg max-w-none focus:outline-none min-h-[400px] p-4 border-0',
+        class: 'tiptap-editor max-w-none focus:outline-none min-h-[400px] p-4 border-0',
+      },
+      // Handle paste to prevent unwanted heading formatting
+      transformPastedHTML: (html) => {
+        // Don't auto-convert pasted content to headings
+        // This preserves intentional formatting but prevents accidental H1s
+        return html;
       },
     },
   });

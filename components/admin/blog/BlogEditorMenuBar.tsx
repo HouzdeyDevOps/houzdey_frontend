@@ -25,7 +25,8 @@ import {
   Undo,
   Redo,
   Strikethrough,
-  MinusSquare
+  MinusSquare,
+  Pilcrow
 } from 'lucide-react';
 
 interface BlogEditorMenuBarProps {
@@ -113,13 +114,28 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
           </button>
         </div>
 
-        {/* Headings */}
+        {/* Paragraph & Headings */}
         <div className="flex gap-1 border-r border-gray-300 pr-2">
           <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 1 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setParagraph().run();
+            }}
+            className={`p-2 rounded hover:bg-gray-200 transition-colors ${
+              editor.isActive('paragraph') ? 'bg-gray-300 text-blue-600' : ''
+            }`}
+            title="Paragraph"
+          >
+            <Pilcrow size={18} />
+          </button>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 1 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 1 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -132,7 +148,8 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 2 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 2 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 2 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -145,7 +162,8 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 3 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 3 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 3 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -158,7 +176,8 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 4 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 4 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 4 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -171,7 +190,8 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 5 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 5 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 5 }) ? 'bg-gray-300 text-blue-600' : ''
@@ -184,7 +204,8 @@ export default function BlogEditorMenuBar({ editor }: BlogEditorMenuBarProps) {
             type="button"
             onClick={(e) => {
               e.preventDefault();
-              editor.chain().focus().clearNodes().setHeading({ level: 6 }).run();
+              const { from, to } = editor.state.selection;
+              editor.chain().focus().setTextSelection({ from, to }).setHeading({ level: 6 }).run();
             }}
             className={`p-2 rounded hover:bg-gray-200 transition-colors ${
               editor.isActive('heading', { level: 6 }) ? 'bg-gray-300 text-blue-600' : ''
