@@ -98,7 +98,7 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
           ...prev,
           notification_types: {
             ...prev.notification_types,
-            [key]: !prev.notification_types[key as keyof typeof prev.notification_types],
+            [key]: !prev.notification_types?.[key as keyof typeof prev.notification_types],
           },
         };
       } else if (section === 'quiet_hours') {
@@ -106,7 +106,7 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
           ...prev,
           quiet_hours: {
             ...prev.quiet_hours,
-            [key]: !prev.quiet_hours[key as keyof typeof prev.quiet_hours],
+            [key]: !prev.quiet_hours?.[key as keyof typeof prev.quiet_hours],
           },
         };
       }
@@ -119,6 +119,9 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
       ...prev,
       quiet_hours: {
         ...prev.quiet_hours,
+        enabled: prev.quiet_hours?.enabled || false,
+        start_time: prev.quiet_hours?.start_time || '22:00',
+        end_time: prev.quiet_hours?.end_time || '08:00',
         [field]: value,
       },
     }));
@@ -204,14 +207,14 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
                       <button
                         onClick={() => handleToggle('types', key)}
                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                          preferences.notification_types[key as keyof typeof preferences.notification_types]
+                          preferences.notification_types?.[key as keyof typeof preferences.notification_types]
                             ? 'bg-indigo-600'
                             : 'bg-gray-200'
                         }`}
                       >
                         <span
                           className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            preferences.notification_types[key as keyof typeof preferences.notification_types]
+                            preferences.notification_types?.[key as keyof typeof preferences.notification_types]
                               ? 'translate-x-6'
                               : 'translate-x-1'
                           }`}
@@ -234,24 +237,24 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
                     <button
                       onClick={() => handleToggle('quiet_hours', 'enabled')}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        preferences.quiet_hours.enabled ? 'bg-indigo-600' : 'bg-gray-200'
+                        preferences.quiet_hours?.enabled ? 'bg-indigo-600' : 'bg-gray-200'
                       }`}
                     >
                       <span
                         className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                          preferences.quiet_hours.enabled ? 'translate-x-6' : 'translate-x-1'
+                          preferences.quiet_hours?.enabled ? 'translate-x-6' : 'translate-x-1'
                         }`}
                       />
                     </button>
                   </div>
 
-                  {preferences.quiet_hours.enabled && (
+                  {preferences.quiet_hours?.enabled && (
                     <div className="grid grid-cols-2 gap-4 pl-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Start time</label>
                         <input
                           type="time"
-                          value={preferences.quiet_hours.start_time}
+                          value={preferences.quiet_hours?.start_time || '22:00'}
                           onChange={(e) => handleTimeChange('start_time', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
@@ -260,7 +263,7 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
                         <label className="block text-sm font-medium text-gray-700 mb-2">End time</label>
                         <input
                           type="time"
-                          value={preferences.quiet_hours.end_time}
+                          value={preferences.quiet_hours?.end_time || '08:00'}
                           onChange={(e) => handleTimeChange('end_time', e.target.value)}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         />
