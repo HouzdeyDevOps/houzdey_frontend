@@ -62,45 +62,45 @@ export interface TicketResponseCreate {
 
 // Support Tickets
 export const createSupportTicket = async (ticketData: SupportTicketCreate) => {
-  const response = await axios.post('/api/support/tickets', ticketData);
+  const response = await axios.post('/support/tickets', ticketData);
   return response.data;
 };
 
 export const getUserTickets = async (status?: string) => {
-  const response = await axios.get<SupportTicket[]>('/api/support/tickets', {
+  const response = await axios.get<SupportTicket[]>('/support/tickets', {
     params: status ? { ticket_status: status } : undefined,
   });
   return response.data;
 };
 
 export const getTicket = async (ticketId: string) => {
-  const response = await axios.get<SupportTicket>(`/api/support/tickets/${ticketId}`);
+  const response = await axios.get<SupportTicket>(`/support/tickets/${ticketId}`);
   return response.data;
 };
 
 export const updateTicket = async (ticketId: string, updateData: Partial<SupportTicket>) => {
-  const response = await axios.patch(`/api/support/tickets/${ticketId}`, updateData);
+  const response = await axios.patch(`/support/tickets/${ticketId}`, updateData);
   return response.data;
 };
 
 export const addTicketResponse = async (ticketId: string, responseData: TicketResponseCreate) => {
-  const response = await axios.post(`/api/support/tickets/${ticketId}/responses`, responseData);
+  const response = await axios.post(`/support/tickets/${ticketId}/responses`, responseData);
   return response.data;
 };
 
 export const getTicketResponses = async (ticketId: string) => {
-  const response = await axios.get<TicketResponse[]>(`/api/support/tickets/${ticketId}/responses`);
+  const response = await axios.get<TicketResponse[]>(`/support/tickets/${ticketId}/responses`);
   return response.data;
 };
 
 // Feedback
 export const submitFeedback = async (feedbackData: FeedbackCreate) => {
-  const response = await axios.post('/api/support/feedback', feedbackData);
+  const response = await axios.post('/support/feedback', feedbackData);
   return response.data;
 };
 
 export const getUserFeedback = async () => {
-  const response = await axios.get<Feedback[]>('/api/support/feedback');
+  const response = await axios.get<Feedback[]>('/support/feedback');
   return response.data;
 };
 
@@ -111,11 +111,11 @@ export const getAllTickets = async (params?: {
   skip?: number;
   limit?: number;
 }) => {
-  const response = await axios.get<SupportTicket[]>('/api/support/admin/tickets', { params });
+  const response = await axios.get<SupportTicket[]>('/support/admin/tickets', { params });
   return response.data;
 };
 
 export const getAllFeedback = async (params?: { skip?: number; limit?: number }) => {
-  const response = await axios.get<Feedback[]>('/api/support/admin/feedback', { params });
+  const response = await axios.get<Feedback[]>('/support/admin/feedback', { params });
   return response.data;
 };
