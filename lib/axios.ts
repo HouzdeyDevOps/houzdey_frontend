@@ -1,7 +1,6 @@
 import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-const API_VERSION = process.env.NEXT_PUBLIC_API_VERSION;
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -74,7 +73,7 @@ axiosInstance.interceptors.response.use(
 
       try {
         // Call refresh token endpoint
-        const refreshUrl = `${API_BASE_URL}/${API_VERSION}/users/refresh`;
+        const refreshUrl = `${API_BASE_URL}/users/refresh`;
         console.log('Attempting token refresh at:', refreshUrl);
         
         const response = await axios.post(
