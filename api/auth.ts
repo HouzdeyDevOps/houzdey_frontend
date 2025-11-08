@@ -2,7 +2,7 @@ import axios from "axios";
 import axiosInstance from "@/lib/axios";
 import { AuthError, SignInResponse, UserSignInParams } from "@/@types/auth";
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 interface GoogleAuthUrlResponse {
   auth_url: string;

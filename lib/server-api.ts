@@ -13,7 +13,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
  */
 export async function getPropertyByIdServer(id: string): Promise<PropertyDetail | null> {
   try {
-    const response = await fetch(`${API_BASE_URL}/api/v1/properties/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/properties/${id}`, {
       next: { revalidate: 300 }, // Cache for 5 minutes
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export async function getPropertiesServer(params: {
     }
 
     const response = await fetch(
-      `${API_BASE_URL}/api/v1/properties?${searchParams.toString()}`,
+      `${API_BASE_URL}/properties?${searchParams.toString()}`,
       {
         next: { revalidate: 3600 }, // Cache for 1 hour
         headers: {

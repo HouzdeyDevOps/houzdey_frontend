@@ -24,7 +24,7 @@ export const propertyApi = {
       });
 
       const response = await axios.get(
-        `${API_BASE_URL}/api/v1/properties?${params.toString()}`
+        `${API_BASE_URL}/properties?${params.toString()}`
       );
       return response.data;
     } catch (error: any) {
@@ -120,7 +120,7 @@ export const propertyApi = {
       
       console.log("Sending create property request with token:", token ? "Token exists" : "No token");
       
-      const response = await axios.post(`${API_BASE_URL}/api/v1/properties`, form, {
+      const response = await axios.post(`${API_BASE_URL}/properties`, form, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",
@@ -148,7 +148,7 @@ export const propertyApi = {
       });
 
       const response = await axios.post(
-        `${API_BASE_URL}/api/v1/properties/upload-images`,
+        `${API_BASE_URL}/properties/upload-images`,
         formData,
         {
           headers: {
@@ -166,7 +166,7 @@ export const propertyApi = {
 
   async getPropertyById(id: string): Promise<PropertyDetail> {
     try {
-      const response = await axios.get(`${API_BASE_URL}/api/v1/properties/${id}`);
+      const response = await axios.get(`${API_BASE_URL}/properties/${id}`);
       return response.data;
     } catch (error: any) {
       if (error.response?.status === 404) {
@@ -181,7 +181,7 @@ export const propertyApi = {
   async getUserProperties(): Promise<Property[]> {
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE_URL}/api/v1/properties/users/me/properties`, {
+      const response = await axios.get(`${API_BASE_URL}/properties/users/me/properties`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -195,7 +195,7 @@ export const propertyApi = {
   async deleteProperty(id: string): Promise<void> {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/api/v1/properties/${id}`, {
+      await axios.delete(`${API_BASE_URL}/properties/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -212,7 +212,7 @@ export const propertyApi = {
       formData.append("status", status);
 
       await axios.patch(
-        `${API_BASE_URL}/api/v1/properties/${id}/status`,
+        `${API_BASE_URL}/properties/${id}/status`,
         formData,
         {
           headers: {
@@ -313,7 +313,7 @@ export const propertyApi = {
         throw new Error("Authentication required. Please log in again.");
       }
       
-      const response = await axios.put(`${API_BASE_URL}/api/v1/properties/${id}`, form, {
+      const response = await axios.put(`${API_BASE_URL}/properties/${id}`, form, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",

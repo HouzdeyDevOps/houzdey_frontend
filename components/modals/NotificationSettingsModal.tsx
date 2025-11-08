@@ -65,7 +65,7 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
   const fetchPreferences = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/v1/notifications/preferences');
+      const response = await axios.get('/notifications/preferences');
       setPreferences(response.data);
     } catch (error) {
       console.error('Error fetching preferences:', error);
@@ -78,7 +78,7 @@ const NotificationSettingsModal: React.FC<NotificationSettingsModalProps> = ({ i
   const handleSave = async () => {
     try {
       setSaving(true);
-      await axios.put('/api/v1/notifications/preferences', preferences);
+      await axios.put('/notifications/preferences', preferences);
       showSuccessToast('Notification preferences saved successfully');
       onClose();
     } catch (error) {

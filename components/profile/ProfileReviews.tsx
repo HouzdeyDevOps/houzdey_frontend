@@ -44,7 +44,7 @@ export default function ProfileReviews() {
       setIsLoading(true);
       setError(null);
       
-      const response = await axios.get(`/api/v1/reviews/my-reviews`, {
+      const response = await axios.get(`/reviews/my-reviews`, {
         params: {
           type,
           page,

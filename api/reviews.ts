@@ -13,7 +13,7 @@ import {
 export const reviewsApi = {
   // Create a new review
   createReview: async (reviewData: CreateReviewRequest): Promise<{ message: string; review_id: string }> => {
-    const response = await axios.post('/api/v1/reviews/create', reviewData);
+    const response = await axios.post('/reviews/create', reviewData);
     return response.data;
   },
 
@@ -28,13 +28,13 @@ export const reviewsApi = {
       }
     });
 
-    const response = await axios.get(`/api/v1/reviews/user/${userId}?${params.toString()}`);
+    const response = await axios.get(`/reviews/user/${userId}?${params.toString()}`);
     return response.data;
   },
 
   // Get review summary for a user
   getUserReviewSummary: async (userId: string): Promise<ReviewSummary> => {
-    const response = await axios.get(`/api/v1/reviews/summary/${userId}`);
+    const response = await axios.get(`/reviews/summary/${userId}`);
     return response.data;
   },
 
@@ -52,37 +52,37 @@ export const reviewsApi = {
       }
     });
 
-    const response = await axios.get(`/api/v1/reviews/my-reviews?${params.toString()}`);
+    const response = await axios.get(`/reviews/my-reviews?${params.toString()}`);
     return response.data;
   },
 
   // Update a review
   updateReview: async (reviewId: string, updateData: UpdateReviewRequest): Promise<{ message: string }> => {
-    const response = await axios.put(`/api/v1/reviews/${reviewId}`, updateData);
+    const response = await axios.put(`/reviews/${reviewId}`, updateData);
     return response.data;
   },
 
   // Delete a review
   deleteReview: async (reviewId: string): Promise<{ message: string }> => {
-    const response = await axios.delete(`/api/v1/reviews/${reviewId}`);
+    const response = await axios.delete(`/reviews/${reviewId}`);
     return response.data;
   },
 
   // Like or unlike a review
   likeReview: async (reviewId: string): Promise<{ message: string; liked: boolean }> => {
-    const response = await axios.post(`/api/v1/reviews/${reviewId}/like`);
+    const response = await axios.post(`/reviews/${reviewId}/like`);
     return response.data;
   },
 
   // Reply to a review
   replyToReview: async (reviewId: string, replyData: CreateReplyRequest): Promise<{ message: string }> => {
-    const response = await axios.post(`/api/v1/reviews/${reviewId}/reply`, replyData);
+    const response = await axios.post(`/reviews/${reviewId}/reply`, replyData);
     return response.data;
   },
 
   // Report a review
   reportReview: async (reviewId: string, reportData: ReviewReportRequest): Promise<{ message: string }> => {
-    const response = await axios.post(`/api/v1/reviews/${reviewId}/report`, reportData);
+    const response = await axios.post(`/reviews/${reviewId}/report`, reportData);
     return response.data;
   },
 

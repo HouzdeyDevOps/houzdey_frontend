@@ -11,13 +11,13 @@ import {
 export const analyticsApi = {
   // Track property view
   trackView: async (propertyId: string): Promise<{ status: string }> => {
-    const response = await axios.post(`/api/v1/analytics/track-view/${propertyId}`);
+    const response = await axios.post(`/analytics/track-view/${propertyId}`);
     return response.data;
   },
 
   // Get owner dashboard statistics
   getOwnerDashboard: async (): Promise<OwnerDashboardStats> => {
-    const response = await axios.get('/api/v1/analytics/owner/dashboard');
+    const response = await axios.get('/analytics/owner/dashboard');
     return response.data;
   },
 
@@ -26,7 +26,7 @@ export const analyticsApi = {
     propertyId: string,
     timeframe: AnalyticsTimeframe = AnalyticsTimeframe.MONTH
   ): Promise<PropertyAnalytics> => {
-    const response = await axios.get(`/api/v1/analytics/property/${propertyId}?timeframe=${timeframe}`);
+    const response = await axios.get(`/analytics/property/${propertyId}?timeframe=${timeframe}`);
     return response.data;
   },
 
@@ -42,7 +42,7 @@ export const analyticsApi = {
       listing_type: listingType
     });
     
-    const response = await axios.get(`/api/v1/analytics/market-insights?${params.toString()}`);
+    const response = await axios.get(`/analytics/market-insights?${params.toString()}`);
     return response.data;
   },
 
@@ -54,7 +54,7 @@ export const analyticsApi = {
     phone_number?: string;
     preferred_contact_method?: string;
   }): Promise<{ status: string; inquiry_id: string }> => {
-    const response = await axios.post('/api/v1/analytics/inquiry', data);
+    const response = await axios.post('/analytics/inquiry', data);
     return response.data;
   },
 
@@ -63,7 +63,7 @@ export const analyticsApi = {
     propertyId: string,
     timeframe: AnalyticsTimeframe
   ): Promise<PropertyPerformanceMetrics> => {
-    const response = await axios.get(`/api/v1/analytics/property/${propertyId}/performance?timeframe=${timeframe}`);
+    const response = await axios.get(`/analytics/property/${propertyId}/performance?timeframe=${timeframe}`);
     return response.data;
   },
 }; 
