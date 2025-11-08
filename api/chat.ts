@@ -305,14 +305,14 @@ export const chatService = new ChatService();
 export const chatApi = {
   async getConversations(): Promise<Conversation[]> {
     const response = await axios.get(
-      `${API_BASE_URL}/api/v1/chat/conversations`
+      `${API_BASE_URL}/chat/conversations`
     );
     return response.data;
   },
 
   async getConversation(id: string): Promise<Conversation> {
     const response = await axios.get(
-      `${API_BASE_URL}/api/v1/chat/conversations/${id}`
+      `${API_BASE_URL}/chat/conversations/${id}`
     );
     return response.data;
   },
@@ -320,7 +320,7 @@ export const chatApi = {
   async getMessages(conversationId: string): Promise<Message[]> {
     try {
       const response = await axios.get(
-        `${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/messages`,
+        `${API_BASE_URL}/chat/conversations/${conversationId}/messages`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -346,7 +346,7 @@ export const chatApi = {
 
   async createConversation(propertyId: string): Promise<Conversation> {
     const response = await axios.post(
-      `${API_BASE_URL}/api/v1/chat/conversations`,
+      `${API_BASE_URL}/chat/conversations`,
       null, // no body needed
       {
         params: { property_id: propertyId },
@@ -360,14 +360,14 @@ export const chatApi = {
 
   async deleteConversation(conversationId: string): Promise<void> {
     await axios.delete(
-      `${API_BASE_URL}/api/v1/chat/conversations/${conversationId}`
+      `${API_BASE_URL}/chat/conversations/${conversationId}`
     );
   },
 
   async deleteMessage(messageId: string): Promise<void> {
     try {
       await axios.delete(
-        `${API_BASE_URL}/api/v1/chat/messages/${messageId}`,
+        `${API_BASE_URL}/chat/messages/${messageId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -383,7 +383,7 @@ export const chatApi = {
   async markMessagesAsRead(conversationId: string): Promise<void> {
     try {
       await axios.post(
-        `${API_BASE_URL}/api/v1/chat/conversations/${conversationId}/read`,
+        `${API_BASE_URL}/chat/conversations/${conversationId}/read`,
         null,
         {
           headers: {

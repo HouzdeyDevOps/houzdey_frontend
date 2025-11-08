@@ -29,7 +29,7 @@ class UploadService {
       formData.append('type', type);
       formData.append('context', context);
 
-      const response = await axios.post(`${API_BASE_URL}/api/v1/upload`, formData, {
+      const response = await axios.post(`${API_BASE_URL}/upload`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${localStorage.getItem('token')}`,

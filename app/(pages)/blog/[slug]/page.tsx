@@ -6,7 +6,7 @@ import Navbar from '@/components/navbar/Navbar';
 // Server-side API call
 async function getBlogBySlug(slug: string) {
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/blog/slug/${slug}`, {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/blog/slug/${slug}`, {
       next: { revalidate: 300 } // Cache for 5 minutes
     });
     

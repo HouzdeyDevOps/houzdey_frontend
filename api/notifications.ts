@@ -10,12 +10,12 @@ import {
 export const notificationsApi = {
   // User notification preferences
   getPreferences: async (): Promise<NotificationPreference> => {
-    const response = await axios.get('/api/v1/notifications/preferences');
+    const response = await axios.get('/notifications/preferences');
     return response.data;
   },
 
   updatePreferences: async (preferences: NotificationPreference): Promise<{ message: string }> => {
-    const response = await axios.put('/api/v1/notifications/preferences', preferences);
+    const response = await axios.put('/notifications/preferences', preferences);
     return response.data;
   },
 
@@ -36,22 +36,22 @@ export const notificationsApi = {
       }
     });
     
-    const response = await axios.get(`/api/v1/notifications/my-notifications?${params.toString()}`);
+    const response = await axios.get(`/notifications/my-notifications?${params.toString()}`);
     return response.data;
   },
 
   markAsRead: async (notificationId: string): Promise<{ message: string }> => {
-    const response = await axios.post(`/api/v1/notifications/mark-read/${notificationId}`);
+    const response = await axios.post(`/notifications/mark-read/${notificationId}`);
     return response.data;
   },
 
   markAllAsRead: async (): Promise<{ message: string }> => {
-    const response = await axios.post('/api/v1/notifications/mark-all-read');
+    const response = await axios.post('/notifications/mark-all-read');
     return response.data;
   },
 
   getUnreadCount: async (): Promise<{ unread_count: number }> => {
-    const response = await axios.get('/api/v1/notifications/unread-count');
+    const response = await axios.get('/notifications/unread-count');
     return response.data;
   },
 
@@ -64,22 +64,22 @@ export const notificationsApi = {
       }
     });
     
-    const response = await axios.get(`/api/v1/notifications/templates?${params.toString()}`);
+    const response = await axios.get(`/notifications/templates?${params.toString()}`);
     return response.data;
   },
 
   createTemplate: async (template: NotificationTemplate): Promise<{ message: string; template_id: string }> => {
-    const response = await axios.post('/api/v1/notifications/templates', template);
+    const response = await axios.post('/notifications/templates', template);
     return response.data;
   },
 
   updateTemplate: async (templateId: string, template: NotificationTemplate): Promise<{ message: string }> => {
-    const response = await axios.put(`/api/v1/notifications/templates/${templateId}`, template);
+    const response = await axios.put(`/notifications/templates/${templateId}`, template);
     return response.data;
   },
 
   deleteTemplate: async (templateId: string): Promise<{ message: string }> => {
-    const response = await axios.delete(`/api/v1/notifications/templates/${templateId}`);
+    const response = await axios.delete(`/notifications/templates/${templateId}`);
     return response.data;
   },
 
@@ -91,7 +91,7 @@ export const notificationsApi = {
     priority?: number;
     scheduled_for?: string;
   }): Promise<{ message: string; notification_id: string }> => {
-    const response = await axios.post('/api/v1/notifications/send', data);
+    const response = await axios.post('/notifications/send', data);
     return response.data;
   },
 
@@ -106,7 +106,7 @@ export const notificationsApi = {
     total_recipients: number;
     sent_count: number;
   }> => {
-    const response = await axios.post('/api/v1/notifications/broadcast', data);
+    const response = await axios.post('/notifications/broadcast', data);
     return response.data;
   },
 
@@ -124,7 +124,7 @@ export const notificationsApi = {
       }
     });
     
-    const response = await axios.get(`/api/v1/notifications/analytics?${params.toString()}`);
+    const response = await axios.get(`/notifications/analytics?${params.toString()}`);
     return response.data;
   },
 }; 

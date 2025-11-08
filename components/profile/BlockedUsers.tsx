@@ -45,7 +45,7 @@ export default function BlockedUsers() {
       try {
         setIsLoading(true);
         // TODO: Replace with actual API call
-        // const response = await axios.get('/api/v1/users/blocked');
+        // const response = await axios.get('/users/blocked');
         // setBlockedUsers(response.data);
         
         // Using mock data for now
@@ -69,7 +69,7 @@ export default function BlockedUsers() {
       setIsUnblocking(userId);
       
       // TODO: Replace with actual API call
-      // await axios.post(`/api/v1/users/${userId}/unblock`);
+      // await axios.post(`/users/${userId}/unblock`);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
