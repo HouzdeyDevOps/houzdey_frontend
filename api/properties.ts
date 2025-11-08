@@ -1,5 +1,5 @@
 import axios from "axios";
-import { API_BASE_URL, API_VERSION } from "./auth";
+import { API_BASE_URL } from "./auth";
 import { PropertyResponse, PropertyFilters, Property, PropertyDetail } from "@/@types/property";
 import { CreateListingFormData } from "@/@types/create-listing";
 import { generatePropertyTitle } from "@/utils/generatePropertyTitle";
