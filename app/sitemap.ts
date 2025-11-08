@@ -7,7 +7,7 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 // Helper to fetch all blog posts for sitemap
 async function getAllBlogsForSitemap() {
   try {
-    const res = await fetch(`${apiUrl}/blog?limit=500`, {
+    const res = await fetch(`${apiUrl}/blog?limit=50`, {
       next: { revalidate: 3600 } // Cache for 1 hour
     })
     
