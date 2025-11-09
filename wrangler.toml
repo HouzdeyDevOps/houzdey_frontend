@@ -20,3 +20,9 @@ invocation_logs = true
 enabled = false
 persist = true
 head_sampling_rate = 1
+
+
+routes = [
+  { pattern = "houzdey.com/*", custom_domain = true },
+  { pattern = "www.houzdey.com/*", custom_domain = true }
+]
