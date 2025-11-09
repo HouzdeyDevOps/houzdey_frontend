@@ -78,7 +78,7 @@ export async function getPropertiesServer(params: {
 
 /**
  * Fetch all properties for sitemap (with pagination)
- * Fetches up to 10 pages (500 properties)
+ * Fetches up to 2 pages (100 properties) to prevent build timeout
  */
 export async function getAllPropertiesForSitemap(): Promise<Property[]> {
   const allProperties: Property[] = [];
@@ -86,7 +86,7 @@ export async function getAllPropertiesForSitemap(): Promise<Property[]> {
   let hasMore = true;
 
   try {
-    while (hasMore && page <= 10) {
+    while (hasMore && page <= 2) {
       const response = await getPropertiesServer({ page, limit: 50 });
       
       if (!response || !response.properties || response.properties.length === 0) {

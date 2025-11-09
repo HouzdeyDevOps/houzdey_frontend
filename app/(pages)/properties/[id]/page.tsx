@@ -199,7 +199,7 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
           </div>
 
           {/* Image Gallery - Client Component */}
-          <PropertyImageGallery images={property.images} title={property.title} />
+          <PropertyImageGallery images={property.images} title={property.title} video={property.video} />
 
           {/* Main Content with Sticky Sidebar */}
           <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -295,25 +295,6 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
                   <h2 className="text-lg font-semibold">Description</h2>
                   <p className="text-gray-600 w-[80%]">{property.description}</p>
                 </div>
-
-                {/* Property Video Section */}
-                {property.video && (
-                  <div className="mt-10">
-                    <h2 className="text-lg font-semibold mb-4">
-                      Property Video
-                    </h2>
-                    <div className="relative bg-black rounded-lg overflow-hidden">
-                      <video
-                        src={property.video}
-                        controls
-                        className="w-full max-h-[500px] object-contain"
-                        poster={property.images[0]}
-                      >
-                        Your browser does not support the video tag.
-                      </video>
-                    </div>
-                  </div>
-                )}
 
                 <div>
                   <h2 className="text-lg font-semibold mb-4">Amenities</h2>
