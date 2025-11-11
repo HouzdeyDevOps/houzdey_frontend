@@ -1,10 +1,38 @@
-import axios from 'axios';
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+
+// Extend AxiosRequestConfig to include retry properties
+interface RetryConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+  _retryCount?: number;
+  _isRetry?: boolean;
+}
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
+  timeout: 30000, // 30 second timeout
 });
+
+// Retry configuration
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 2000; // 2 seconds
+
+// Function to check if error is retryable (cold start, timeout, network error)
+const isRetryableError = (error: AxiosError): boolean => {
+  if (!error.response) {
+    // Network error, timeout, or connection refused
+    return true;
+  }
+  
+  // Retry on 5xx server errors (but not 4xx client errors)
+  const status = error.response.status;
+  return status >= 500 && status < 600;
+};
+
+// Delay helper with exponential backoff
+const delay = (ms: number, attempt: number) => 
+  new Promise(resolve => setTimeout(resolve, ms * Math.pow(2, attempt - 1)));
 
 // Flag to prevent multiple simultaneous refresh attempts
 let isRefreshing = false;
@@ -34,11 +62,30 @@ axiosInstance.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor to handle token refresh
+// Response interceptor to handle token refresh and retries
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest: RetryConfig = error.config;
+
+    // Handle retries for cold starts and network errors
+    if (isRetryableError(error) && !originalRequest._isRetry) {
+      const retryCount = originalRequest._retryCount || 0;
+      
+      if (retryCount < MAX_RETRIES) {
+        originalRequest._retryCount = retryCount + 1;
+        originalRequest._isRetry = true;
+        
+        console.log(`Retrying request (attempt ${retryCount + 1}/${MAX_RETRIES})...`, error.message);
+        
+        // Wait before retrying with exponential backoff
+        await delay(RETRY_DELAY, retryCount + 1);
+        
+        return axiosInstance(originalRequest);
+      }
+      
+      console.error(`Max retries (${MAX_RETRIES}) exceeded for request`);
+    }
 
     // Check if the error is due to an expired token (401 or 403)
     if (
