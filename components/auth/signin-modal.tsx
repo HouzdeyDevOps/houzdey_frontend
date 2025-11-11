@@ -18,6 +18,7 @@ import { AuthError } from "@/@types/auth";
 import GoogleAuthButton from "./GoogleAuthButton";
 import VerificationCodeModal from "./verification-code-modal";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
+import ComingSoonModal from "./coming-soon-modal";
 
 interface SignInModalProps {
   isOpen: boolean;
@@ -40,6 +41,8 @@ export default function SignInModal({
   const [error, setError] = useState<AuthError | null>(null);
   const [showVerificationCodeModal, setShowVerificationCodeModal] =
     useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<"Facebook" | "Apple">("Facebook");
 
   const dispatch = useDispatch();
 
@@ -203,7 +206,11 @@ export default function SignInModal({
             <div className="flex justify-center gap-4">
               <button
                 type="button"
-                className="p-3 border rounded-full hover:bg-gray-50"
+                onClick={() => {
+                  setSelectedProvider("Facebook");
+                  setShowComingSoon(true);
+                }}
+                className="p-3 border rounded-full hover:bg-gray-50 transition-colors"
               >
                 <Image
                   src="/assets/icons/facebook_icon.png"
@@ -215,7 +222,11 @@ export default function SignInModal({
               </button>
               <button
                 type="button"
-                className="p-3 border rounded-full hover:bg-gray-50"
+                onClick={() => {
+                  setSelectedProvider("Apple");
+                  setShowComingSoon(true);
+                }}
+                className="p-3 border rounded-full hover:bg-gray-50 transition-colors"
               >
                 <Image
                   src="/assets/icons/apple.png"
@@ -274,6 +285,11 @@ export default function SignInModal({
           email={formData.email}
         />
       )}
+      <ComingSoonModal
+        isOpen={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        provider={selectedProvider}
+      />
     </>
   );
 }
