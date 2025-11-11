@@ -22,6 +22,7 @@ import { RootState } from "@/store/store";
 import { setCurrentModal, closeModal, setMode } from "@/store/slices/authModalSlice";
 import GoogleAuthButton from "./GoogleAuthButton";
 import { showSuccessToast, showErrorToast, showInfoToast } from "@/utils/toast";
+import ComingSoonModal from "./coming-soon-modal";
 
 interface SignUpModalProps {
   isOpen: boolean;
@@ -40,6 +41,8 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [showError, setShowError] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<"Facebook" | "Apple">("Facebook");
 
   const { mutate: signup, isPending } = useMutation({
     mutationFn: authApi.signup,
@@ -160,7 +163,11 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
               <div className="flex justify-center gap-4 my-5">
                 <button
                   type="button"
-                  className="p-3 border rounded-full hover:bg-gray-50"
+                  onClick={() => {
+                    setSelectedProvider("Facebook");
+                    setShowComingSoon(true);
+                  }}
+                  className="p-3 border rounded-full hover:bg-gray-50 transition-colors"
                 >
                   <Image
                     src="/assets/icons/facebook_icon.png"
@@ -172,7 +179,11 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
                 </button>
                 <button
                   type="button"
-                  className="p-3 border rounded-full hover:bg-gray-50"
+                  onClick={() => {
+                    setSelectedProvider("Apple");
+                    setShowComingSoon(true);
+                  }}
+                  className="p-3 border rounded-full hover:bg-gray-50 transition-colors"
                 >
                   <Image
                     src="/assets/icons/apple.png"
@@ -253,6 +264,11 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         isOpen={showError}
         onClose={() => setShowError(false)}
         message={errorMessage}
+      />
+      <ComingSoonModal
+        isOpen={showComingSoon}
+        onClose={() => setShowComingSoon(false)}
+        provider={selectedProvider}
       />
     </>
   );
