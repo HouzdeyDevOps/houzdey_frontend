@@ -48,6 +48,10 @@ export default function VerificationCodeModal({
     (state: RootState) => state.authModal.currentModal
   );
   const mode = useSelector((state: RootState) => state.authModal.mode);
+  
+  // Get email from Redux state as fallback (important for forgot password flow)
+  const reduxEmail = useSelector((state: RootState) => state.userAuth.email);
+  const activeEmail = email || reduxEmail || "";
   const defaultDescription =
     mode === "signup"
       ? "Check your email inbox for a verification code we just sent. Copy the code and paste it here to verify your identity and continue."
@@ -63,7 +67,7 @@ export default function VerificationCodeModal({
 
 
   const { mutate: verifyCode, isPending } = useMutation({
-    mutationFn: () => authApi.verifyCode(email, verificationCode),
+    mutationFn: () => authApi.verifyCode(activeEmail, verificationCode),
     onSuccess: () => {
       if (mode === "forgotPassword") {
         // Save verification code to Redux for use in ResetPasswordModal
@@ -93,10 +97,10 @@ export default function VerificationCodeModal({
       console.log("Resend code clicked, mode:", mode);
       if (mode === "forgotPassword") {
         console.log("Calling forgotPassword API");
-        return authApi.forgotPassword(email);
+        return authApi.forgotPassword(activeEmail);
       }
       console.log("Calling resendCode API");
-      return authApi.resendCode(email);
+      return authApi.resendCode(activeEmail);
     },
     onSuccess: () => {
       showSuccessToast("Verification code resent successfully");
