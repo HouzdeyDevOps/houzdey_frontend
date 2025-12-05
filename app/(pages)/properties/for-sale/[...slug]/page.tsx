@@ -9,7 +9,6 @@ import { getAmenityIcon } from "@/utils/iconUtils";
 import { formatLocation } from "@/utils/formatLocation";
 import { generateGoogleMapsEmbedUrl } from "@/utils/mapUtils";
 import { getPropertyBySlugServer } from "@/lib/server-api";
-import { PropertyDetail } from "@/@types/property";
 
 interface PageProps {
   params: Promise<{
@@ -19,11 +18,13 @@ interface PageProps {
 
 /**
  * Generate dynamic metadata for property pages using SEO-friendly slugs
+ * Critical for SEO - provides unique title, description, and OG tags per property
  */
 export async function generateMetadata(
   { params }: PageProps,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
+  // Next.js 15: await params before accessing properties
   const { slug } = await params;
   const fullSlug = `for-sale/${slug.join("/")}`;
   
@@ -36,205 +37,342 @@ export async function generateMetadata(
     };
   }
 
+  // Create SEO-friendly description (first 155 characters)
   const description = property.description
     ? property.description.substring(0, 155) + "..."
     : `${property.beds} bed${property.beds !== 1 ? 's' : ''}, ${property.baths} bath${property.baths !== 1 ? 's' : ''} ${property.type} for sale in ${property.lga}, ${property.state}`;
 
+  // Format price for title
   const priceDisplay = `₦${(property.sale_price || property.price).toLocaleString()}`;
+
+  // Build SEO-optimized title
   const title = `${property.title} - ${priceDisplay} | Houzdey`;
-  const primaryImage = property.images?.[0] || "/assets/placeholder-property.jpg";
+
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com';
+  const propertyUrl = `${baseUrl}/properties/${fullSlug}`;
 
   return {
     title,
     description,
     keywords: [
       property.type,
-      "for sale",
-      property.lga,
+      'for sale',
       property.state,
-      "Nigeria",
+      property.lga,
       `${property.beds} bedroom`,
-      property.furnishing,
-      ...(property.amenities?.map((a: any) => a.name) || []),
-    ].join(", "),
+      'Nigeria property',
+      'real estate',
+    ].join(', '),
     openGraph: {
-      title,
+      title: property.title,
       description,
-      type: "website",
-      url: `https://houzdey.com/properties/${fullSlug}`,
+      url: propertyUrl,
+      siteName: "Houzdey",
       images: [
         {
-          url: primaryImage,
+          url: property.images[0],
           width: 1200,
           height: 630,
           alt: property.title,
         },
+        ...property.images.slice(1, 4).map((img) => ({
+          url: img,
+          width: 1200,
+          height: 630,
+          alt: property.title,
+        })),
       ],
-      siteName: "Houzdey",
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
-      title,
+      title: property.title,
       description,
-      images: [primaryImage],
+      images: [property.images[0]],
     },
     alternates: {
-      canonical: `https://houzdey.com/properties/${fullSlug}`,
+      canonical: propertyUrl,
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
 
-export default async function PropertyDetailPage({ params }: PageProps) {
+/**
+ * Server Component - Property Details Page (SEO-friendly slug URLs)
+ * Fetches data server-side for SEO and performance
+ */
+export default async function PropertyDetailsPage({ params }: PageProps) {
+  // Next.js 15: await params before accessing properties
   const { slug } = await params;
   const fullSlug = `for-sale/${slug.join("/")}`;
-
-  const property: PropertyDetail | null = await getPropertyBySlugServer(fullSlug);
+  const property = await getPropertyBySlugServer(fullSlug);
 
   if (!property) {
     notFound();
   }
 
-  const mapUrl = generateGoogleMapsEmbedUrl(
-    property.address,
-    property.lga,
-    property.state
-  );
+  // Generate JSON-LD structured data for SEO
+  const propertyJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    name: property.title,
+    description: property.description,
+    image: property.images,
+    url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${fullSlug}`,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: property.address,
+      addressLocality: property.lga,
+      addressRegion: property.state,
+      addressCountry: "NG",
+    },
+    price: property.sale_price || property.price,
+    priceCurrency: "NGN",
+    numberOfRooms: property.beds,
+    numberOfBathroomsTotal: property.baths,
+    floorSize: property.size ? {
+      "@type": "QuantitativeValue",
+      value: property.size,
+      unitText: "sqm"
+    } : undefined,
+    amenityFeature: property.amenities.map((amenity) => ({
+      "@type": "LocationFeatureSpecification",
+      name: amenity.name,
+    })),
+  };
+
+  // Breadcrumb JSON-LD
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Properties",
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: property.title,
+        item: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${fullSlug}`,
+      },
+    ],
+  };
 
   return (
     <>
-      <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <Link
-          href="/properties"
-          className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-        >
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Properties
-        </Link>
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(propertyJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {property.title}
-            </h1>
-            <p className="text-lg text-gray-600">
-              {formatLocation(property.address, property.lga, property.state)}
-            </p>
+      <div className="min-h-screen bg-white">
+        <Navbar showSearch={false} showPropertyTypeFilters={false} />
+        <main className="max-w-7xl mx-auto px-8 py-4 mt-24">
+          {/* Back button and title */}
+          <div className="flex items-center gap-2 mb-10">
+            <Link
+              href="/"
+              className="flex items-center text-gray-600 font-semibold text-2xl"
+            >
+              <ChevronLeft className="w-6 h-6" />
+              <span>Back</span>
+            </Link>
           </div>
-          <div className="flex flex-col items-start md:items-end">
-            <p className="text-3xl font-bold text-primary">
-              ₦{(property.sale_price || property.price).toLocaleString()}
-            </p>
-            {property.agency_fee && (
-              <p className="text-sm text-gray-500 mt-1">
-                Agency Fee: ₦{property.agency_fee.toLocaleString()}
-              </p>
-            )}
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-            <PropertyImageGallery images={property.images} title={property.title} />
+          {/* Image Gallery - Client Component */}
+          <PropertyImageGallery images={property.images} title={property.title} video={property.video} />
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Property Overview</h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Bedrooms</span>
-                  <span className="text-xl font-semibold">{property.beds}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Bathrooms</span>
-                  <span className="text-xl font-semibold">{property.baths}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Toilets</span>
-                  <span className="text-xl font-semibold">{property.toilets}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Type</span>
-                  <span className="text-xl font-semibold capitalize">
-                    {property.type}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Furnishing</span>
-                  <span className="text-xl font-semibold capitalize">
-                    {property.furnishing.replace("_", " ")}
-                  </span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-gray-500 text-sm">Condition</span>
-                  <span className="text-xl font-semibold capitalize">
-                    {property.condition.replace("_", " ")}
-                  </span>
-                </div>
-                {property.size && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm">Size</span>
-                    <span className="text-xl font-semibold">{property.size}</span>
+          {/* Main Content with Sticky Sidebar */}
+          <div className="relative grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Property Details */}
+            <div className="lg:col-span-2">
+              <div className="space-y-8">
+                <div className="mb-10">
+                  <h1 className="text-2xl font-semibold mb-2">
+                    {formatLocation(property.title)}
+                  </h1>
+                  <p className="text-gray-600 mb-4 text-lg">
+                    {`${
+                      property?.estate
+                        ? `${formatLocation(property.estate)} Estate,`
+                        : ""
+                    } ${property.lga}, ${property.state}`}
+                  </p>
+                  <div className="flex items-center gap-4">
+                    <p className="text-2xl font-semibold">
+                      ₦ {(property.sale_price || property.price).toLocaleString()}
+                    </p>
+                    <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800">
+                      For Sale
+                    </span>
                   </div>
-                )}
-                {property.estate && (
-                  <div className="flex flex-col">
-                    <span className="text-gray-500 text-sm">Estate</span>
-                    <span className="text-xl font-semibold">{property.estate}</span>
-                  </div>
-                )}
-              </div>
-            </div>
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Description</h2>
-              <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {property.description}
-              </p>
-            </div>
+                  {/* Additional Fees Section */}
+                  {(property.agency_fee || property.legal_fee || property.other_fees) && (
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                      <h3 className="text-lg font-semibold mb-4">
+                        Additional Fees
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {property.agency_fee && (
+                          <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                            <span className="text-gray-600">Agency Commission</span>
+                            <span className="font-medium">
+                              ₦{property.agency_fee.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
 
-            {property.amenities && property.amenities.length > 0 && (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-semibold mb-4">Amenities</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {property.amenities.map((amenity: any, index: number) => {
-                    const Icon = getAmenityIcon(amenity.name);
-                    return (
-                      <div key={index} className="flex items-center gap-2">
-                        <Icon className="h-5 w-5 text-primary" />
-                        <span className="text-gray-700">{amenity.name}</span>
+                        {property.legal_fee && (
+                          <div className="flex justify-between items-center p-3 bg-white rounded-lg">
+                            <span className="text-gray-600">Legal Documentation Fee</span>
+                            <span className="font-medium">
+                              ₦{property.legal_fee.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
+
+                        {property.other_fees && (
+                          <div className="flex justify-between items-center p-3 bg-white rounded-lg md:col-span-2">
+                            <span className="text-gray-600">Other Fees</span>
+                            <span className="font-medium">
+                              ₦{property.other_fees.toLocaleString()}
+                            </span>
+                          </div>
+                        )}
                       </div>
-                    );
-                  })}
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
 
-            <div className="bg-white rounded-lg shadow-md p-6">
-              <h2 className="text-2xl font-semibold mb-4">Location</h2>
-              <div className="aspect-video w-full rounded-lg overflow-hidden">
-                <iframe
-                  src={mapUrl}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Property Location"
-                />
+                {/* divider */}
+                <div className="h-[1px] w-full bg-gray-200 my-10"></div>
+
+                <div className="mt-10">
+                  <h2 className="text-lg font-semibold">Description</h2>
+                  <p className="text-gray-600 w-[80%]">{property.description}</p>
+                </div>
+
+                <div>
+                  <h2 className="text-lg font-semibold mb-4">Amenities</h2>
+                  <div className="grid grid-cols-2 gap-4">
+                    {property.amenities.map((amenity, index) => (
+                      <div key={index} className="flex items-center gap-2">
+                        {getAmenityIcon(amenity.icon)}
+                        <span className="text-gray-600">{amenity.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* divider */}
+                <div className="h-[1px] w-full bg-gray-200 my-10"></div>
+
+                {/* Map Section */}
+                <div>
+                  <h2 className="text-lg font-semibold mb-4">Location</h2>
+                  <div className="aspect-[16/9] rounded-lg overflow-hidden">
+                    <iframe
+                      src={generateGoogleMapsEmbedUrl({
+                        address: property.address,
+                        state: property.state,
+                        lga: property.lga,
+                        ward: property.ward,
+                        estate: property.estate,
+                      })}
+                      width="100%"
+                      height="100%"
+                      style={{ border: 0 }}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title="Property Location Map"
+                    />
+                  </div>
+                </div>
+
+                {/* divider */}
+                <div className="h-[1px] w-full bg-gray-200 my-10"></div>
+
+                {/* Host Section */}
+                <div className="mt-8">
+                  <div className="flex items-center gap-4 mb-4">
+                    <img
+                      src={property?.host?.image}
+                      alt={property?.host?.name}
+                      className="w-12 h-12 rounded-full"
+                    />
+                    <div>
+                      <h3 className="font-semibold">
+                        Posted by {property?.host?.name}
+                      </h3>
+                      <p className="text-gray-600">{property?.host?.company}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Reviews Section */}
+                {property?.reviews && property.reviews.length > 0 && (
+                  <div className="mt-8">
+                    <div className="flex items-center gap-2 mb-6">
+                      <h2 className="text-lg font-semibold">Reviews</h2>
+                      <span className="text-gray-600">
+                        ({property.reviews.length})
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {property.reviews.map((review) => (
+                        <div key={review.id} className="border-b pb-4">
+                          <div className="flex items-center gap-2 mb-2">
+                            <img
+                              src={review.user.image}
+                              alt={review.user.name}
+                              className="w-10 h-10 rounded-full"
+                            />
+                            <div>
+                              <h4 className="font-medium">{review.user.name}</h4>
+                              <p className="text-sm text-gray-600">
+                                {review.date}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="text-gray-600">{review.comment}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="mt-4 text-gray-600">
-                {formatLocation(property.address, property.lga, property.state)}
-              </p>
+            </div>
+
+            {/* Right Column - Sticky Contact Section - Client Component */}
+            <div className="lg:col-span-1">
+              <PropertyContactSection
+                propertyId={property.id}
+                host={property.host}
+                isOwner={false}
+              />
             </div>
           </div>
-
-          <div className="lg:col-span-1">
-            <div className="sticky top-8">
-              <PropertyContactSection property={property} />
-            </div>
-          </div>
-        </div>
+        </main>
       </div>
     </>
   );
