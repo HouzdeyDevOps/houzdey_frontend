@@ -218,6 +218,8 @@ export default function ChatWindow() {
 
   // Initialize chat connection
   useEffect(() => {
+    if (!conversationId || !user?.id) return;
+
     const initialize = async () => {
       const cleanup = await initializeChat();
       return cleanup;
@@ -229,7 +231,7 @@ export default function ChatWindow() {
         if (cleanup) cleanup();
       });
     };
-  }, [initializeChat]);
+  }, [conversationId, user?.id]);
 
   // Load initial messages
   useEffect(() => {

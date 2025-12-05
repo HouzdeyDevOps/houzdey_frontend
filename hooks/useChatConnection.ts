@@ -28,6 +28,9 @@ export function useChatConnection({
   const initializeChat = useCallback(async () => {
     if (!userId || !conversationId) return;
 
+    // Prevent multiple simultaneous initializations
+    if (isLoading) return;
+
     setIsLoading(true);
 
     try {
