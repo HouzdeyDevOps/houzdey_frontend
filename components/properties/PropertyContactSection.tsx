@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { MessageCircle, Phone, AlertTriangle } from "lucide-react";
 import { chatApi } from "@/api/chat";
 import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
 import { propertyApi } from "@/api/properties";
+import { useAuth } from "@/hooks/useAuth";
+import { setCurrentModal } from "@/store/slices/authModalSlice";
 
 interface PropertyContactSectionProps {
   propertyId: string;
@@ -29,8 +32,16 @@ export default function PropertyContactSection({
   const [isLoading, setIsLoading] = useState(false);
   const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useAuth();
 
   const handleContactHost = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      dispatch(setCurrentModal("signin"));
+      return;
+    }
+
     try {
       setIsLoading(true);
       const conversation = await chatApi.createConversation(propertyId);
