@@ -34,6 +34,32 @@ export async function getPropertyByIdServer(id: string): Promise<PropertyDetail 
 }
 
 /**
+ * Fetch a single property by SEO-friendly slug (Server-side)
+ * Used in generateMetadata and Server Components for SEO-optimized URLs
+ */
+export async function getPropertyBySlugServer(slug: string): Promise<PropertyDetail | null> {
+  try {
+    const response = await fetch(`${API_BASE_URL}/properties/slug/${slug}`, {
+      next: { revalidate: 300 }, // Cache for 5 minutes
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error(`Failed to fetch property with slug ${slug}: ${response.status}`);
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching property by slug:', error);
+    return null;
+  }
+}
+
+/**
  * Fetch all properties with pagination (Server-side)
  * Used in sitemap generation and listing pages
  */

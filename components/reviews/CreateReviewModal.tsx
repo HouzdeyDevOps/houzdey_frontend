@@ -151,7 +151,7 @@ export default function CreateReviewModal({
                   onClick={() => setRating(star)}
                   onMouseEnter={() => setHoverRating(star)}
                   onMouseLeave={() => setHoverRating(0)}
-                  className="p-1 transition-colors"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center transition-colors"
                 >
                   <Star
                     className={`w-8 h-8 ${

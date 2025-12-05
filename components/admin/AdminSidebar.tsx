@@ -150,7 +150,7 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
         {/* Desktop toggle */}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden lg:block p-1 hover:bg-gray-100 rounded"
+          className="hidden lg:flex min-w-[44px] min-h-[44px] items-center justify-center hover:bg-gray-100 rounded"
         >
           <ChevronRight className={cn("w-4 h-4 transition-transform", isCollapsed && "rotate-180")} />
         </button>
@@ -158,7 +158,7 @@ export default function AdminSidebar({ className }: AdminSidebarProps) {
         {/* Mobile close */}
         <button
           onClick={() => setIsMobileOpen(false)}
-          className="lg:hidden p-1 hover:bg-gray-100 rounded"
+          className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded"
         >
           <X className="w-4 h-4" />
         </button>

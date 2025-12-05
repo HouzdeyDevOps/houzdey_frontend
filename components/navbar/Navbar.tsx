@@ -58,8 +58,8 @@ const Navbar = ({
   };
 
   const MobileMenu = () => (
-    <div className={`sticky inset-0 bg-black bg-opacity-50 z-50 lg:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
-      <div className="sticky inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl overflow-y-auto">
+    <div className={`fixed inset-0 bg-black bg-opacity-50 z-50 md:hidden ${isMobileMenuOpen ? 'block' : 'hidden'}`}>
+      <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-white shadow-xl overflow-y-auto">
         <div className="flex justify-end p-4">
           <button onClick={toggleMobileMenu} className="p-2">
             <X className="h-6 w-6" />
@@ -253,7 +253,7 @@ const Navbar = ({
             
             {/* Desktop Search */}
             {showSearch && (
-              <div className="hidden lg:flex flex-1 max-w-lg mx-8">
+              <div className="hidden md:flex flex-1 max-w-lg mx-8">
                 <div className="relative flex flex-1 items-center justify-center gap-x-2">
                   <div className="relative flex-1">
                     <input
@@ -268,7 +268,7 @@ const Navbar = ({
                   </div>
                   <button
                     onClick={() => onFilterClick?.()}
-                    className="p-1 hover:text-gray-700 relative"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:text-gray-700 relative"
                   >
                     {filterCount > 0 && (
                       <span className="absolute -top-2 -right-3 bg-indigo-600 text-white rounded-full px-2 py-1 text-xs">
@@ -282,7 +282,7 @@ const Navbar = ({
             )}
 
             {/* Desktop Navigation */}
-            <div className="hidden lg:flex gap-4 justify-end items-center">
+            <div className="hidden md:flex gap-4 justify-end items-center">
               {showListingButton && (
                 <button
                   onClick={
@@ -313,7 +313,7 @@ const Navbar = ({
             {/* Mobile Menu Button */}
             <button
               onClick={toggleMobileMenu}
-              className="lg:hidden p-2 hover:bg-gray-100 rounded-md"
+              className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-md"
             >
               <Menu className="h-6 w-6" />
             </button>
@@ -322,7 +322,7 @@ const Navbar = ({
 
         {/* Desktop Property Type Filters */}
         {showPropertyTypeFilters && (
-          <nav className="border-b px-4 py-2 hidden lg:block">
+          <nav className="border-b px-4 py-2 hidden md:block">
             <Suspense fallback={<div>Loading...</div>}>
               <PropertyTypeNav />
             </Suspense>

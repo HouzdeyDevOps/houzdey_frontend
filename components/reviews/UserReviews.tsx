@@ -139,7 +139,7 @@ const ReviewCard = ({ review, onLike, onReply, onReport }: ReviewCardProps) => {
           <div className="relative">
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="p-1 hover:bg-gray-100 rounded"
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded"
             >
               <MoreHorizontal className="w-4 h-4" />
             </button>

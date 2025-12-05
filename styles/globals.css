@@ -87,6 +87,7 @@ body {
   background: var(--background);
   font-family: var(--font-nunito);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 .react-phone-input-2 .flag-dropdown {

@@ -158,7 +158,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className =
                 <div className="relative">
                   <button
                     onClick={() => setSettingsOpen(!settingsOpen)}
-                    className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
                   >
                     <EllipsisVertical className="w-5 h-5 text-gray-500" />
                   </button>
@@ -193,7 +193,7 @@ const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ className =
                 </div>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1 hover:bg-gray-100 rounded-full transition-colors lg:hidden"
+                  className="min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors lg:hidden"
                 >
                   <X className="w-5 h-5 text-gray-500" />
                 </button>
