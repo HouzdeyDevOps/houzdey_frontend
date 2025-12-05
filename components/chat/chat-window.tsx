@@ -192,6 +192,7 @@ export default function ChatWindow() {
   }, [conversationId]);
 
   // Handle user status updates
+  // Subscribe to real-time user status updates (no polling needed)
   useEffect(() => {
     if (!conversation?.other_user?.id) return;
 
@@ -202,17 +203,12 @@ export default function ChatWindow() {
     };
 
     const unsubscribe = chatService.onUserStatus(handleUserStatus);
+    
+    // Request initial status only once - updates come real-time via Socket.IO
     chatService.getUserStatus(conversation.other_user.id);
-
-    const statusInterval = setInterval(() => {
-      if (conversation.other_user?.id) {
-        chatService.getUserStatus(conversation.other_user.id);
-      }
-    }, 30000);
 
     return () => {
       unsubscribe();
-      clearInterval(statusInterval);
     };
   }, [conversation?.other_user?.id]);
 

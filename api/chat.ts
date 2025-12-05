@@ -58,10 +58,8 @@ export class ChatService {
       });
 
       this.socket.on('connect_confirmed', (data: { user_id: string }) => {
-        // Request status updates for all users after connection is confirmed
-        if (this.socket && data.user_id) {
-        this.socket.emit('get_user_status', { user_id: data.user_id });
-        }
+        // Connection confirmed - socket is ready
+        console.log('Socket.IO connection confirmed for user:', data.user_id);
       });
 
       this.socket.on('new_message', (message) => {
