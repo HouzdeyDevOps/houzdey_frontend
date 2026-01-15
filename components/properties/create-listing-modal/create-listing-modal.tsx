@@ -52,7 +52,7 @@ export default function CreateListingModal({
         agency_fee: property.agency_fee?.toString() || "",
         legal_fee: property.legal_fee?.toString() || "",
         other_fees: property.other_fees?.toString() || "",
-        amenities: property.amenities || [],
+        amenities: property.amenities?.map(a => ({ name: a.name, icon: a.icon || '' })) || [],
         description: property.description || "",
         images: property.images || [],
         coverImage: property.images?.[0] || null,
