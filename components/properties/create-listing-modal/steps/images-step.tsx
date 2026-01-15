@@ -265,7 +265,7 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
               />
               <button
                 onClick={() => updateForm("coverImage", null)}
-                className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
+                className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-100"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -285,7 +285,7 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
                     formData.images.filter((_, i) => i !== index)
                   );
                 }}
-                className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-100"
+                className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-100"
               >
                 <X className="w-4 h-4" />
               </button>

@@ -26,10 +26,10 @@ export default function ChatInput({
   formatRecordingTime
 }: ChatInputProps) {
   return (
-    <div className="p-4 border-t bg-white relative">
-      <form onSubmit={onSubmit} className="flex items-center gap-3">
-        <div className="flex-1 flex items-center gap-2">
-          <label className="cursor-pointer">
+    <div className="px-4 sm:px-6 py-4 lg:py-5 border-t bg-white shadow-sm relative">
+      <form onSubmit={onSubmit} className="flex items-center gap-3 lg:gap-4 w-full">
+        <div className="flex-1 flex items-center gap-2 lg:gap-3">
+          <label className="cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors">
             <input
               type="file"
               id="imageUpload"
@@ -39,10 +39,10 @@ export default function ChatInput({
               disabled={isUploading || isRecording}
             />
             <ImageIcon
-              className={`w-6 h-6 ${
+              className={`w-6 h-6 lg:w-7 lg:h-7 ${
                 isUploading
                   ? "text-gray-400"
-                  : "text-blue-500 hover:text-blue-600"
+                  : "text-indigo-600 hover:text-indigo-700"
               }`}
             />
           </label>
@@ -54,14 +54,14 @@ export default function ChatInput({
               isRecording ? "Recording..." : "Are you open to negotiations?"
             }
             disabled={isRecording}
-            className="w-full px-4 py-2 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white disabled:opacity-50"
+            className="w-full px-5 py-3 lg:py-3.5 text-base lg:text-lg bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white disabled:opacity-50 transition-all"
           />
         </div>
         <button
           type="button"
           onClick={newMessage.trim() ? onSubmit : onMicClick}
           disabled={!isConnected}
-          className="p-2 flex bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="p-3 lg:p-4 flex items-center justify-center bg-indigo-600 text-white rounded-full hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md hover:shadow-lg"
         >
           {isRecording ? (
             <>

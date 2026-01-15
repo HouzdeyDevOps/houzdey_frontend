@@ -55,7 +55,7 @@ const ChatMessage = React.memo(({
         return (
           <>
             <div
-              className="relative w-32 h-32 cursor-pointer"
+              className="relative w-48 h-48 lg:w-56 lg:h-56 cursor-pointer"
               onClick={(e) => handleImageClick(parsedContent.file_url, e)}
               onContextMenu={(e) =>
                 onMessageContextMenu(e, message, parsedContent.file_url)
@@ -64,14 +64,14 @@ const ChatMessage = React.memo(({
               <Image
                 src={parsedContent.file_url || ""}
                 alt="Shared image"
-                width={128}
-                height={128}
+                width={224}
+                height={224}
                 className="object-cover rounded-lg"
                 style={{
-                  width: '128px',
-                  height: '128px'
+                  width: '100%',
+                  height: '100%'
                 }}
-                sizes="128px"
+                sizes="(max-width: 1024px) 192px, 224px"
               />
             </div>
             <ImageViewerModal
@@ -84,7 +84,7 @@ const ChatMessage = React.memo(({
       } else if (parsedContent.type === "voice") {
         return (
           <div
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 lg:gap-3"
             onContextMenu={(e) =>
               onMessageContextMenu(e, message, parsedContent.file_url)
             }
@@ -92,9 +92,9 @@ const ChatMessage = React.memo(({
             <audio
               controls
               src={parsedContent.file_url}
-              className="max-w-[200px]"
+              className="max-w-[240px] lg:max-w-[280px]"
             />
-            <span className="text-sm text-gray-500">
+            <span className="text-sm lg:text-base text-gray-500">
               {Math.floor(parsedContent.duration || 0)}s
             </span>
           </div>
@@ -114,18 +114,18 @@ const ChatMessage = React.memo(({
     <div
       ref={messageRef}
       data-message-id={message.id}
-      className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-4`}
+      className={`flex ${isCurrentUser ? "justify-end" : "justify-start"} mb-3 lg:mb-4`}
     >
       <div
-        className={`max-w-[70%] ${
+        className={`max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] ${
           isCurrentUser
             ? "bg-indigo-600 text-white rounded-l-2xl rounded-tr-2xl"
-            : "bg-gray-100 text-gray-900 rounded-r-2xl rounded-tl-2xl"
-        } px-4 py-2 relative group`}
+            : "bg-white text-gray-900 rounded-r-2xl rounded-tl-2xl shadow-sm"
+        } px-4 lg:px-5 py-3 lg:py-3.5 relative group text-base lg:text-lg`}
         onContextMenu={(e) => onMessageContextMenu(e, message)}
       >
         {renderMessageContent(message)}
-        <div className="text-xs mt-1 text-gray-400 flex items-center">
+        <div className="text-xs lg:text-sm mt-1.5 text-gray-400 flex items-center">
           {formatChatTime(message.created_at)}
           {isCurrentUser && (
             <span className="ml-2">

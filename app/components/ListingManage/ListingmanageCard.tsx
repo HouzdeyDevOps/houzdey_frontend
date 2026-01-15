@@ -90,14 +90,14 @@ export default function ListingManageCard({
           <>
             <button
               onClick={previousImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/80 hover:bg-white transition-colors z-10"
             >
               <ChevronLeft className="w-4 h-4 text-neutral-600" />
             </button>
 
             <button
               onClick={nextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white transition-colors z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full bg-white/80 hover:bg-white transition-colors z-10"
             >
               <ChevronRight className="w-4 h-4 text-neutral-600" />
             </button>

@@ -156,7 +156,7 @@ export default function FeaturedImageUpload({ value, onChange }: FeaturedImageUp
           <button
             type="button"
             onClick={handleRemoveImage}
-            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+            className="absolute -top-2 -right-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
             title="Remove image"
           >
             <X size={16} />

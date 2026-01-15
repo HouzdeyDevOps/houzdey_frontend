@@ -5,6 +5,7 @@ export enum ListingType {
 
 export interface Property {
   id: string;
+  slug?: string;  // SEO-friendly URL slug
   title: string;
   price: number;
   rental_price?: number;
@@ -16,6 +17,9 @@ export interface Property {
   type: string;
   beds: number;
   baths: number;
+  toilets?: number;
+  condition?: string;
+  furnishing?: string;
   state: string;
   lga: string;
   ward: string;
@@ -27,11 +31,14 @@ export interface Property {
   status: string;
   amenities: Array<{
     name: string;
-    icon: string;
+    icon?: string;
   }>;
   images: string[];
   video?: string;
   created_at: string;
+  // Agent details (for scraped properties)
+  agent_name?: string;
+  agent_phone?: string;
 }
 
 export interface PropertyResponse {
@@ -90,6 +97,9 @@ export interface PropertyDetail extends Property {
     role: string;
     phone_number: string;
   };
+  // Agent details (for scraped properties)
+  agent_name?: string;
+  agent_phone?: string;
   reviews: {
     id: number;
     user: {

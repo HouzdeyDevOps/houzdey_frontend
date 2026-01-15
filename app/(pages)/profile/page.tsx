@@ -101,7 +101,7 @@ function ProfileContent() {
       
       <div className="flex">
         {/* Fixed Left Panel - Profile Header + Sidebar */}
-        <div className="hidden lg:block lg:fixed lg:top-24 lg:left-0 lg:w-80 lg:h-[calc(100vh-6rem)] lg:bg-white lg:border-r lg:border-gray-200 lg:shadow-sm lg:overflow-y-auto">
+        <div className="hidden md:block md:fixed md:top-24 md:left-0 md:w-80 md:h-[calc(100vh-6rem)] md:bg-white md:border-r md:border-gray-200 md:shadow-sm md:overflow-y-auto">
           {/* Profile Header */}
           <div className="p-6 border-b border-gray-200">
             <Link href="/" className="flex items-center text-gray-600 gap-2 hover:text-gray-800 transition-colors">
@@ -159,7 +159,7 @@ function ProfileContent() {
         </div>
 
         {/* Mobile Header (visible on small screens) */}
-        <div className="lg:hidden w-full">
+        <div className="md:hidden w-full">
           <div className="bg-white border-b border-gray-200 shadow-sm">
             <div className="px-4 py-4">
               <Link href="/" className="flex items-center text-gray-600 gap-2 hover:text-gray-800 transition-colors">
@@ -171,10 +171,10 @@ function ProfileContent() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 lg:ml-80">
-          <div className="px-8 pt-8 lg:pt-28 pb-8">
+        <div className="flex-1 md:ml-80">
+          <div className="px-4 sm:px-8 pt-8 md:pt-28 pb-8">
             {/* Mobile Sidebar */}
-            <div className="lg:hidden mb-8">
+            <div className="md:hidden mb-8">
               <div className="bg-white rounded-xl p-4 shadow-sm">
                 <div className="space-y-2">
                   {menuItems.map((item) => (

@@ -8,6 +8,7 @@ import WishlistButton from "@/components/wishlist/WishlistButton";
 
 interface Property {
   id: string;
+  slug?: string;  // SEO-friendly URL slug
   title: string;
   state: string;
   lga: string;
@@ -46,7 +47,11 @@ function PropertyCard({ property }: { property: Property }) {
 
 
   const handlePropertyClick = () => {
-    router.push(`/properties/${property.id}`);
+    // Use SEO-friendly slug if available, fallback to ID for backward compatibility
+    const url = property.slug 
+      ? `/properties/${property.slug}` 
+      : `/properties/${property.id}`;
+    router.push(url);
   };
 
   return (

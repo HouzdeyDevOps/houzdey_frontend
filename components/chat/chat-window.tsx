@@ -192,6 +192,7 @@ export default function ChatWindow() {
   }, [conversationId]);
 
   // Handle user status updates
+  // Subscribe to real-time user status updates (no polling needed)
   useEffect(() => {
     if (!conversation?.other_user?.id) return;
 
@@ -202,22 +203,19 @@ export default function ChatWindow() {
     };
 
     const unsubscribe = chatService.onUserStatus(handleUserStatus);
+    
+    // Request initial status only once - updates come real-time via Socket.IO
     chatService.getUserStatus(conversation.other_user.id);
-
-    const statusInterval = setInterval(() => {
-      if (conversation.other_user?.id) {
-        chatService.getUserStatus(conversation.other_user.id);
-      }
-    }, 30000);
 
     return () => {
       unsubscribe();
-      clearInterval(statusInterval);
     };
   }, [conversation?.other_user?.id]);
 
   // Initialize chat connection
   useEffect(() => {
+    if (!conversationId || !user?.id) return;
+
     const initialize = async () => {
       const cleanup = await initializeChat();
       return cleanup;
@@ -229,7 +227,7 @@ export default function ChatWindow() {
         if (cleanup) cleanup();
       });
     };
-  }, [initializeChat]);
+  }, [conversationId, user?.id]);
 
   // Load initial messages
   useEffect(() => {
@@ -403,7 +401,7 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white w-full">
       <ChatHeader
         conversation={conversation}
         otherUserStatus={otherUserStatus}
@@ -413,8 +411,8 @@ export default function ChatWindow() {
       />
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-3 lg:space-y-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               Start a conversation...

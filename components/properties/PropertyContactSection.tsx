@@ -2,10 +2,13 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 import { MessageCircle, Phone, AlertTriangle } from "lucide-react";
 import { chatApi } from "@/api/chat";
 import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
 import { propertyApi } from "@/api/properties";
+import { useAuth } from "@/hooks/useAuth";
+import { setCurrentModal } from "@/store/slices/authModalSlice";
 
 interface PropertyContactSectionProps {
   propertyId: string;
@@ -18,6 +21,9 @@ interface PropertyContactSectionProps {
   };
   isOwner: boolean;
   userId?: string;
+  // Agent details for scraped properties
+  agent_name?: string;
+  agent_phone?: string;
 }
 
 export default function PropertyContactSection({
@@ -25,12 +31,26 @@ export default function PropertyContactSection({
   host,
   isOwner,
   userId,
+  agent_name,
+  agent_phone,
 }: PropertyContactSectionProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useAuth();
+
+  // Use agent info if available (for scraped properties), otherwise use host info
+  const contactName = agent_name || host.name;
+  const contactPhone = agent_phone || host.phone_number;
 
   const handleContactHost = async () => {
+    // Check if user is authenticated
+    if (!isAuthenticated) {
+      dispatch(setCurrentModal("signin"));
+      return;
+    }
+
     try {
       setIsLoading(true);
       const conversation = await chatApi.createConversation(propertyId);
@@ -76,7 +96,7 @@ export default function PropertyContactSection({
           ) : (
             /* Visitor View - Show contact options */
             <>
-              {host.phone_number ? (
+              {contactPhone ? (
                 <>
                   <button
                     onClick={handleContactHost}
@@ -87,11 +107,11 @@ export default function PropertyContactSection({
                     {isLoading ? "Loading..." : "Chat with Host"}
                   </button>
                   <a
-                    href={`tel:${host.phone_number}`}
+                    href={`tel:${contactPhone}`}
                     className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
                   >
                     <Phone className="w-5 h-5" />
-                    Call Host
+                    {agent_name ? "Call Agent" : "Call Host"}
                   </a>
                 </>
               ) : (

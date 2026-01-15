@@ -1,5 +1,5 @@
 import { Metadata, ResolvingMetadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import Navbar from "@/components/navbar/Navbar";
@@ -102,7 +102,8 @@ export async function generateMetadata(
 }
 
 /**
- * Server Component - Property Details Page
+ * Server Component - Property Details Page (Legacy ID-based URLs)
+ * Redirects to SEO-friendly slug URL if available
  * Fetches data server-side for SEO and performance
  */
 export default async function PropertyDetailsPage({ params }: PageProps) {
@@ -112,6 +113,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
 
   if (!property) {
     notFound();
+  }
+
+  // Redirect to SEO-friendly URL if slug exists
+  if (property.slug) {
+    redirect(`/properties/${property.slug}`);
   }
 
   // Generate JSON-LD structured data for SEO
