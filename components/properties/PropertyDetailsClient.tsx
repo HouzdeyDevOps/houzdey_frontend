@@ -171,8 +171,62 @@ export default function PropertyDetailsClient({ property }: PropertyDetailsClien
                 </div>
               </div>
 
-              {/* divider */}
-              <div className="h-[1px] w-full bg-gray-200 my-10"></div>
+              {/* Agent/Marketer Details Section */}
+              {(property.agent_name || property.host) && (
+                <>
+                  <div className="mt-8">
+                    <h2 className="text-lg font-semibold mb-4">
+                      {property.agent_name ? 'Marketed By' : 'Posted By'}
+                    </h2>
+                    <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                      <div className="flex items-start gap-4">
+                        {!property.agent_name && property.host?.image && (
+                          <img
+                            src={property.host.image}
+                            alt={property.host.name}
+                            className="w-16 h-16 rounded-full"
+                          />
+                        )}
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-lg mb-1">
+                            {property.agent_name || property.host?.name}
+                          </h3>
+                          {!property.agent_name && property.host?.company && (
+                            <p className="text-gray-600 mb-3">{property.host.company}</p>
+                          )}
+                          
+                          {/* Contact Information */}
+                          <div className="space-y-2 mt-4">
+                            {property.agent_phone && (
+                              <div className="flex items-center gap-2 text-gray-700">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                <a href={`tel:${property.agent_phone}`} className="hover:text-primary">
+                                  {property.agent_phone}
+                                </a>
+                              </div>
+                            )}
+                            {!property.agent_phone && property.host?.phone_number && (
+                              <div className="flex items-center gap-2 text-gray-700">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                                <a href={`tel:${property.host.phone_number}`} className="hover:text-primary">
+                                  {property.host.phone_number}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* divider */}
+                  <div className="h-[1px] w-full bg-gray-200 my-10"></div>
+                </>
+              )}
 
               {/* Host Section */}
               <div className="mt-8">
