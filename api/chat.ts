@@ -114,8 +114,8 @@ export class ChatService {
         console.error("Socket connection error:", error);
         console.error("Error details:", {
           message: error.message,
-          type: error?.type,
-          description: error?.description
+          type: (error as any)?.type,
+          description: (error as any)?.description
         });
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
