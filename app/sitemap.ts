@@ -1,8 +1,48 @@
 import { MetadataRoute } from 'next'
-import { getAllPropertiesForSitemap } from '@/lib/server-api'
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+
+// Helper to fetch all properties for sitemap with pagination
+async function getAllPropertiesForSitemap() {
+  try {
+    const allProperties: any[] = []
+    let page = 1
+    let hasMore = true
+    const limit = 50
+
+    while (hasMore) {
+      const res = await fetch(
+        `${apiUrl}/properties?page=${page}&limit=${limit}&sort_by=created_at&sort_order=desc`,
+        {
+          next: { revalidate: 3600 }, // Cache for 1 hour
+        }
+      )
+
+      if (!res.ok) {
+        console.error(`Failed to fetch properties page ${page} for sitemap`)
+        break
+      }
+
+      const data = await res.json()
+      const properties = data.properties || []
+      
+      allProperties.push(...properties)
+
+      // Check if there are more pages
+      hasMore = data.total_pages > page
+      page++
+
+      // Safety limit to prevent infinite loops
+      if (page > 500) break
+    }
+
+    return allProperties
+  } catch (error) {
+    console.error('Error fetching properties for sitemap:', error)
+    return []
+  }
+}
 
 // Helper to fetch all blog posts for sitemap
 async function getAllBlogsForSitemap() {
@@ -71,14 +111,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ]
 
-  // Fetch dynamic property routes using server-side API
+  // Fetch dynamic property routes
   const properties = await getAllPropertiesForSitemap()
-  const propertyRoutes: MetadataRoute.Sitemap = properties.map((property) => ({
-    url: `${baseUrl}/properties/${property.id}`,
-    lastModified: new Date(property.created_at),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+  const propertyRoutes: MetadataRoute.Sitemap = properties
+    .filter((property) => property.slug) // Only include properties with slugs
+    .map((property) => ({
+      url: `${baseUrl}/properties/${property.slug}`,
+      lastModified: new Date(property.updated_at || property.created_at),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }))
 
   // Fetch dynamic blog routes
   const blogs = await getAllBlogsForSitemap()
