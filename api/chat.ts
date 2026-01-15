@@ -44,11 +44,14 @@ export class ChatService {
 
       this.socket = io(API_BASE_URL, {
         auth: { token },
-        transports: ["websocket", "polling"],
+        transports: ["polling", "websocket"],
         reconnection: true,
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        timeout: 10000
+        timeout: 10000,
+        // Force Engine.IO v4 protocol
+        upgrade: true,
+        rememberUpgrade: true
       });
 
       // Set up event listeners
@@ -63,32 +66,57 @@ export class ChatService {
       });
 
       this.socket.on('new_message', (message) => {
-        this.messageHandlers.forEach(handler => handler(message));
+        try {
+          this.messageHandlers.forEach(handler => handler(message));
+        } catch (error) {
+          console.error("Error handling new_message event:", error);
+        }
       });
       
       this.socket.on('error', (error) => {
         console.error("Socket error:", error);
-        this.errorHandlers.forEach(handler => handler(new Error(error.message || "Unknown socket error")));
+        try {
+          this.errorHandlers.forEach(handler => handler(new Error(error.message || "Unknown socket error")));
+        } catch (handlerError) {
+          console.error("Error in error handler:", handlerError);
+        }
       });
 
       this.socket.on('typing_status', (status) => {
-        this.typingHandlers.forEach(handler => handler(status));
+        try {
+          this.typingHandlers.forEach(handler => handler(status));
+        } catch (error) {
+          console.error("Error handling typing_status event:", error);
+        }
       });
 
       this.socket.on('user_status', (status) => {
-        if (status && status.user_id && status.status) {
-          this.userStatusHandlers.forEach(handler => handler(status));
-        } else {
-          console.warn("Received invalid user status update:", status);
+        try {
+          if (status && status.user_id && status.status) {
+            this.userStatusHandlers.forEach(handler => handler(status));
+          } else {
+            console.warn("Received invalid user status update:", status);
+          }
+        } catch (error) {
+          console.error("Error handling user_status event:", error);
         }
       });
 
       this.socket.on('messages_read', (data: { conversation_id: string }) => {
-        this.readStatusHandlers.forEach(handler => handler(data.conversation_id));
+        try {
+          this.readStatusHandlers.forEach(handler => handler(data.conversation_id));
+        } catch (error) {
+          console.error("Error handling messages_read event:", error);
+        }
       });
 
       this.socket.on('connect_error', (error) => {
         console.error("Socket connection error:", error);
+        console.error("Error details:", {
+          message: error.message,
+          type: error?.type,
+          description: error?.description
+        });
         this.notifyConnectionHandlers(false);
         this.connectionPromise = null;
         

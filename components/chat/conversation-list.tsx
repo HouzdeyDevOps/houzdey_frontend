@@ -145,26 +145,26 @@ export default function ConversationList({
       {conversations.map((conversation) => (
         <div
           key={conversation.id}
-          className={`flex items-center gap-3 p-4 hover:bg-gray-50 cursor-pointer ${
-            selectedConversationId === conversation.id ? "bg-gray-200" : ""
+          className={`flex items-center gap-3 sm:gap-4 p-4 lg:p-5 hover:bg-gray-50 cursor-pointer transition-colors ${
+            selectedConversationId === conversation.id ? "bg-indigo-50 border-l-4 border-indigo-600" : ""
           }`}
           onClick={() => onConversationSelect(conversation.id)}
         >
-          <div className="w-10 h-10 flex-shrink-0 relative">
+          <div className="w-12 h-12 lg:w-14 lg:h-14 flex-shrink-0 relative">
             <Image
               src={
                 getOptimizedImageUrl(
                   conversation.other_user?.profile_picture,
-                  { width: 40, height: 40, defaultImage: "avatar-placeholder" }
+                  { width: 56, height: 56, defaultImage: "avatar-placeholder" }
                 )
               }
               alt={`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
-              width={40}
-              height={40}
+              width={56}
+              height={56}
               className="object-cover rounded-full"
               style={{
-                width: '40px',
-                height: '40px'
+                width: '100%',
+                height: '100%'
               }}
             />
             {/* Property indicator - small colored dot */}
@@ -182,18 +182,18 @@ export default function ConversationList({
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-center mb-1">
-              <span className={`font-medium truncate ${conversation.unread_count > 0 ? 'text-indigo-600' : ''}`}>
+            <div className="flex justify-between items-center mb-1.5">
+              <span className={`font-semibold text-base lg:text-lg truncate ${conversation.unread_count > 0 ? 'text-indigo-600' : 'text-gray-900'}`}>
                 {`${conversation.other_user?.first_name} ${conversation.other_user?.last_name}`}
               </span>
               {conversation.last_message_time && (
-                <span className={`text-sm ${conversation.unread_count > 0 ? 'text-indigo-600' : 'text-gray-500'} flex-shrink-0 ml-2`}>
+                <span className={`text-xs lg:text-sm ${conversation.unread_count > 0 ? 'text-indigo-600 font-medium' : 'text-gray-500'} flex-shrink-0 ml-2`}>
                   {formatMessageTime(conversation.last_message_time)}
                 </span>
               )}
             </div>
             {/* Property information - show what property this conversation is about */}
-            <div className="text-xs text-gray-400 mb-1 truncate">
+            <div className="text-xs lg:text-sm text-gray-500 mb-1 truncate font-medium">
               {conversation.property?.title || `Property #${conversation.property_id}`}
             </div>
             <div className="flex items-center gap-2 min-w-0">

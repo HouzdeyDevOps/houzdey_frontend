@@ -36,6 +36,9 @@ export interface Property {
   images: string[];
   video?: string;
   created_at: string;
+  // Agent details (for scraped properties)
+  agent_name?: string;
+  agent_phone?: string;
 }
 
 export interface PropertyResponse {
@@ -94,6 +97,9 @@ export interface PropertyDetail extends Property {
     role: string;
     phone_number: string;
   };
+  // Agent details (for scraped properties)
+  agent_name?: string;
+  agent_phone?: string;
   reviews: {
     id: number;
     user: {

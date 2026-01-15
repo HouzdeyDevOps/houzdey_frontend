@@ -401,7 +401,7 @@ export default function ChatWindow() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full bg-white w-full">
       <ChatHeader
         conversation={conversation}
         otherUserStatus={otherUserStatus}
@@ -411,8 +411,8 @@ export default function ChatWindow() {
       />
 
       {/* Messages area */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto bg-gray-50">
+        <div className="p-4 sm:p-6 lg:p-8 space-y-3 lg:space-y-4">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full text-gray-500">
               Start a conversation...

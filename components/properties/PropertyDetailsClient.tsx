@@ -136,9 +136,9 @@ export default function PropertyDetailsClient({ property }: PropertyDetailsClien
               <div>
                 <h2 className="text-lg font-semibold mb-4">Amenities</h2>
                 <div className="grid grid-cols-2 gap-4">
-                  {property.amenities.map((amenity, index) => (
+                  {property.amenities.map((amenity: { name: string; icon?: string }, index: number) => (
                     <div key={index} className="flex items-center gap-2">
-                      {getAmenityIcon(amenity.icon)}
+                      {getAmenityIcon(amenity.icon || '')}
                       <span className="text-gray-600">{amenity.name}</span>
                     </div>
                   ))}
@@ -202,7 +202,7 @@ export default function PropertyDetailsClient({ property }: PropertyDetailsClien
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {property.reviews.map((review) => (
+                    {property.reviews.map((review: any) => (
                       <div key={review.id} className="border-b pb-4">
                         <div className="flex items-center gap-2 mb-2">
                           <img
@@ -232,6 +232,8 @@ export default function PropertyDetailsClient({ property }: PropertyDetailsClien
               propertyId={property.id}
               host={property.host}
               isOwner={isOwner}
+              agent_name={property.agent_name}
+              agent_phone={property.agent_phone}
             />
           </div>
         </div>

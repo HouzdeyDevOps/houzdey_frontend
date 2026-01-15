@@ -1,5 +1,6 @@
 import Image from "next/image";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, ChevronLeft } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { Conversation, UserStatus } from "@/@types/chat";
 import { formatLastSeen } from "@/utils/date";
 import ChatHeaderSkeleton from "../ui/chat-header-skeleton";
@@ -20,13 +21,23 @@ export default function ChatHeader({
   isLoading,
   onMoreClick 
 }: ChatHeaderProps) {
+  const router = useRouter();
+
   return (
-    <div className="px-3 sm:px-4 py-3 border-b flex items-center z-10 bg-white">
+    <div className="px-4 sm:px-6 py-4 lg:py-5 border-b flex items-center z-10 bg-white shadow-sm w-full">
+      {/* Back button - only visible on mobile */}
+      <button 
+        onClick={() => router.push('/chat')}
+        className="md:hidden mr-2 min-w-[44px] min-h-[44px] flex items-center justify-center hover:bg-gray-100 rounded-full transition-colors"
+      >
+        <ChevronLeft className="w-6 h-6 text-gray-600" />
+      </button>
+
       {isLoading ? (
         <ChatHeaderSkeleton />
       ) : (
         <div className="flex-1 flex items-center min-w-0">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full mr-2 sm:mr-3 relative flex-shrink-0">
+          <div className="w-12 h-12 lg:w-14 lg:h-14 rounded-full mr-3 lg:mr-4 relative flex-shrink-0">
             <Image
               src={
                 getOptimizedImageUrl(
@@ -55,15 +66,15 @@ export default function ChatHeader({
             />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="font-medium text-sm sm:text-base truncate">
+            <div className="font-semibold text-base lg:text-lg truncate text-gray-900">
               {`${conversation?.other_user?.first_name} ${conversation?.other_user?.last_name}`}
             </div>
-            <div className="text-xs sm:text-sm text-gray-500 truncate">
+            <div className="text-sm lg:text-base text-gray-600 truncate font-medium">
               {userId === conversation?.owner_id
                 ? "Interested Tenant"
                 : conversation?.property?.title}
             </div>
-            <div className="text-xs sm:text-sm text-gray-500 truncate">
+            <div className="text-xs lg:text-sm text-gray-500 truncate">
               {otherUserStatus?.status === "online"
                 ? "Online"
                 : otherUserStatus?.last_seen
