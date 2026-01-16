@@ -171,11 +171,12 @@ export default function FilterModal({ isOpen, onClose, onFilterChange }: FilterM
     const formatPrice = (price: string) => {
       if (!price) return '';
       const num = parseInt(price);
-      return isNaN(num) ? '' : num.toLocaleString('en-NG', { style: 'currency', currency: 'NGN' });
+      return isNaN(num) ? '' : num.toLocaleString('en-NG');
     };
 
     const parsePrice = (price: string) => {
-      return price.replace(/[^0-9]/g, '');
+      const cleaned = price.replace(/[^0-9]/g, '');
+      return cleaned;
     };
 
     return (
@@ -251,33 +252,39 @@ export default function FilterModal({ isOpen, onClose, onFilterChange }: FilterM
                 <div className="flex gap-4">
                   <div className="flex-1">
                     <label className="text-sm text-gray-600">Min</label>
-                    <input
-                      type="text"
-                      value={formatPrice(priceRange.min)}
-                      onChange={(e) =>
-                        setPriceRange((prev) => ({
-                          ...prev,
-                          min: parsePrice(e.target.value),
-                        }))
-                      }
-                      className="w-full p-3 border rounded-lg"
-                      placeholder="₦ 50,000"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₦</span>
+                      <input
+                        type="text"
+                        value={formatPrice(priceRange.min)}
+                        onChange={(e) =>
+                          setPriceRange((prev) => ({
+                            ...prev,
+                            min: parsePrice(e.target.value),
+                          }))
+                        }
+                        className="w-full p-3 pl-8 border rounded-lg"
+                        placeholder="500,000"
+                      />
+                    </div>
                   </div>
                   <div className="flex-1">
                     <label className="text-sm text-gray-600">Max</label>
-                    <input
-                      type="text"
-                      value={formatPrice(priceRange.max)}
-                      onChange={(e) =>
-                        setPriceRange((prev) => ({
-                          ...prev,
-                          max: parsePrice(e.target.value),
-                        }))
-                      }
-                      className="w-full p-3 border rounded-lg"
-                      placeholder="₦ 10,000,000,000"
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">₦</span>
+                      <input
+                        type="text"
+                        value={formatPrice(priceRange.max)}
+                        onChange={(e) =>
+                          setPriceRange((prev) => ({
+                            ...prev,
+                            max: parsePrice(e.target.value),
+                          }))
+                        }
+                        className="w-full p-3 pl-8 border rounded-lg"
+                        placeholder="200,000,000"
+                      />
+                    </div>
                   </div>
                 </div>
                 <MultiRangeSlider
