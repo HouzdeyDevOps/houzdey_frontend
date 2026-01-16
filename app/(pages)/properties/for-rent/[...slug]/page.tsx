@@ -121,9 +121,24 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       addressRegion: property.state,
       addressCountry: "NG",
     },
-    price: property.rental_price || property.price,
-    priceCurrency: "NGN",
+    geo: property.ward ? {
+      "@type": "GeoCoordinates",
+      // Add coordinates if available in future
+    } : undefined,
+    offers: {
+      "@type": "Offer",
+      price: property.rental_price || property.price,
+      priceCurrency: "NGN",
+      availability: "https://schema.org/InStock",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        price: property.rental_price || property.price,
+        priceCurrency: "NGN",
+        unitText: "YEAR"
+      }
+    },
     numberOfRooms: property.beds,
+    numberOfBedrooms: property.beds,
     numberOfBathroomsTotal: property.baths,
     floorSize: property.size ? {
       "@type": "QuantitativeValue",
@@ -134,6 +149,26 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       "@type": "LocationFeatureSpecification",
       name: amenity.name,
     })),
+    datePosted: property.created_at,
+    availableFrom: property.created_at,
+    propertyType: property.type,
+    additionalProperty: [
+      {
+        "@type": "PropertyValue",
+        name: "Listing Type",
+        value: "For Rent"
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Furnishing",
+        value: property.furnishing || "Unfurnished"
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Condition",
+        value: property.condition || "Good"
+      }
+    ].filter(Boolean),
   };
 
   // Breadcrumb JSON-LD
