@@ -55,7 +55,7 @@ export default function HomePage() {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 min-h-screen">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 min-h-screen content-start">
           {isLoading
             ? // Show 8 skeleton cards while loading
               Array(8)
@@ -68,7 +68,7 @@ export default function HomePage() {
 
         {!isLoading &&
           data?.properties?.length &&
-          data?.properties?.length > 11 && (
+          data?.pagination?.total_pages > 1 && (
             <div className="mt-8">
               <Pagination
                 currentPage={filters.page}
