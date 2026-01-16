@@ -56,12 +56,12 @@ function PropertyCard({ property }: { property: Property }) {
 
   return (
     <div
-    className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden h-fit max-w-sm mx-auto"
+    className="group cursor-pointer bg-white rounded-xl shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100 overflow-hidden h-full max-w-sm mx-auto flex flex-col"
     onClick={handlePropertyClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-xl flex-shrink-0">
         <div
           className="w-full h-full transition-transform duration-500 ease-out"
           style={{
@@ -116,9 +116,9 @@ function PropertyCard({ property }: { property: Property }) {
         )}
       </div>
 
-      <div className="p-4">
-        <h3 className="font-semibold">{formatLocation(property.title)}</h3>
-        <p className="text-gray-600">{`${formatLocation(
+      <div className="p-4 flex flex-col flex-grow">
+        <h3 className="font-semibold line-clamp-2 min-h-[3rem]">{formatLocation(property.title)}</h3>
+        <p className="text-gray-600 text-sm line-clamp-1">{`${formatLocation(
           property.lga
         )}, ${formatLocation(property.state)}`}</p>
         <div className="flex gap-2 text-sm text-gray-600 mt-2">
@@ -126,7 +126,7 @@ function PropertyCard({ property }: { property: Property }) {
           <span>•</span>
           <span>{property.baths} bath</span>
         </div>
-        <div className="mt-2">
+        <div className="mt-auto pt-2">
           {property.listing_type === 'sale' ? (
             <p className="font-semibold">
               ₦ {(property.sale_price || property.price || 0).toLocaleString()}

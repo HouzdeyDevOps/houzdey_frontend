@@ -4,6 +4,7 @@ import { authApi } from "@/api/auth";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import styled from "styled-components";
+import { showSuccessToast, showErrorToast } from "@/utils/toast";
 
 interface PhoneVerificationModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function PhoneVerificationModal({
   const [otp, setOtp] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   if (!isOpen) return null;
 
@@ -32,8 +34,11 @@ export default function PhoneVerificationModal({
     try {
       await authApi.sendPhoneVerificationOTP(phoneNumber);
       setStep("otp");
+      showSuccessToast("OTP sent to your phone!");
     } catch (err: any) {
-      setError(err.message || "Failed to send OTP");
+      const errorMsg = err.message || "Failed to send OTP";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setIsLoading(false);
     }
@@ -46,12 +51,32 @@ export default function PhoneVerificationModal({
 
     try {
       await authApi.verifyPhoneNumber(phoneNumber, otp);
+      showSuccessToast("Phone number verified successfully!");
       onVerified(phoneNumber);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Failed to verify OTP");
+      const errorMsg = err.message || "Failed to verify OTP";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    setError(null);
+    setIsResending(true);
+
+    try {
+      await authApi.sendPhoneVerificationOTP(phoneNumber);
+      showSuccessToast("OTP resent successfully!");
+      setOtp(""); // Clear previous OTP
+    } catch (err: any) {
+      const errorMsg = err.message || "Failed to resend OTP";
+      setError(errorMsg);
+      showErrorToast(errorMsg);
+    } finally {
+      setIsResending(false);
     }
   };
 
@@ -108,6 +133,12 @@ export default function PhoneVerificationModal({
             ) : (
               <form onSubmit={handleOtpSubmit} className="space-y-4">
                 <div>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Enter the 6-digit code sent to <span className="font-semibold">+{phoneNumber}</span>
+                  </p>
+                  <p className="text-xs text-gray-500 mb-3">
+                    Code expires in 10 minutes
+                  </p>
                   <input
                     type="text"
                     id="otp"
@@ -122,6 +153,16 @@ export default function PhoneVerificationModal({
                     pattern="\d{6}"
                   />
                 </div>
+                
+                <button
+                  type="button"
+                  onClick={handleResendOTP}
+                  disabled={isResending}
+                  className="text-indigo-600 hover:text-indigo-700 text-sm"
+                >
+                  {isResending ? "Resending..." : "Didn't receive the code? Resend"}
+                </button>
+
                 <button
                   type="submit"
                   disabled={isLoading || otp.length !== 6}
