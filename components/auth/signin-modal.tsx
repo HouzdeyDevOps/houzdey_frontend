@@ -16,7 +16,7 @@ import LoadingModal from "./loading-modal";
 import ErrorModal from "./error-modal";
 import { AuthError } from "@/@types/auth";
 import GoogleAuthButton from "./GoogleAuthButton";
-import VerificationCodeModal from "./verification-code-modal";
+import LoginVerificationModal from "./login-verification-modal";
 import { showSuccessToast, showErrorToast } from "@/utils/toast";
 import ComingSoonModal from "./coming-soon-modal";
 
@@ -39,7 +39,7 @@ export default function SignInModal({
   const [isLoading, setIsLoading] = useState(false);
   const [isResendingVerification, setIsResendingVerification] = useState(false);
   const [error, setError] = useState<AuthError | null>(null);
-  const [showVerificationCodeModal, setShowVerificationCodeModal] =
+  const [showLoginVerificationModal, setShowLoginVerificationModal] =
     useState(false);
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<"Facebook" | "Apple">("Facebook");
@@ -65,7 +65,9 @@ export default function SignInModal({
           message: error.message,
           email: error.email || formData.email,
         });
-        showErrorToast("Please verify your email before signing in");
+        // Automatically show login verification modal
+        setShowLoginVerificationModal(true);
+        showSuccessToast("Verification code sent to your email!");
       } else {
         setError({
           type: error.type || "GENERAL_ERROR",
@@ -277,12 +279,12 @@ export default function SignInModal({
         onClose={() => setShowError(false)}
         message={errorMessage}
       />
-      {showVerificationCodeModal && (
-        <VerificationCodeModal
-          isOpen={showVerificationCodeModal}
-          onBack={() => setShowVerificationCodeModal(false)}
-          onClose={() => setShowVerificationCodeModal(false)}
+      {showLoginVerificationModal && (
+        <LoginVerificationModal
+          isOpen={showLoginVerificationModal}
+          onClose={() => setShowLoginVerificationModal(false)}
           email={formData.email}
+          password={formData.password}
         />
       )}
       <ComingSoonModal

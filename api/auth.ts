@@ -25,8 +25,8 @@ export const authApi = {
       });
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
+      if (error?.response?.data?.error) {
+        throw new Error(error?.response?.data?.error?.message);
       }
       throw new Error("Registration failed. Please try again.");
     }
@@ -50,29 +50,51 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      if (
-        error.response?.data?.detail?.message ===
-        "Please verify your email before signing in"
-      ) {
-        const err = new Error(error.response.data.detail.message) as Error &
-          AuthError;
+      console.log("error", error);  
+      // Backend returns error in error.response.data.error format
+      const errorData = error.response?.data?.error || error.response?.data?.detail;
+      console.log("errorData", errorData);
+      
+      // Check if errorData is an object with message and email (unverified account)
+      if (typeof errorData === 'object' && errorData?.message && errorData?.email) {
+        const err = new Error(errorData.message) as Error & AuthError;
         err.type = "UNVERIFIED_EMAIL";
-        err.email = error.response.data.detail.email;
+        err.email = errorData.email;
         throw err;
       }
-      if (error.response?.data?.detail?.message) {
-        const err = new Error(error.response.data.detail.message) as Error &
-          AuthError;
+      
+      // Check if message indicates unverified email
+      if (errorData?.message && errorData.message.includes("verify your email")) {
+        const err = new Error(errorData.message) as Error & AuthError;
+        err.type = "UNVERIFIED_EMAIL";
+        err.email = data.email;
+        throw err;
+      }
+      
+      // Check if errorData is a string with the unverified message
+      if (typeof errorData === 'string' && errorData.includes("verify your email")) {
+        const err = new Error(errorData) as Error & AuthError;
+        err.type = "UNVERIFIED_EMAIL";
+        err.email = data.email;
+        throw err;
+      }
+      
+      // Other errors with message
+      if (errorData?.message) {
+        const err = new Error(errorData.message) as Error & AuthError;
         err.type = "INVALID_CREDENTIALS";
         throw err;
       }
+      
+      // Fallback error
       const err = new Error(
-        "Sign in failed. Please check your credentials."
+        typeof errorData === 'string' ? errorData : "Sign in failed. Please check your credentials."
       ) as Error & AuthError;
       err.type = "GENERAL_ERROR";
       throw err;
     }
   },
+  
   async resendVerificationEmail(email: string): Promise<void> {
     try {
       await axios.post(
@@ -81,11 +103,11 @@ export const authApi = {
         )}`
       );
     } catch (error: any) {
-      if (error.response?.data?.detail?.[0]?.msg) {
-        throw new Error(error.response.data.detail[0].msg);
+      if (error?.response?.data?.error?.[0]?.msg) {
+        throw new Error(error?.response?.data?.error?.message[0].msg);
       }
       throw new Error(
-        error.response?.data?.detail || "Failed to resend verification email"
+        error?.response?.data?.error || "Failed to resend verification email"
       );
     }
   },
@@ -106,8 +128,8 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
+      if (error?.response?.data?.error) {
+        throw new Error(error?.response?.data?.error?.message);
       }
       throw new Error("Email verification failed. Please try again.");
     }
@@ -140,8 +162,8 @@ export const authApi = {
       });
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
+      if (error?.response?.data?.error) {
+        throw new Error(error?.response?.data?.error?.message);
       }
       throw new Error("Verification failed. Please try again.");
     }
@@ -154,8 +176,8 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
+      if (error?.response?.data?.error) {
+        throw new Error(error?.response?.data?.error?.message);
       }
       throw new Error("Failed to resend code. Please try again.");
     }
@@ -166,7 +188,7 @@ export const authApi = {
       const response = await axios.get(`${API_BASE_URL}/users/social/google/auth`);
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to get auth URL");
+      throw new Error(error?.response?.data?.error || "Failed to get auth URL");
     }
   },
 
@@ -186,7 +208,7 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Google sign in failed");
+      throw new Error(error?.response?.data?.error || "Google sign in failed");
     }
   },
 
@@ -212,8 +234,8 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      if (error.response?.data?.detail) {
-        throw new Error(error.response.data.detail);
+      if (error?.response?.data?.error) {
+        throw new Error(error?.response?.data?.error?.message);
       }
       throw new Error("Facebook sign in failed. Please try again.");
     }
@@ -256,7 +278,7 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Apple sign in failed");
+      throw new Error(error?.response?.data?.error || "Apple sign in failed");
     }
   },
 
@@ -271,7 +293,8 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to send OTP");
+      const errorMsg = error?.response?.data?.error?.message || error?.response?.data?.error || "Failed to send OTP";
+      throw new Error(errorMsg);
     }
   },
 
@@ -287,7 +310,8 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to verify phone number");
+      const errorMsg = error?.response?.data?.error?.message || error?.response?.data?.error || "Failed to verify phone number";
+      throw new Error(errorMsg);
     }
   },
 
@@ -302,7 +326,7 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to send reset code");
+      throw new Error(error?.response?.data?.error || "Failed to send reset code");
     }
   },
 
@@ -319,7 +343,7 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to reset password");
+      throw new Error(error?.response?.data?.error || "Failed to reset password");
     }
   },
 
@@ -335,7 +359,7 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to change password");
+      throw new Error(error?.response?.data?.error || "Failed to change password");
     }
   },
 
@@ -350,7 +374,7 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to disconnect social account");
+      throw new Error(error?.response?.data?.error || "Failed to disconnect social account");
     }
   },
 
@@ -365,7 +389,7 @@ export const authApi = {
       );
       return response.data;
     } catch (error: any) {
-      throw new Error(error.response?.data?.detail || "Failed to deactivate account");
+      throw new Error(error?.response?.data?.error || "Failed to deactivate account");
     }
   },
 
