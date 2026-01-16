@@ -114,13 +114,6 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     description: property.description,
     image: property.images,
     url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${fullSlug}`,
-    address: {
-      "@type": "PostalAddress",
-      streetAddress: property.address,
-      addressLocality: property.lga,
-      addressRegion: property.state,
-      addressCountry: "NG",
-    },
     geo: property.ward ? {
       "@type": "GeoCoordinates",
       // Add coordinates if available in future
@@ -136,9 +129,6 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
         priceCurrency: "NGN"
       }
     },
-    numberOfRooms: property.beds,
-    numberOfBedrooms: property.beds,
-    numberOfBathroomsTotal: property.baths,
     floorSize: property.size ? {
       "@type": "QuantitativeValue",
       value: property.size,
@@ -149,9 +139,22 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       name: amenity.name,
     })),
     datePosted: property.created_at,
-    availableFrom: property.created_at,
-    propertyType: property.type,
     additionalProperty: [
+      {
+        "@type": "PropertyValue",
+        name: "Number of Bedrooms",
+        value: property.beds
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Number of Bathrooms",
+        value: property.baths
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Property Type",
+        value: property.type
+      },
       {
         "@type": "PropertyValue",
         name: "Listing Type",
@@ -166,6 +169,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
         "@type": "PropertyValue",
         name: "Condition",
         value: property.condition || "Good"
+      },
+      {
+        "@type": "PropertyValue",
+        name: "Address",
+        value: `${property.address}, ${property.lga}, ${property.state}, Nigeria`
       }
     ].filter(Boolean),
   };
@@ -196,6 +204,72 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     ],
   };
 
+  // FAQ JSON-LD for AEO (Answer Engine Optimization)
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How much does this property cost?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `The sale price for this ${property.type} is ₦${(property.sale_price || property.price).toLocaleString()}. ${property.agency_fee ? `Agency fee: ₦${property.agency_fee.toLocaleString()}.` : ''} ${property.legal_fee ? `Legal fee: ₦${property.legal_fee.toLocaleString()}.` : ''}`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What amenities are included in this property?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": property.amenities.length > 0 
+            ? `This property includes the following amenities: ${property.amenities.map(a => a.name).join(', ')}.`
+            : "Please contact the property owner for details about available amenities."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Where is this property located?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `This property is located at ${property.address}, ${property.lga}, ${property.state}, Nigeria.${property.estate ? ` It is in ${property.estate}.` : ''}`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How many bedrooms and bathrooms does this property have?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `This ${property.type} has ${property.beds} bedroom${property.beds !== 1 ? 's' : ''} and ${property.baths} bathroom${property.baths !== 1 ? 's' : ''}.${property.toilets ? ` It also has ${property.toilets} toilet${property.toilets !== 1 ? 's' : ''}.` : ''}`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this property furnished or unfurnished?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `This property is ${property.furnishing || 'unfurnished'}.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the condition of this property?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `This property is in ${property.condition || 'good'} condition.`
+        }
+      },
+      property.size ? {
+        "@type": "Question",
+        "name": "What is the size of this property?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `This property has a floor size of ${property.size}.`
+        }
+      } : null
+    ].filter(Boolean)
+  };
+
   return (
     <>
       {/* JSON-LD Structured Data */}
@@ -206,6 +280,10 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       
       <PropertyDetailsClient property={property} />
