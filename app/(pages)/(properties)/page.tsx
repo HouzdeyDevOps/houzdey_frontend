@@ -45,6 +45,8 @@ export default function HomePage() {
         onFilterClick={() => setShowFilters(true)}
       />
       <section className="max-w-7xl mx-auto px-8 lg:mt-44 mt-10">
+        {/* SEO: H1 tag (visually hidden but present for search engines) */}
+        <h1 className="sr-only">Properties for Rent and Sale in Nigeria</h1>
         <div className="flex justify-end mb-4 gap-x-2 ">
           <SortingSelect
             sortBy={filters.sort_by || SortBy.CREATED_AT}
