@@ -90,6 +90,20 @@ body {
   overflow-x: hidden;
 }
 
+/* Screen reader only - for SEO H1 tags that should be hidden visually */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+
 .react-phone-input-2 .flag-dropdown {
   border-right: none !important;
 }
