@@ -13,16 +13,28 @@ export const viewport = {
 export const metadata: Metadata = {
   title: {
     default: "Houzdey - Find Your Perfect Home in Nigeria",
-    template: "%s | Houzdey", // Used by child pages
+    template: "%s | Houzdey",
   },
   description:
     "Discover and rent or buy your ideal home with Houzdey. Browse apartments, houses, and more properties for rent and sale across Nigeria.",
   keywords:
-    "property rental, house rent, apartments, real estate, Nigeria housing, houses for sale, property for sale, Lagos property, Abuja property",
+    "property rental, house rent, apartments, real estate, Nigeria housing, houses for sale, property for sale, Lagos property, Abuja property, Enugu property, Port Harcourt property",
   authors: [{ name: "Houzdey" }],
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_BASE_URL || "https://houzdey.com"
   ),
+  icons: {
+    icon: "/assets/images/favicon.png",
+    apple: "/assets/icons/apple.png",
+  },
+  other: {
+    "geo.region": "NG",
+    "geo.country": "Nigeria",
+    "geo.placename": "Nigeria",
+    "DC.title": "Houzdey - Find Your Perfect Home in Nigeria",
+    "DC.subject": "Real Estate, Property Rental, Property for Sale, Nigeria",
+    "DC.language": "en-NG",
+  },
   openGraph: {
     title: "Houzdey - Find Your Perfect Home in Nigeria",
     description:
@@ -94,14 +106,25 @@ export default function RootLayout({
 
   const organizationJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Organization",
+    "@type": "RealEstateAgent",
     name: "Houzdey",
     url: process.env.NEXT_PUBLIC_BASE_URL || "https://houzdey.com",
     logo: `${
       process.env.NEXT_PUBLIC_BASE_URL || "https://houzdey.com"
     }/assets/images/houzdey-logo.png`,
+    description: "Nigeria's property platform for renting and buying homes. Browse thousands of apartments, flats, and houses for rent and sale across Lagos, Abuja, Enugu, and more.",
+    areaServed: {
+      "@type": "Country",
+      name: "Nigeria"
+    },
+    knowsAbout: ["Real Estate", "Property Rental", "Property for Sale", "Nigeria Housing Market"],
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer service",
+      availableLanguage: "English",
+      url: `${process.env.NEXT_PUBLIC_BASE_URL || "https://houzdey.com"}/support/contact`
+    },
     sameAs: [
-      // Add your social media URLs here
       "https://www.facebook.com/people/Houzdey/61583662165446/",
       "https://www.linkedin.com/company/houzdey/",
       "https://www.instagram.com/houzdey/",
