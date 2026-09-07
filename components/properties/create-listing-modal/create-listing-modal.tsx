@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, X } from "lucide-react";
 import {
   PropertyDetailsStep,
@@ -36,6 +37,7 @@ export default function CreateListingModal({
   const [isPosting, setIsPosting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   const getInitialFormData = useCallback((): FormData => {
     if (property && mode === 'edit') {
@@ -114,7 +116,7 @@ export default function CreateListingModal({
   const validateStep = useCallback((currentStep: number): boolean => {
     switch (currentStep) {
       case 1: // Location Features Step
-        return !!(formData.state && formData.lga && formData.ward && formData.address);
+        return !!(formData.state && formData.lga && formData.address);
 
       case 2: // Property Details Step
         const priceValid = formData.listing_type === ListingType.RENT 
@@ -134,7 +136,7 @@ export default function CreateListingModal({
         );
 
       case 3: // Images Step
-        return !!(formData.coverImage && formData.images.length > 0);
+        return !!formData.coverImage;
 
       case 4: // Review Step
         return true;
@@ -154,9 +156,7 @@ export default function CreateListingModal({
       if (step === 2 && formData.amenities.length === 0) {
         errorMessage = "Please select at least one amenity";
       } else if (step === 3) {
-        errorMessage = !formData.coverImage 
-          ? "Please upload a cover image" 
-          : "Please upload at least one additional image";
+        errorMessage = "Please upload at least one image or a video";
       }
       setValidationError(errorMessage);
     }
@@ -181,10 +181,11 @@ export default function CreateListingModal({
       } else {
         await propertyApi.createProperty(draftFormData);
       }
-      
+
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
       setIsPosting(false);
       setShowSuccessModal(true);
-      
+
       // Close modal after short delay
       setTimeout(() => {
         onClose();
@@ -214,7 +215,8 @@ export default function CreateListingModal({
       } else {
         await propertyApi.createProperty(formData);
       }
-      
+
+      queryClient.invalidateQueries({ queryKey: ['properties'] });
       setIsPosting(false);
       setShowSuccessModal(true);
       

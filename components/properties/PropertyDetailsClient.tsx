@@ -52,7 +52,7 @@ export default function PropertyDetailsClient({ property }: PropertyDetailsClien
                     property?.estate
                       ? `${formatLocation(property.estate)} Estate,`
                       : ""
-                  } ${property.lga}, ${property.state}`}
+                  } ${formatLocation(property.lga)}, ${formatLocation(property.state)}`}
                 </p>
                 <div className="flex items-center gap-4">
                   <p className="text-2xl font-semibold">

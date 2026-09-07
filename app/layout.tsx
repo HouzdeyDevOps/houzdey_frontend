@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "../styles/globals.css";
 import { AppProviders } from "./providers/providers";
-import ChatNotification from "@/components/chat/chat-notification";
 import HydrationFix from "@/components/HydrationFix";
 import { Toaster } from "sonner";
 
@@ -142,7 +141,6 @@ export default function RootLayout({
         <AppProviders>
           <HydrationFix />
           {children}
-          <ChatNotification />
           <Toaster
             // position="top-right"
             expand={false}

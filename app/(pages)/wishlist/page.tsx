@@ -55,7 +55,7 @@ export default function WishlistPage() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -74,7 +74,7 @@ export default function WishlistPage() {
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             {wishlistItems?.map((property) => (
               <PropertyCard
                 key={property.id}

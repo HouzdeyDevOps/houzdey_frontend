@@ -4,7 +4,6 @@ import authModalSlice from "./slices/authModalSlice";
 import { authMiddleware, initializeAuth } from './middleware/authMiddleware';
 import propertySlice from "./slices/propertySlice";
 import wishlistSlice from './slices/wishlistSlice';
-import chatSlice from './slices/chatSlice';
 
 const preloadedState = {
   userAuth: {
@@ -24,7 +23,6 @@ export const store = configureStore({
     [authModalSlice.name]: authModalSlice.reducer,
     [propertySlice.name]: propertySlice.reducer,
     [wishlistSlice.name]: wishlistSlice.reducer,
-    [chatSlice.name]: chatSlice.reducer,
   },
   preloadedState,
   middleware: (getDefaultMiddleware) =>

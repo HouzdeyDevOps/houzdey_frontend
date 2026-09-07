@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { StepProps, CreateListingFormData as FormData } from "@/@types/create-listing";
 import { ChevronDown } from "lucide-react";
-import { generatePropertyTitle } from "@/utils/generatePropertyTitle";
-import { useLGAs, useStates, useWards } from "@/hooks/useLocations";
+import { useLGAs, useStates } from "@/hooks/useLocations";
 
 interface LocationFeaturesStepProps extends StepProps {
   formData: FormData;
@@ -15,12 +14,10 @@ const LocationFeaturesStep = ({
 }: LocationFeaturesStepProps) => {
   const [selectedState, setSelectedState] = useState("");
   const [selectedLGA, setSelectedLGA] = useState("");
-  const [selectedWard, setSelectedWard] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const { data: states = [], isLoading: statesLoading } = useStates();
   const { data: lgas = [] } = useLGAs(selectedState);
-  const { data: wards = [] } = useWards(selectedState, selectedLGA);
 
   // Initialize location fields when editing
   useEffect(() => {
@@ -30,39 +27,17 @@ const LocationFeaturesStep = ({
     if (formData.lga && !selectedLGA) {
       setSelectedLGA(formData.lga);
     }
-    if (formData.ward && !selectedWard) {
-      setSelectedWard(formData.ward);
-    }
-  }, [formData.state, formData.lga, formData.ward, selectedState, selectedLGA, selectedWard]);
+  }, [formData.state, formData.lga, selectedState, selectedLGA]);
 
   const handleStateChange = (state: string) => {
     setSelectedState(state);
     setSelectedLGA("");
-    setSelectedWard("");
     updateForm("state", state);
   };
 
   const handleLGAChange = (lga: string) => {
     setSelectedLGA(lga);
-    setSelectedWard("");
     updateForm("lga", lga);
-  };
-
-  const handleWardChange = (ward: string) => {
-    setSelectedWard(ward);
-    updateForm("ward", ward);
-    updateForm("lga", selectedLGA);
-    updateForm("state", selectedState);
-
-    // Generate and update title
-    const updatedFormData = {
-      ...formData,
-      ward,
-      lga: selectedLGA,
-      state: selectedState,
-    };
-    const generatedTitle = generatePropertyTitle(updatedFormData);
-    updateForm("title", generatedTitle);
   };
 
   const markAsTouched = (field: string) => {
@@ -150,42 +125,6 @@ const LocationFeaturesStep = ({
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             {getFieldError("lga") && (
               <p className="text-red-600 text-xs mt-1">{getFieldError("lga")}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Ward Selection */}
-        <div>
-          <label className="block font-medium mb-1">
-            Area
-            <span className="text-red-500 ml-1">*</span>
-          </label>
-          <div className="relative">
-            <select
-              value={selectedWard}
-              onChange={(e) => {
-                handleWardChange(e.target.value);
-                markAsTouched("ward");
-              }}
-              onBlur={() => markAsTouched("ward")}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 appearance-none ${
-                touched["ward"] && !formData.ward ? "border-red-300" : "border-gray-300"
-              }`}
-              disabled={!selectedLGA}
-            >
-              <option value="">Select Area</option>
-              {wards.map((ward: string) => (
-                <option key={ward} value={ward}>
-                  {ward
-                    .split("-")
-                    .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(" ")}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-            {getFieldError("ward") && (
-              <p className="text-red-600 text-xs mt-1">{getFieldError("ward")}</p>
             )}
           </div>
         </div>

@@ -120,7 +120,7 @@ export default function PropertyDetailsStep({
         <div className="grid grid-cols-2 gap-4">
           {/* Agency Fee */}
           <div>
-            <label className="block text-sm mb-1">Agency Fee</label>
+            <label className="block text-sm mb-1">Agency Fee <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
               <input
@@ -140,7 +140,7 @@ export default function PropertyDetailsStep({
 
           {/* Legal Fee */}
           <div>
-            <label className="block text-sm mb-1">Legal Fee</label>
+            <label className="block text-sm mb-1">Legal Fee <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
               <input
@@ -172,9 +172,9 @@ export default function PropertyDetailsStep({
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {formData.listing_type === ListingType.RENT 
-                ? "Additional fees like caution fee, service charge, etc."
-                : "Additional charges or fees"}
+              {formData.listing_type === ListingType.RENT
+                ? "Caution fee, service charge, or total of all extra fees"
+                : "Any additional charges or fees"}
             </p>
           </div>
         </div>

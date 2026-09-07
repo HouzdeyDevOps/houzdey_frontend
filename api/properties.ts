@@ -129,13 +129,13 @@ export const propertyApi = {
       });
       return response.data;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || error.message || "Failed to create property";
-      console.error("Property creation error:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        detail: error.response?.data?.detail,
-        error: error.response?.data
-      });
+      const data = error.response?.data;
+      const errorMessage = data?.detail
+        || data?.error?.message
+        || data?.error?.details?.map((d: any) => `${d.field}: ${d.message}`).join(", ")
+        || error.message
+        || "Failed to create property";
+      console.error("Property creation error:", { status: error.response?.status, data });
       throw new Error(errorMessage);
     }
   },
@@ -322,13 +322,13 @@ export const propertyApi = {
       });
       return response.data;
     } catch (error: any) {
-      const errorMessage = error.response?.data?.detail || error.message || "Failed to update property";
-      console.error("Property update error:", {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        detail: error.response?.data?.detail,
-        error: error.response?.data
-      });
+      const data = error.response?.data;
+      const errorMessage = data?.detail
+        || data?.error?.message
+        || data?.error?.details?.map((d: any) => `${d.field}: ${d.message}`).join(", ")
+        || error.message
+        || "Failed to update property";
+      console.error("Property update error:", { status: error.response?.status, data });
       throw new Error(errorMessage);
     }
   },

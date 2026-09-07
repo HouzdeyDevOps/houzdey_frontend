@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import React, { useState, Suspense } from "react";
-import { Search, SlidersHorizontal, X, AlertTriangle, Menu, MessageSquare, List, Heart, Settings, LogOut, Bell } from "lucide-react";
+import { Search, SlidersHorizontal, X, AlertTriangle, Menu, List, Heart, Settings, LogOut, Bell } from "lucide-react";
 import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import SignUpModal from "../auth/signup-modal";
@@ -73,10 +73,11 @@ const Navbar = ({
                 alt="Profile"
                 width={40}
                 height={40}
-                className="rounded-full"
+                className="rounded-full object-cover"
+                style={{ width: '40px', height: '40px' }}
               />
               <div>
-                <p className="font-semibold">{user.name || 'User'}</p>
+                <p className="font-semibold">{[user.first_name, user.last_name].filter(Boolean).join(' ') || 'User'}</p>
                 <p className="text-sm text-gray-600">{user.email}</p>
               </div>
             </div>
@@ -159,14 +160,6 @@ const Navbar = ({
                 </div>
                 <NotificationDropdown />
               </div>
-              <Link
-                href="/chat"
-                className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
-                onClick={toggleMobileMenu}
-              >
-                <MessageSquare className="w-5 h-5 text-gray-500" />
-                <span>Chats</span>
-              </Link>
               <Link
                 href="/manage-listings"
                 className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg"
