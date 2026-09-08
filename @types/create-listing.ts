@@ -53,10 +53,15 @@ export enum PropertyType {
   MiniFlat = "Mini Flat",
   Penthouse = "Penthouse",
   RoomAndParlour = "Room & Parlour",
+  SelfContain = "Self Contain",
   SharedApartment = "Shared Apartment",
   StudioApartment = "Studio Apartment",
   TownhouseTerrace = "Townhouse / Terrace",
   Villa = "Villa",
+  Shop = "Shop",
+  Commercial = "Commercial",
+  Office = "Office",
+  Warehouse = "Warehouse",
 }
 
 
