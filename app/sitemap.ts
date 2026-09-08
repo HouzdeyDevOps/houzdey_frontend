@@ -44,20 +44,27 @@ async function getAllPropertiesForSitemap() {
   }
 }
 
-// Helper to fetch all blog posts for sitemap
+// Helper to fetch all blog posts for sitemap with pagination
 async function getAllBlogsForSitemap() {
   try {
-    const res = await fetch(`${apiUrl}/blog?limit=50`, {
-      next: { revalidate: 3600 } // Cache for 1 hour
-    })
-    
-    if (!res.ok) {
-      console.error('Failed to fetch blogs for sitemap')
-      return []
+    const allBlogs: any[] = []
+    let page = 1
+    let hasMore = true
+    const limit = 50
+
+    while (hasMore) {
+      const res = await fetch(`${apiUrl}/blog?page=${page}&limit=${limit}`, {
+        next: { revalidate: 3600 },
+      })
+      if (!res.ok) break
+      const data = await res.json()
+      const blogs = data.blogs || []
+      allBlogs.push(...blogs)
+      hasMore = (data.total_pages || 1) > page
+      page++
+      if (page > 100) break
     }
-    
-    const data = await res.json()
-    return data.blogs || []
+    return allBlogs
   } catch (error) {
     console.error('Error fetching blogs for sitemap:', error)
     return []
@@ -80,10 +87,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/premium`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: `${baseUrl}/privacy-policy`,
+      lastModified: new Date(),
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${baseUrl}/support`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
       priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/support/faqs`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/support/contact`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.4,
     },
     {
       url: `${baseUrl}/contact`,
@@ -95,13 +132,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/signin`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.4,
+      priority: 0.3,
     },
     {
       url: `${baseUrl}/signup`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
-      priority: 0.4,
+      priority: 0.3,
     },
   ]
 

@@ -3,7 +3,8 @@ export const formatLocation = (address: string | undefined | null) => {
     if (!address || typeof address !== 'string') {
       return '';
     }
-    return (
-      address.charAt(0).toUpperCase() + address.slice(1).replace(/-/g, " ")
-    );
+    return address
+      .split(/[-\s]+/)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
   };

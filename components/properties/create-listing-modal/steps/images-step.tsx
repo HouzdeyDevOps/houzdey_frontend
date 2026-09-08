@@ -2,6 +2,34 @@ import React, { useState } from "react";
 import { StepProps, CreateListingFormData as  FormData } from "@/@types/create-listing";
 import { X, Video, Upload } from "lucide-react";
 
+function extractVideoThumbnail(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const video = document.createElement('video');
+    const url = URL.createObjectURL(file);
+
+    video.addEventListener('loadedmetadata', () => {
+      video.currentTime = Math.min(1, video.duration / 2);
+    }, { once: true });
+
+    video.addEventListener('seeked', () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d')?.drawImage(video, 0, 0);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    }, { once: true });
+
+    video.addEventListener('error', () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to extract thumbnail'));
+    }, { once: true });
+
+    video.src = url;
+    video.load();
+  });
+}
+
 interface ImagesStepProps extends StepProps {
   formData: FormData;
   updateForm: (field: string, value: any) => void;
@@ -15,12 +43,14 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
   const [videoLink, setVideoLink] = useState('');
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
+  const [isAutoThumbnail, setIsAutoThumbnail] = useState(false);
 
   const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       const imageUrl = URL.createObjectURL(files[0]);
       updateForm("coverImage", imageUrl);
+      setIsAutoThumbnail(false);
     }
   };
 
@@ -30,19 +60,17 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
     updateForm("images", [...formData.images, ...imageUrls].slice(0, 4));
   };
 
-  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     const validTypes = ['video/mp4', 'video/quicktime', 'video/x-msvideo'];
     if (!validTypes.includes(file.type)) {
       setVideoError('Please upload a valid video file (MP4, MOV, AVI)');
       return;
     }
 
-    // Validate file size (100MB max)
-    const maxSize = 100 * 1024 * 1024; // 100MB in bytes
+    const maxSize = 100 * 1024 * 1024;
     if (file.size > maxSize) {
       setVideoError('Video size must be less than 100MB');
       return;
@@ -52,6 +80,15 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
     setIsUploadingVideo(true);
     const videoUrl = URL.createObjectURL(file);
     updateForm("video", videoUrl);
+
+    try {
+      const thumbnail = await extractVideoThumbnail(file);
+      updateForm("coverImage", thumbnail);
+      setIsAutoThumbnail(true);
+    } catch {
+      // thumbnail extraction failed — user can upload a cover image manually
+    }
+
     setIsUploadingVideo(false);
   };
 
@@ -101,7 +138,7 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
       <div>
         <h3 className="text-lg font-semibold mb-2">Images</h3>
         <p className="text-gray-600 text-sm">
-          Use high quality images to ensure clarity. Images must accurately represent the property and shouldn't exceed five (5) uploads.
+          Upload images or a video of your property. A cover image will be auto-generated from your video if no image is uploaded.
         </p>
       </div>
 
@@ -263,8 +300,14 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
                 alt="Cover"
                 className="w-full h-full object-cover rounded-lg"
               />
+              {isAutoThumbnail && (
+                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                  <Video className="w-3 h-3" />
+                  Auto from video
+                </div>
+              )}
               <button
-                onClick={() => updateForm("coverImage", null)}
+                onClick={() => { updateForm("coverImage", null); setIsAutoThumbnail(false); }}
                 className="absolute top-2 right-2 min-w-[44px] min-h-[44px] flex items-center justify-center bg-white rounded-full shadow-md hover:bg-gray-100"
               >
                 <X className="w-4 h-4" />
@@ -310,7 +353,13 @@ const ImagesStep = ({ formData, updateForm }: ImagesStepProps) => {
               Your browser does not support the video tag.
             </video>
             <button
-              onClick={() => updateForm("video", null)}
+              onClick={() => {
+                updateForm("video", null);
+                if (isAutoThumbnail) {
+                  updateForm("coverImage", null);
+                  setIsAutoThumbnail(false);
+                }
+              }}
               className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-100 z-10"
               title="Remove video"
             >

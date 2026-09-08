@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
-import { MessageCircle, Phone, AlertTriangle } from "lucide-react";
-import { chatApi } from "@/api/chat";
+import { Phone, AlertTriangle } from "lucide-react";
 import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
-import { propertyApi } from "@/api/properties";
-import { useAuth } from "@/hooks/useAuth";
-import { setCurrentModal } from "@/store/slices/authModalSlice";
 
 interface PropertyContactSectionProps {
   propertyId: string;
@@ -34,41 +29,13 @@ export default function PropertyContactSection({
   agent_name,
   agent_phone,
 }: PropertyContactSectionProps) {
-  const [isLoading, setIsLoading] = useState(false);
   const [showPhoneVerificationModal, setShowPhoneVerificationModal] = useState(false);
   const router = useRouter();
-  const dispatch = useDispatch();
-  const { isAuthenticated } = useAuth();
 
-  // Use agent info if available (for scraped properties), otherwise use host info
-  const contactName = agent_name || host.name;
   const contactPhone = agent_phone || host.phone_number;
 
-  const handleContactHost = async () => {
-    // Check if user is authenticated
-    if (!isAuthenticated) {
-      dispatch(setCurrentModal("signin"));
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      const conversation = await chatApi.createConversation(propertyId);
-      router.push(`/chat/${conversation.id}`);
-    } catch (error) {
-      console.error("Error creating conversation:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handlePhoneVerified = async (phoneNumber: string) => {
-    try {
-      // Refresh to get updated host info
-      window.location.reload();
-    } catch (err) {
-      console.error("Error refreshing property data:", err);
-    }
+    window.location.reload();
   };
 
   return (
@@ -98,17 +65,9 @@ export default function PropertyContactSection({
             <>
               {contactPhone ? (
                 <>
-                  <button
-                    onClick={handleContactHost}
-                    disabled={isLoading}
-                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <MessageCircle className="w-5 h-5" />
-                    {isLoading ? "Loading..." : "Chat with Host"}
-                  </button>
                   <a
                     href={`tel:${contactPhone}`}
-                    className="w-full border border-indigo-600 text-indigo-600 py-3 rounded-lg hover:bg-indigo-50 flex items-center justify-center gap-2"
+                    className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 flex items-center justify-center gap-2"
                   >
                     <Phone className="w-5 h-5" />
                     {agent_name ? "Call Agent" : "Call Host"}

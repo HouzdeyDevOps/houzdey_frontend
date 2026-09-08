@@ -79,7 +79,7 @@ export default function PropertyDetailsStep({
           <input
             type="text"
             placeholder="Enter estate name"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
             value={formData.estate || ""}
             onChange={(e) => updateForm("estate", e.target.value)}
           />
@@ -97,7 +97,7 @@ export default function PropertyDetailsStep({
             <input
               type="text"
               placeholder={formData.listing_type === ListingType.RENT ? "Enter annual rent" : "Enter sale price"}
-              className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+              className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
               value={formatNumberWithCommas(formData.listing_type === ListingType.RENT ? formData.rental_price : formData.sale_price)}
               onChange={(e) => {
                 const rawValue = parseFormattedNumber(e.target.value);
@@ -120,13 +120,13 @@ export default function PropertyDetailsStep({
         <div className="grid grid-cols-2 gap-4">
           {/* Agency Fee */}
           <div>
-            <label className="block text-sm mb-1">Agency Fee</label>
+            <label className="block text-sm mb-1">Agency Fee <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
               <input
                 type="text"
                 placeholder="Enter agency fee"
-                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formatNumberWithCommas(formData.agency_fee || "")}
                 onChange={(e) => updateForm("agency_fee", parseFormattedNumber(e.target.value))}
               />
@@ -140,13 +140,13 @@ export default function PropertyDetailsStep({
 
           {/* Legal Fee */}
           <div>
-            <label className="block text-sm mb-1">Legal Fee</label>
+            <label className="block text-sm mb-1">Legal Fee <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
               <input
                 type="text"
                 placeholder="Enter legal fee"
-                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formatNumberWithCommas(formData.legal_fee || "")}
                 onChange={(e) => updateForm("legal_fee", parseFormattedNumber(e.target.value))}
               />
@@ -166,15 +166,15 @@ export default function PropertyDetailsStep({
               <input
                 type="text"
                 placeholder="Enter other fees"
-                className="w-full pl-8 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
                 value={formatNumberWithCommas(formData.other_fees || "")}
                 onChange={(e) => updateForm("other_fees", parseFormattedNumber(e.target.value))}
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {formData.listing_type === ListingType.RENT 
-                ? "Additional fees like caution fee, service charge, etc."
-                : "Additional charges or fees"}
+              {formData.listing_type === ListingType.RENT
+                ? "Caution fee, service charge, or total of all extra fees"
+                : "Any additional charges or fees"}
             </p>
           </div>
         </div>
@@ -189,7 +189,7 @@ export default function PropertyDetailsStep({
           <input
             type="text"
             placeholder="Enter property size"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
             value={formData.size || ""}
             onChange={(e) => updateForm("size", e.target.value)}
           />
@@ -199,7 +199,7 @@ export default function PropertyDetailsStep({
         <div>
           <label className="block font-medium mb-1">Property type</label>
           <select
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
             value={formData.type}
             onChange={(e) => updateForm("type", e.target.value as PropertyType)}
           >
@@ -218,7 +218,7 @@ export default function PropertyDetailsStep({
         <div>
           <label className="block font-medium mb-1">Property condition</label>
           <select
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
             value={formData.condition}
             onChange={(e) => updateForm("condition", e.target.value)}
           >
@@ -235,7 +235,7 @@ export default function PropertyDetailsStep({
         <div>
           <label className="block font-medium mb-1">Property furnishing</label>
           <select
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
             value={formData.furnishing}
             onChange={(e) => updateForm("furnishing", e.target.value)}
           >
@@ -260,7 +260,7 @@ export default function PropertyDetailsStep({
             value={formData.beds || ""}
             onChange={(e) => updateForm("beds", e.target.value)}
             min="0"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
 
@@ -272,7 +272,7 @@ export default function PropertyDetailsStep({
             value={formData.baths || ""}
             onChange={(e) => updateForm("baths", e.target.value)}
             min="0"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
 
@@ -284,7 +284,7 @@ export default function PropertyDetailsStep({
             value={formData.toilets || ""}
             onChange={(e) => updateForm("toilets", e.target.value)}
             min="0"
-            className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 mb-3"
           />
         </div>
       </div>
@@ -338,7 +338,7 @@ export default function PropertyDetailsStep({
       <div>
         <label className="block font-medium mb-1">Property description</label>
         <textarea
-          className="h-[150px] max-h-[150px] min-h-[150px] w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+          className="h-[150px] max-h-[150px] min-h-[150px] w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
           value={formData.description}
           onChange={(e) => updateForm("description", e.target.value)}
           placeholder="Enter the best description of your property"

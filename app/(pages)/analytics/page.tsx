@@ -6,6 +6,7 @@ import ProtectedRoute from '@/components/auth/protected-route';
 export const metadata: Metadata = {
   title: 'Property Analytics - Houzdey',
   description: 'View detailed analytics and insights for your properties',
+  robots: { index: false, follow: false },
 };
 
 export default function AnalyticsPage() {

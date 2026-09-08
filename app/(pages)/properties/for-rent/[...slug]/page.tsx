@@ -107,6 +107,10 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
   }
 
   // Generate JSON-LD structured data for SEO
+  const avgRating = property.reviews?.length
+    ? property.reviews.reduce((sum: number, r: any) => sum + (r.rating || 0), 0) / property.reviews.length
+    : null;
+
   const propertyJsonLd = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
@@ -114,9 +118,17 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
     description: property.description,
     image: property.images,
     url: `${process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'}/properties/${fullSlug}`,
-    geo: property.ward ? {
-      "@type": "GeoCoordinates",
-      // Add coordinates if available in future
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: property.address,
+      addressLocality: property.lga,
+      addressRegion: property.state,
+      addressCountry: "NG",
+    },
+    aggregateRating: avgRating ? {
+      "@type": "AggregateRating",
+      ratingValue: avgRating.toFixed(1),
+      reviewCount: property.reviews.length,
     } : undefined,
     offers: {
       "@type": "Offer",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, Heart, Play } from "lucide-react";
 import { useRouter } from 'next/navigation';
 import { formatLocation } from "@/utils/formatLocation";
 import WishlistButton from "@/components/wishlist/WishlistButton";
@@ -20,6 +20,7 @@ interface Property {
   sale_price?: number;
   listing_type?: string;
   images: string[];
+  video?: string;
 }
 
 function PropertyCard({ property }: { property: Property }) {
@@ -62,22 +63,28 @@ function PropertyCard({ property }: { property: Property }) {
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl flex-shrink-0">
-        <div
-          className="w-full h-full transition-transform duration-500 ease-out"
-          style={{
-            transform: `translateX(-${currentImageIndex * 100}%)`,
-            display: "flex",
-          }}
-        >
-          {images.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`${property.title} - Image ${index + 1}`}
-              className="object-cover w-full h-full transition-transform duration-300 flex-shrink-0"
-            />
-          ))}
-        </div>
+        {images.length === 0 ? (
+          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+            <Play className="w-12 h-12 text-white/80 fill-white/80" />
+          </div>
+        ) : (
+          <div
+            className="w-full h-full transition-transform duration-500 ease-out"
+            style={{
+              transform: `translateX(-${currentImageIndex * 100}%)`,
+              display: "flex",
+            }}
+          >
+            {images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`${property.title} - Image ${index + 1}`}
+                className="object-cover object-center w-full h-full transition-transform duration-300 flex-shrink-0"
+              />
+            ))}
+          </div>
+        )}
 
         {/* Navigation Arrows - Only show when there are multiple images */}
         {images.length > 1 && isHovered && (
@@ -118,9 +125,7 @@ function PropertyCard({ property }: { property: Property }) {
 
       <div className="p-4 flex flex-col flex-grow">
         <h3 className="font-semibold line-clamp-2 min-h-[3rem]">{formatLocation(property.title)}</h3>
-        <p className="text-gray-600 text-sm line-clamp-1">{`${formatLocation(
-          property.lga
-        )}, ${formatLocation(property.state)}`}</p>
+        <p className="text-gray-600 text-sm line-clamp-1">{`${property.address ? `${formatLocation(property.address)}, ` : ""}${formatLocation(property.lga)}, ${formatLocation(property.state)}`}</p>
         <div className="flex gap-2 text-sm text-gray-600 mt-2">
           <span>{property.beds} bed</span>
           <span>•</span>

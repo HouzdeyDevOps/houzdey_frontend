@@ -18,9 +18,9 @@ export function generatePropertyTitle(formData: FormData): string {
     parts.push(`in ${formData.estate.charAt(0).toUpperCase() + formData.estate.slice(1)} Estate`);
   }
 
-  // Add ward if available, with comma
-  if (formData.ward) {
-    parts.push(`, ${formData.ward.charAt(0).toUpperCase() + formData.ward.slice(1)}`);
+  // Add address if available
+  if (formData.address) {
+    parts.push(`, ${formData.address.charAt(0).toUpperCase() + formData.address.slice(1)}`);
   }
 
   // Join all parts with proper spacing and capitalize first letter

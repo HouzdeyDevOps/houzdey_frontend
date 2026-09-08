@@ -1,5 +1,5 @@
 "use client";
-import { ChevronLeft, ChevronRight, EllipsisVertical, Heart } from "lucide-react";
+import { ChevronLeft, ChevronRight, EllipsisVertical, Heart, Play } from "lucide-react";
 import React, { useState } from "react";
 import Modal from "@/components/favoriteproperties/Modal"
 
@@ -12,6 +12,7 @@ interface FavoriteCardProps {
   baths: number;
   price: number;
   images: string[];
+  video?: string;
 }
 
 export default function FavouriteCard({ property }: { property: FavoriteCardProps }) {
@@ -44,19 +45,25 @@ export default function FavouriteCard({ property }: { property: FavoriteCardProp
       onMouseLeave={() => setIsHovered(false)}
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-        <div
-          className="w-full h-full transition-transform duration-500 ease-out flex"
-          style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
-        >
-          {property.images.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`${property.title} - Image ${index + 1}`}
-              className="object-cover w-full h-full transition-transform duration-300 flex-shrink-0"
-            />
-          ))}
-        </div>
+        {(property.images || []).length === 0 ? (
+          <div className="w-full h-full bg-gray-900 flex items-center justify-center">
+            <Play className="w-12 h-12 text-white/80 fill-white/80" />
+          </div>
+        ) : (
+          <div
+            className="w-full h-full transition-transform duration-500 ease-out flex"
+            style={{ transform: `translateX(-${currentImageIndex * 100}%)` }}
+          >
+            {property.images.map((image, index) => (
+              <img
+                key={index}
+                src={image}
+                alt={`${property.title} - Image ${index + 1}`}
+                className="object-cover object-center w-full h-full transition-transform duration-300 flex-shrink-0"
+              />
+            ))}
+          </div>
+        )}
 
         {property.images.length > 1 && isHovered && (
           <>

@@ -18,8 +18,7 @@ export enum NotificationCategory {
   USER = 'user',
   SECURITY = 'security',
   MARKETING = 'marketing',
-  SYSTEM = 'system',
-  CHAT = 'chat'
+  SYSTEM = 'system'
 }
 
 export enum NotificationEvent {
@@ -37,10 +36,6 @@ export enum NotificationEvent {
   USER_LOGIN = 'user_login',
   PASSWORD_RESET = 'password_reset',
   PROFILE_UPDATED = 'profile_updated',
-  
-  // Chat events
-  NEW_MESSAGE = 'new_message',
-  CHAT_STARTED = 'chat_started',
   
   // Security events
   SUSPICIOUS_LOGIN = 'suspicious_login',
@@ -68,7 +63,6 @@ export interface NotificationPreference {
   
   // Category preferences
   property_notifications: boolean;
-  chat_notifications: boolean;
   security_notifications: boolean;
   marketing_notifications: boolean;
   system_notifications: boolean;

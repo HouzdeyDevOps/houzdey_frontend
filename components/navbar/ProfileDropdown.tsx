@@ -4,7 +4,6 @@ import { logout } from "@/store/slices/userAuthSlice";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  MessageSquare,
   Settings,
   LogOut,
   Heart,
@@ -61,8 +60,7 @@ export default function ProfileDropdown() {
   };
 
   const menuItems = [
-    { label: "Chats", icon: MessageSquare, href: "/chat" },
-    { 
+    {
       label: "Create a listing", 
       icon: List, 
       onClick: () => {
