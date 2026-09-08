@@ -12,7 +12,6 @@ import {
 
 import { CreateListingFormData as FormData, PropertyType, StepProps, ListingType } from "@/@types/create-listing";
 import { Property } from "@/@types/property";
-import ExitModal from "./exit-modal";
 import LoadingModal from "./loading-modal";
 import SuccessModal from "./success-modal";
 import { propertyApi } from "@/api/properties";
@@ -33,7 +32,6 @@ export default function CreateListingModal({
   mode = 'create'
 }: CreateListingModalProps) {
   const [step, setStep] = useState(1);
-  const [showExitModal, setShowExitModal] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -167,36 +165,6 @@ export default function CreateListingModal({
     setValidationError(null);
   }, []);
 
-  const handleSaveAsDraft = useCallback(async () => {
-    setIsPosting(true);
-    try {
-      // Create property with draft status
-      const draftFormData = {
-        ...formData,
-        status: 'draft'
-      };
-      
-      if (mode === 'edit' && property) {
-        await propertyApi.updateProperty(property.id, draftFormData);
-      } else {
-        await propertyApi.createProperty(draftFormData);
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['properties'] });
-      setIsPosting(false);
-      setShowSuccessModal(true);
-
-      // Close modal after short delay
-      setTimeout(() => {
-        onClose();
-      }, 1500);
-    } catch (error) {
-      setIsPosting(false);
-      console.error("Failed to save draft:", error);
-      setValidationError("Failed to save draft. Please try again.");
-    }
-  }, [formData, onClose, mode, property]);
-
   const handleSubmit = useCallback(async () => {
     setIsPosting(true);
     try {
@@ -239,7 +207,6 @@ export default function CreateListingModal({
     if (!isOpen) {
       setStep(1);
       setValidationError(null);
-      setShowExitModal(false);
       setIsPosting(false);
       setShowSuccessModal(false);
     } else {
@@ -304,20 +271,12 @@ export default function CreateListingModal({
           {/* Footer */}
           <div className="px-4 py-7 border-t flex justify-end gap-2">
             {step === TOTAL_STEPS ? (
-              <div className="flex justify-between w-full gap-2">
-                <button
-                  onClick={() => setShowExitModal(true)}
-                  className="px-4 py-2 bg-[#F2F2F2] hover:bg-[#E5E5E5] text-gray-600 rounded-lg w-full"
-                >
-                  Save as draft
-                </button>
-                <button
-                  onClick={handleSubmit}
-                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full"
-                >
-                  {mode === 'edit' ? 'Update listing' : 'Post listing'}
-                </button>
-              </div>
+              <button
+                onClick={handleSubmit}
+                className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 w-full"
+              >
+                {mode === 'edit' ? 'Update listing' : 'Post listing'}
+              </button>
             ) : (
               <button
                 onClick={handleNext}
@@ -331,19 +290,12 @@ export default function CreateListingModal({
         </div>
       </div>
 
-      <ExitModal
-        isOpen={showExitModal}
-        onClose={() => setShowExitModal(false)}
-        onConfirm={handleSaveAsDraft}
-      />
       <LoadingModal isOpen={isPosting} />
       <SuccessModal
         isOpen={showSuccessModal}
         mode={mode}
         onClose={() => {
           setShowSuccessModal(false);
-          // refresh page
-          window.location.reload();
           onClose();
         }}
       />
