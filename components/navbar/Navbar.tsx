@@ -7,6 +7,7 @@ import Image from "next/image";
 import CreateListingModal from "../properties/create-listing-modal/create-listing-modal";
 import SignUpModal from "../auth/signup-modal";
 import PropertyTypeNav from "./PropertyTypeNav";
+import PropertyTypeNavSkeleton from "@/components/ui/property-type-nav-skeleton";
 import FilterModal from "../properties/filter-modal";
 import { useDispatch, useSelector } from "react-redux";
 import { setCurrentModal, closeModal } from "@/store/slices/authModalSlice";
@@ -113,7 +114,7 @@ const Navbar = ({
           {/* Mobile Property Type Filters */}
           {showPropertyTypeFilters && (
             <div className="py-2 border-t">
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<PropertyTypeNavSkeleton />}>
                 <PropertyTypeNav />
               </Suspense>
             </div>

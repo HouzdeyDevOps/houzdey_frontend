@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import ProfilePageSkeleton from "@/components/ui/profile-page-skeleton";
+import ProfileContentSkeleton from "@/components/ui/profile-content-skeleton";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -223,16 +225,7 @@ function ProfileContent() {
             </div>
 
             {/* Main Content */}
-            <Suspense 
-              fallback={
-                <div className="bg-white rounded-xl p-6 shadow-sm">
-                  <div className="flex items-center justify-center py-12">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-                    <span className="ml-2 text-gray-600">Loading...</span>
-                  </div>
-                </div>
-              }
-            >
+            <Suspense fallback={<ProfileContentSkeleton />}>
               {renderContent()}
             </Suspense>
           </div>
@@ -246,12 +239,7 @@ function ProfileContent() {
 export default function ProfilePage() {
   return (
     <ProtectedRoute>
-      <Suspense fallback={
-        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <span className="ml-2 text-gray-600">Loading profile...</span>
-        </div>
-      }>
+      <Suspense fallback={<ProfilePageSkeleton />}>
         <ProfileContent />
       </Suspense>
     </ProtectedRoute>

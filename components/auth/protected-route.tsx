@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth'; // You'll need to create this hook
 import { setCurrentModal } from '@/store/slices/authModalSlice';
 import { useDispatch } from 'react-redux';
+import ProfilePageSkeleton from '@/components/ui/profile-page-skeleton';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }, [isAuthenticated, isLoading, router, dispatch, hasCheckedStorage]);
 
   if (isLoading || !hasCheckedStorage) {
-    return <div>Loading...</div>;
+    return <ProfilePageSkeleton />;
   }
 
   return isAuthenticated ? <>{children}</> : null;
