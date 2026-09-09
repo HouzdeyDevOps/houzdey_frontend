@@ -152,15 +152,31 @@ export default function PropertyDetailsStep({
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {formData.listing_type === ListingType.RENT 
+              {formData.listing_type === ListingType.RENT
                 ? "Legal/Tenancy Agreement Fee"
                 : "Legal documentation fee"}
             </p>
           </div>
 
+          {/* Caution Fee */}
+          <div>
+            <label className="block text-sm mb-1">Caution Fee <span className="text-gray-400 font-normal">(optional)</span></label>
+            <div className="relative">
+              <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
+              <input
+                type="text"
+                placeholder="Enter caution fee"
+                className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                value={formatNumberWithCommas(formData.caution_fee || "")}
+                onChange={(e) => updateForm("caution_fee", parseFormattedNumber(e.target.value))}
+              />
+            </div>
+            <p className="text-xs text-gray-500 mt-1">Refundable security deposit</p>
+          </div>
+
           {/* Other Fees */}
           <div className="col-span-2">
-            <label className="block text-sm mb-1">Other Fees</label>
+            <label className="block text-sm mb-1">Other Fees <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>
               <input
@@ -171,11 +187,7 @@ export default function PropertyDetailsStep({
                 onChange={(e) => updateForm("other_fees", parseFormattedNumber(e.target.value))}
               />
             </div>
-            <p className="text-xs text-gray-500 mt-1">
-              {formData.listing_type === ListingType.RENT
-                ? "Caution fee, service charge, or total of all extra fees"
-                : "Any additional charges or fees"}
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Service charge or any other additional fees</p>
           </div>
         </div>
       </div>

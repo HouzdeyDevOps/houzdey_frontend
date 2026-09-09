@@ -12,6 +12,7 @@ export interface CreateListingFormData {
   sale_price: string;
   agency_fee?: string;
   legal_fee?: string;
+  caution_fee?: string;
   other_fees?: string;
   amenities: { name: string; icon: string }[];
   description: string;

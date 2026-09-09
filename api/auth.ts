@@ -50,10 +50,8 @@ export const authApi = {
 
       return response.data;
     } catch (error: any) {
-      console.log("error", error);  
       // Backend returns error in error.response.data.error format
       const errorData = error.response?.data?.error || error.response?.data?.detail;
-      console.log("errorData", errorData);
       
       // Check if errorData is an object with message and email (unverified account)
       if (typeof errorData === 'object' && errorData?.message && errorData?.email) {

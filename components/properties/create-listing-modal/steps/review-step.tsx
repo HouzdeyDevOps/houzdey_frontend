@@ -57,6 +57,11 @@ const ReviewStep = ({ formData, setStep }: ReviewStepProps) => {
       value: formatPrice(formData.legal_fee),
       step: 2,
     }] : []),
+    ...(formData.caution_fee ? [{
+      title: "Caution Fee",
+      value: formatPrice(formData.caution_fee),
+      step: 2,
+    }] : []),
     ...(formData.other_fees ? [{
       title: "Other Fees",
       value: formatPrice(formData.other_fees),
