@@ -51,6 +51,7 @@ export default function CreateListingModal({
         sale_price: property.sale_price?.toString() || "",
         agency_fee: property.agency_fee?.toString() || "",
         legal_fee: property.legal_fee?.toString() || "",
+        caution_fee: prop.caution_fee?.toString() || "",
         other_fees: property.other_fees?.toString() || "",
         amenities: property.amenities?.map(a => ({ name: a.name, icon: a.icon || '' })) || [],
         description: property.description || "",
@@ -80,6 +81,7 @@ export default function CreateListingModal({
       sale_price: "",
       agency_fee: "",
       legal_fee: "",
+      caution_fee: "",
       other_fees: "",
       amenities: [],
       description: "",
@@ -209,8 +211,8 @@ export default function CreateListingModal({
       setValidationError(null);
       setIsPosting(false);
       setShowSuccessModal(false);
+      setFormData(getInitialFormData());
     } else {
-      // When modal opens, reset form data based on mode
       setFormData(getInitialFormData());
     }
   }, [isOpen, property, getInitialFormData]);

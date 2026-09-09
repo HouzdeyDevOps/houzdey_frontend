@@ -12,31 +12,24 @@ const LocationFeaturesStep = ({
   formData,
   updateForm,
 }: LocationFeaturesStepProps) => {
-  const [selectedState, setSelectedState] = useState("");
-  const [selectedLGA, setSelectedLGA] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const { data: states = [], isLoading: statesLoading } = useStates();
-  const { data: lgas = [] } = useLGAs(selectedState);
+  const { data: lgas = [] } = useLGAs(formData.state || "");
 
-  // Initialize location fields when editing
+  // Clear touched state when the form is fully reset (modal re-opened for new listing)
   useEffect(() => {
-    if (formData.state && !selectedState) {
-      setSelectedState(formData.state);
+    if (!formData.state && !formData.lga && !formData.address) {
+      setTouched({});
     }
-    if (formData.lga && !selectedLGA) {
-      setSelectedLGA(formData.lga);
-    }
-  }, [formData.state, formData.lga, selectedState, selectedLGA]);
+  }, [formData.state, formData.lga, formData.address]);
 
   const handleStateChange = (state: string) => {
-    setSelectedState(state);
-    setSelectedLGA("");
     updateForm("state", state);
+    updateForm("lga", "");
   };
 
   const handleLGAChange = (lga: string) => {
-    setSelectedLGA(lga);
     updateForm("lga", lga);
   };
 
@@ -69,7 +62,7 @@ const LocationFeaturesStep = ({
           </label>
           <div className="relative">
             <select
-              value={selectedState}
+              value={formData.state || ""}
               onChange={(e) => {
                 handleStateChange(e.target.value);
                 markAsTouched("state");
@@ -101,7 +94,7 @@ const LocationFeaturesStep = ({
           </label>
           <div className="relative">
             <select
-              value={selectedLGA}
+              value={formData.lga || ""}
               onChange={(e) => {
                 handleLGAChange(e.target.value);
                 markAsTouched("lga");
@@ -110,7 +103,7 @@ const LocationFeaturesStep = ({
               className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 appearance-none ${
                 touched["lga"] && !formData.lga ? "border-red-300" : "border-gray-300"
               }`}
-              disabled={!selectedState}
+              disabled={!formData.state}
             >
               <option value="">Select LGA</option>
               {lgas?.map((lga: string) => (

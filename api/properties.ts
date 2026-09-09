@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosInstance from "@/lib/axios";
 import { API_BASE_URL } from "./auth";
 import { PropertyResponse, PropertyFilters, Property, PropertyDetail } from "@/@types/property";
 import { CreateListingFormData } from "@/@types/create-listing";
@@ -43,7 +44,6 @@ export const propertyApi = {
       
       // Basic fields
       form.append("title", generatedTitle);
-      console.log(generatedTitle, "generatedTitle");  
       form.append("type", formData.type);
       form.append("price", formData.price.toString()); // For backward compatibility
       form.append("listing_type", formData.listing_type);
@@ -61,10 +61,13 @@ export const propertyApi = {
       if (formData.legal_fee) {
         form.append("legal_fee", formData.legal_fee.toString());
       }
+      if (formData.caution_fee) {
+        form.append("caution_fee", formData.caution_fee.toString());
+      }
       if (formData.other_fees) {
         form.append("other_fees", formData.other_fees.toString());
       }
-      
+
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 
@@ -112,19 +115,10 @@ export const propertyApi = {
         }
       }
 
-      const token = localStorage.getItem("token");
-      
-      if (!token) {
-        throw new Error("Authentication required. Please log in again.");
-      }
-      
-      console.log("Sending create property request with token:", token ? "Token exists" : "No token");
-      
-      const response = await axios.post(`${API_BASE_URL}/properties`, form, {
+      const response = await axiosInstance.post(`/properties`, form, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}`
         },
       });
       return response.data;
@@ -180,12 +174,7 @@ export const propertyApi = {
 
   async getUserProperties(): Promise<Property[]> {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${API_BASE_URL}/properties/users/me/properties`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axiosInstance.get(`/properties/users/me/properties`);
       return response.data;
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || "Failed to fetch user properties");
@@ -194,12 +183,7 @@ export const propertyApi = {
 
   async deleteProperty(id: string): Promise<void> {
     try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`${API_BASE_URL}/properties/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axiosInstance.delete(`/properties/${id}`);
     } catch (error: any) {
       throw new Error(error.response?.data?.detail || "Failed to delete property");
     }
@@ -207,20 +191,11 @@ export const propertyApi = {
 
   async updatePropertyStatus(id: string, status: string): Promise<void> {
     try {
-      const token = localStorage.getItem("token");
       const formData = new FormData();
       formData.append("status", status);
-
-      await axios.patch(
-        `${API_BASE_URL}/properties/${id}/status`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axiosInstance.patch(`/properties/${id}/status`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
     } catch (error: any) {
       throw new Error(
         error.response?.data?.detail || "Failed to update property status"
@@ -254,10 +229,13 @@ export const propertyApi = {
       if (formData.legal_fee) {
         form.append("legal_fee", formData.legal_fee.toString());
       }
+      if (formData.caution_fee) {
+        form.append("caution_fee", formData.caution_fee.toString());
+      }
       if (formData.other_fees) {
         form.append("other_fees", formData.other_fees.toString());
       }
-      
+
       form.append("description", formData.description);
       form.append("amenities", JSON.stringify(formData.amenities));
 
@@ -307,17 +285,10 @@ export const propertyApi = {
         }
       }
 
-      const token = localStorage.getItem("token");
-      
-      if (!token) {
-        throw new Error("Authentication required. Please log in again.");
-      }
-      
-      const response = await axios.put(`${API_BASE_URL}/properties/${id}`, form, {
+      const response = await axiosInstance.put(`/properties/${id}`, form, {
         headers: {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",
-          "Authorization": `Bearer ${token}`
         },
       });
       return response.data;
