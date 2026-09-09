@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { Link2, Upload, ImageIcon, Loader2, X } from 'lucide-react';
+import { Link2, Upload, ImageIcon, X } from 'lucide-react';
 import { uploadService } from '@/services/upload';
 import { toast } from 'sonner';
 
@@ -119,9 +119,12 @@ export default function FeaturedImageUpload({ value, onChange }: FeaturedImageUp
                 disabled={isUploading}
               />
               {isUploading ? (
-                <div className="flex items-center justify-center gap-2 text-gray-600">
-                  <Loader2 size={20} className="animate-spin" />
-                  <span>Uploading...</span>
+                <div className="flex flex-col items-center gap-3 text-gray-500">
+                  <div className="w-12 h-12 rounded-lg bg-gray-200 animate-pulse" />
+                  <div className="space-y-1 text-center">
+                    <div className="w-24 h-3 bg-gray-200 rounded animate-pulse mx-auto" />
+                    <span className="text-xs text-gray-400">Uploading...</span>
+                  </div>
                 </div>
               ) : selectedFile ? (
                 <div className="flex items-center justify-center gap-2 text-gray-700">

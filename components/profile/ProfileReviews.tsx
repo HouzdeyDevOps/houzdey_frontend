@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Star, MessageSquare, User as UserIcon } from 'lucide-react';
+import ReviewsSkeleton from '@/components/ui/reviews-skeleton';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import axios from '@/lib/axios';
@@ -202,10 +203,7 @@ export default function ProfileReviews() {
 
       {/* Reviews List */}
       {isLoading && reviews.length === 0 ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <span className="ml-2 text-gray-600">Loading reviews...</span>
-        </div>
+        <ReviewsSkeleton />
       ) : reviews.length === 0 ? (
         <div className="text-center py-12">
           <MessageSquare className="w-12 h-12 text-gray-400 mx-auto mb-4" />
