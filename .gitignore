@@ -28,6 +28,11 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 
+# Google Indexing API — never commit credentials or generated artefacts
+scripts/service-account.json
+scripts/sitemap-urls.json
+scripts/indexing-log-*.json
+
 
 # Next.js build output
 .next
