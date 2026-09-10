@@ -163,12 +163,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  const stateRoutes: MetadataRoute.Sitemap = nigeriaStates.map((s) => ({
-    url: `${baseUrl}/state/${s.slug}`,
-    lastModified: new Date(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }))
+  const stateRoutes: MetadataRoute.Sitemap = [
+    {
+      url: `${baseUrl}/state`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    ...nigeriaStates.map((s) => ({
+      url: `${baseUrl}/state/${s.slug}`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: 0.7,
+    })),
+  ]
 
   return [...staticRoutes, ...stateRoutes, ...propertyRoutes, ...blogRoutes]
 } 

@@ -25,6 +25,7 @@ const STATIC_PAGES = [
   '/',
   '/properties/for-rent',
   '/properties/for-sale',
+  '/state',
   '/about',
   '/contact',
 ];
