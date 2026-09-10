@@ -67,6 +67,7 @@ export async function getPropertiesServer(params: {
   page?: number;
   limit?: number;
   listing_type?: string;
+  state?: string;
 } = {}): Promise<PropertyResponse | null> {
   try {
     const { page = 1, limit = 50 } = params;
@@ -77,6 +78,10 @@ export async function getPropertiesServer(params: {
 
     if (params.listing_type) {
       searchParams.append('listing_type', params.listing_type);
+    }
+
+    if (params.state) {
+      searchParams.append('state', params.state);
     }
 
     const response = await fetch(

@@ -175,7 +175,7 @@ export default function PropertyDetailsStep({
           </div>
 
           {/* Other Fees */}
-          <div className="col-span-2">
+          <div>
             <label className="block text-sm mb-1">Other Fees <span className="text-gray-400 font-normal">(optional)</span></label>
             <div className="relative">
               <span className="absolute left-3 top-[50%] -translate-y-1/2">₦</span>

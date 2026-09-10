@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next'
+import { nigeriaStates } from '@/data/nigeria-states'
 
 const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://houzdey.com'
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
@@ -162,5 +163,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticRoutes, ...propertyRoutes, ...blogRoutes]
+  const stateRoutes: MetadataRoute.Sitemap = nigeriaStates.map((s) => ({
+    url: `${baseUrl}/state/${s.slug}`,
+    lastModified: new Date(),
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticRoutes, ...stateRoutes, ...propertyRoutes, ...blogRoutes]
 } 
