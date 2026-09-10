@@ -115,7 +115,7 @@ const Navbar = ({
           {showPropertyTypeFilters && (
             <div className="py-2 border-t">
               <Suspense fallback={<PropertyTypeNavSkeleton />}>
-                <PropertyTypeNav />
+                <PropertyTypeNav visibleCount={3} />
               </Suspense>
             </div>
           )}
@@ -317,7 +317,7 @@ const Navbar = ({
         {/* Desktop Property Type Filters */}
         {showPropertyTypeFilters && (
           <nav className="border-b px-4 py-2 hidden md:block">
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<PropertyTypeNavSkeleton />}>
               <PropertyTypeNav />
             </Suspense>
           </nav>
