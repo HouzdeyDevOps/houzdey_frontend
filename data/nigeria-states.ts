@@ -1,4 +1,4 @@
-export interface NigeriaStateData {
+﻿export interface NigeriaStateData {
   name: string;
   slug: string;
   capital: string;
@@ -12,7 +12,17 @@ export interface NigeriaStateData {
   economy: string;
   description: string;
   propertyContext: string;
+  imageUrl?: string;
 }
+
+export const zoneGradients: Record<string, string> = {
+  "South West":    "from-violet-600 to-purple-800",
+  "South East":    "from-emerald-500 to-teal-700",
+  "South South":   "from-cyan-500 to-blue-700",
+  "North Central": "from-amber-500 to-orange-700",
+  "North West":    "from-orange-500 to-red-700",
+  "North East":    "from-rose-500 to-pink-700",
+};
 
 export const nigeriaStates: NigeriaStateData[] = [
   // ── SOUTH EAST ──────────────────────────────────────────────────────────────
@@ -30,6 +40,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Abia's economy is driven by commerce, small-scale manufacturing, and palm oil production. Aba is one of Nigeria's foremost trading cities, renowned for locally made shoes, garments, and goods exported across West Africa.",
     description: "Abia State, created in 1991 from the old Imo State, is located in the South East geopolitical zone of Nigeria. The state is home to the famous Aba commercial city — a vibrant industrial hub known across Africa for its traders and artisans. The Arochukwu people and their historic oracle add deep cultural heritage to the state, while Umuahia, the quiet state capital, hosts key federal institutions.",
     propertyContext: "Aba drives Abia's property market with high demand for commercial spaces and residential apartments. Umuahia offers more affordable residential options and is growing steadily as a government and administrative centre.",
+    imageUrl: "/images/states/abia.jpg",
   },
   {
     name: "Anambra",
@@ -45,6 +56,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Anambra has one of the strongest private-sector economies in southern Nigeria, anchored by the Onitsha main market — regarded as one of the largest markets in Africa. The Nnewi industrial cluster specialises in auto parts manufacturing and has attracted significant investment.",
     description: "Anambra State, nicknamed the 'Light of the Nation', sits at the heart of Igboland in South East Nigeria. It is bounded by the Niger River to the west and is home to Onitsha, arguably the busiest trading city in West Africa. The state boasts a highly educated population and a strong entrepreneurial culture. Anambra consistently ranks among the top states in human development indices, education, and commercial activity.",
     propertyContext: "Anambra has one of the most dynamic property markets in South East Nigeria. Onitsha commands premium commercial property rates, while Awka has seen rapid residential development driven by government expansion. Nnewi attracts industrial and commercial real estate investment.",
+    imageUrl: "/images/states/anambra.jpg",
   },
   {
     name: "Ebonyi",
@@ -60,6 +72,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Ebonyi is primarily agrarian, producing large quantities of rice, yam, and cassava. The state holds significant deposits of limestone, lead, zinc, and salt. The Ebonyi State Government has invested heavily in road infrastructure and the Millennium City urban development project to spur growth.",
     description: "Ebonyi State, created in 1996 from parts of Enugu and Cross River states, is the youngest state in the South East. Despite being one of Nigeria's smallest states by landmass, Ebonyi is rich in mineral resources and agricultural land. The state capital Abakaliki is growing rapidly under government-led infrastructure drives. Ebonyi people are known for their resilience, strong cultural identity, and farming traditions.",
     propertyContext: "Ebonyi's property market is centred on Abakaliki, where government-led urban development has spurred new residential estates and commercial buildings. Land prices are still among the most affordable in the South East, making it attractive for early investors.",
+    imageUrl: "/images/states/ebonyi.jpg",
   },
   {
     name: "Enugu",
@@ -75,6 +88,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Enugu's economy has diversified from its coal-mining roots into services, education, and tourism. The city is a major commercial and administrative centre for the South East, hosting many corporate headquarters and federal agencies. The entertainment and hospitality sectors are growing rapidly.",
     description: "Enugu State, the 'Coal City State', was carved out of the old Anambra State in 1991 and serves as the cultural and social capital of the South East. The city of Enugu was Nigeria's first coal mining centre and remains a major regional hub for commerce, governance, and education. Enugu hosts some of the South East's most prestigious schools and institutions, and its hill-and-valley landscape gives it a distinctive character among Nigerian cities.",
     propertyContext: "Enugu is one of the most active property markets in South East Nigeria. GRA, Independence Layout, and Trans-Ekulu are prime residential neighbourhoods. The city attracts steady demand for apartments and commercial properties, with prices rising steadily as Enugu cements its position as the South East's social capital.",
+    imageUrl: "/images/states/enugu.jpg",
   },
   {
     name: "Imo",
@@ -90,6 +104,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Imo State's economy is anchored by oil and gas exploration in the northern parts of the state, alongside vibrant trade and hospitality in Owerri. Agriculture remains significant, producing palm oil, cassava, and yam. Owerri has emerged as the entertainment and leisure capital of the South East.",
     description: "Imo State, created in 1976, occupies the heartland of Igboland and shares borders with Abia, Anambra, Rivers, and Delta states. Named after the Imo River, the state is noted for its highly cosmopolitan capital Owerri, which is widely regarded as the 'leisure capital' of the South East for its thriving nightlife and hospitality industry. Imo people have a proud tradition of education, entrepreneurship, and cultural expression.",
     propertyContext: "Owerri's property market is one of the liveliest in South East Nigeria, with strong demand for both residential and commercial properties. New GRA, World Bank Estate, and Aladinma Housing Estate are highly sought-after addresses. Land prices have risen significantly, reflecting Owerri's growing status as a regional hub.",
+    imageUrl: "/images/states/imo.jpg",
   },
 
   // ── SOUTH SOUTH ─────────────────────────────────────────────────────────────
@@ -107,6 +122,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Akwa Ibom is Nigeria's largest oil-producing state, contributing over 30% of the country's daily crude output. The state government has invested oil revenue into infrastructure, hospitality (Ibom Tropicana), and aviation (Ibom Air), diversifying beyond petroleum. Agriculture — particularly rubber, palm oil, and cassava — remains an important sector.",
     description: "Akwa Ibom State, created in 1987 from the old Cross River State, sits in the South South geopolitical zone, bordered by the Atlantic Ocean to the south. The state is blessed with enormous oil wealth and boasts some of Nigeria's best-maintained infrastructure. Uyo, the capital, is a well-planned, clean city that consistently ranks as one of Nigeria's most liveable. The Ibibio, Annang, and Oron people form the major ethnic groups, each with rich cultural traditions.",
     propertyContext: "Uyo offers one of the most organised property markets in South South Nigeria, with well-planned estates and modern apartment developments. High oil wealth drives premium pricing in GRA and Eket Road corridors, while suburban areas remain accessible for mid-range buyers.",
+    imageUrl: "/images/states/akwa-ibom.jpg",
   },
   {
     name: "Bayelsa",
@@ -122,6 +138,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Bayelsa's economy is almost entirely dependent on oil and gas production from the prolific Niger Delta basin. The state hosts major oil infrastructure operated by international companies. The government is working to develop agriculture and fisheries as economic diversifiers, given the state's extensive riverine terrain.",
     description: "Bayelsa State, one of Nigeria's youngest states (created 1996), lies entirely within the Niger Delta — a vast network of rivers, creeks, and mangrove forests in South South Nigeria. Home to the Ijaw people, one of Nigeria's largest ethnic groups, Bayelsa is rich in oil wealth but also in cultural heritage and natural beauty. Yenagoa, the capital, is a riverine city connected by bridges and waterways, and has seen significant development in recent years.",
     propertyContext: "Yenagoa's property market is driven by oil sector workers and government employees. Swali and Kpansia are established residential areas, while new estates along the East-West Road attract premium buyers. Riverine access and flooding considerations are key factors in property choice across the state.",
+    imageUrl: "/images/states/bayelsa.jpg",
   },
   {
     name: "Cross River",
@@ -137,6 +154,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Cross River has built a tourism-led economy anchored by the Calabar Carnival, Obudu Mountain Resort, and the Cross River National Park (one of Africa's richest biodiversity zones). The Calabar Free Trade Zone attracts manufacturing and export businesses, while agriculture and fishing remain important for rural communities.",
     description: "Cross River State, located in the South South geopolitical zone, is one of Nigeria's foremost tourism destinations. Calabar, the state capital, is often called Nigeria's 'Canaan City' for its tidiness, greenery, and cosmopolitan atmosphere. The state hosts the annual Calabar Carnival — Africa's biggest street party — drawing hundreds of thousands of visitors each December. The diverse ethnic groups, including the Efik, Ejagham, and Bette-Bendi, contribute to a rich cultural mosaic.",
     propertyContext: "Calabar has an active residential property market, with State Housing Estate, Diamond Hill, and 8 Miles estates attracting civil servants and professionals. Tourism infrastructure has spurred hospitality investment, and the Free Trade Zone continues to generate commercial real estate demand.",
+    imageUrl: "/images/states/cross-river.jpg",
   },
   {
     name: "Delta",
@@ -152,6 +170,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Delta State is one of Nigeria's top oil-producing states, with Warri serving as the commercial nerve centre of the western Niger Delta. Major oil companies, refineries, and related industries operate in the state. Agriculture (rubber, cocoa, palm oil) and fishing are also important, particularly in riverine communities.",
     description: "Delta State, created in 1991 from the old Bendel State, occupies a strategic position in the Niger Delta and is divided into three senatorial zones: Delta North, Delta Central, and Delta South. The state is home to the vibrant Urhobo, Itsekiri, and Ijaw peoples, each with distinct languages and traditions. Warri, the state's commercial capital, is one of the busiest oil-industry towns in Nigeria, while the newer state capital Asaba has grown rapidly as an administrative and business centre.",
     propertyContext: "Delta has two distinct property markets: Asaba, with fast-rising residential values driven by its growing status as a commercial gateway to the East, and Warri, where oil-sector demand sustains high commercial and residential property prices. GRA Asaba and Warri South are among the most sought-after addresses.",
+    imageUrl: "/images/states/delta.jpg",
   },
   {
     name: "Edo",
@@ -167,6 +186,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Edo State's economy is anchored by Benin City, a major commercial and educational hub, alongside rubber production and oil exploration. The state is the administrative centre for many federal parastatals and hosts a growing technology and creative industry ecosystem. Rubber from Edo is among Nigeria's top agricultural exports.",
     description: "Edo State, home to the ancient Benin Kingdom, is one of Nigeria's most historically and culturally significant states. The Benin Bronzes — world-famous works of royal art — originated here and continue to define Edo's global identity. Benin City, the state capital, is a modern metropolis overlaid on one of Africa's oldest urban civilisations, with a complex system of ancient walls and moats. The Edo people's traditions in art, governance, and royalty remain vibrant today.",
     propertyContext: "Benin City has a well-established property market with strong demand in GRA, Ugbowo, and Forestry areas. Commercial property along Akpakpava Road and Ring Road commands premium rates. The city's steady growth as an educational and commercial centre sustains consistent property demand.",
+    imageUrl: "/images/states/edo.jpg",
   },
   {
     name: "Rivers",
@@ -182,6 +202,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Rivers State is Nigeria's oil capital and hosts the country's largest concentration of oil and gas infrastructure, including the Bonny LNG terminal — one of the world's largest. Port Harcourt is a major seaport city and the base for virtually every major international oil company operating in Nigeria. The state also has significant agricultural and fishing sectors.",
     description: "Rivers State, known as the 'Treasure Base of the Nation', is located in the Niger Delta and is Nigeria's foremost oil-producing state. Port Harcourt, nicknamed the 'Garden City' for its once-lush greenery, is the economic capital of the Niger Delta and one of Nigeria's most important cities. The state's diverse ethnic groups — Ikwerre, Ogoni, Ijaw, Kalabari, and others — contribute to a rich multicultural character. Rivers State has significant wealth from oil, but also faces challenges of environmental degradation in oil-producing communities.",
     propertyContext: "Port Harcourt has one of Nigeria's most expensive property markets outside Lagos and Abuja. Old GRA, New GRA, and Rumuola are premium addresses. The presence of oil multinationals drives strong corporate housing demand, keeping rental yields consistently high.",
+    imageUrl: "/images/states/rivers.jpg",
   },
 
   // ── SOUTH WEST ──────────────────────────────────────────────────────────────
@@ -199,6 +220,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Ekiti's economy is largely agrarian, producing cocoa, yam, and kola nut. The state is known for producing some of the highest concentrations of PhD holders in Nigeria per capita, giving it the 'Fountain of Knowledge' moniker. Tourism around Ikogosi Warm Springs and Fajuyi Park contributes to the local economy.",
     description: "Ekiti State, carved from Ondo State in 1996, is a hilly, landlocked state in South West Nigeria. It is known for its fierce intellectual tradition and high educational attainment, producing numerous professors, doctors, and public servants. The Ekiti people, of Yoruba stock, are proud of their rich cultural heritage including the Ewi-of-Ado chieftaincy traditions. Ado-Ekiti is a growing state capital with a university-town character.",
     propertyContext: "Ado-Ekiti offers among the most affordable property in South West Nigeria, making it attractive for retirees, academics, and civil servants. There is steady development around Fajuyi Estate and Federal Housing areas. The state's academic institutions drive consistent demand for student and staff housing.",
+    imageUrl: "/images/states/ekiti.jpg",
   },
   {
     name: "Lagos",
@@ -214,6 +236,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Lagos contributes over 25–30% of Nigeria's GDP and is the financial, commercial, and entertainment capital of Africa's most populous nation. The state hosts Nigeria's busiest seaport (Apapa), major banks, technology hubs (Yaba 'Silicon Valley'), stock exchange, and film industry. Tourism, fashion, music, and fintech are rapidly growing sectors.",
     description: "Lagos State is Nigeria's smallest state by land area but its largest by population and economic output. As Africa's most populous city, Lagos is a megacity of extraordinary diversity, energy, and opportunity. From the ancient colonial architecture of Lagos Island to the sleek towers of Victoria Island, the hustle of Oshodi to the upscale quiet of Banana Island — Lagos contains multitudes. The city is simultaneously West Africa's business capital, cultural epicentre, and gateway to the world.",
     propertyContext: "Lagos has Nigeria's most expensive and most active property market. Victoria Island, Ikoyi, and Lekki Phase 1 command among the highest residential rents in sub-Saharan Africa. Mid-range demand is concentrated in Yaba, Surulere, Gbagada, and parts of Mainland Lagos. The Lekki-Epe corridor is the fastest-growing corridor for new developments.",
+    imageUrl: "/images/states/lagos.jpg",
   },
   {
     name: "Ogun",
@@ -229,6 +252,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Ogun is Nigeria's foremost industrial state, hosting hundreds of manufacturing plants — particularly in the Ota-Sango corridor — producing cement, textiles, plastics, beverages, and electronics. Its proximity to Lagos makes it a natural expansion zone for businesses and commuters, and several industrial estates attract foreign direct investment.",
     description: "Ogun State, the 'Gateway State', shares a long border with Lagos and connects the South West to the rest of Nigeria. Abeokuta, the state capital, is built around the iconic Olumo Rock — a historic defensive stronghold of the Egba people. Ogun's blend of industrial development and cultural heritage makes it unique: the hinterland is dotted with Yoruba kingdoms and sacred shrines, while the Ota corridor hums with factory activity. The state is also home to several private universities.",
     propertyContext: "Ogun has experienced explosive property growth, driven by Lagos spillover. Sagamu, Ijebu-Ode, and Ota are hotspots for both residential and industrial property. Commuter-friendly areas along the Lagos-Ibadan Expressway have seen some of South West Nigeria's steepest land price increases in recent years.",
+    imageUrl: "/images/states/ogun.jpg",
   },
   {
     name: "Ondo",
@@ -244,6 +268,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Ondo State is a leading cocoa producer and home to Nigeria's largest bitumen deposits — a resource with potential to transform the Nigerian construction industry. Oil and gas are also produced offshore in the Ilaje area. Akure has grown into a significant commercial and administrative city for the South West interior.",
     description: "Ondo State, known as the 'Sunshine State', stretches from the Atlantic coast northward through dense rainforest to savanna. Created in 1976, the state is one of Nigeria's richest in natural resources: cocoa, timber, bitumen, oil, and fisheries all contribute to the economy. Akure, a rapidly modernising city, is notable for its large population of educated professionals and civil servants. The ancient Owo Kingdom and the scenic Idanre Hills reflect the state's deep Yoruba cultural roots.",
     propertyContext: "Akure offers a growing property market with relatively affordable prices compared to Lagos and Ibadan. GRA and Alagbaka areas are sought-after residential zones for professionals and government workers. The state capital is developing quickly, making it an emerging destination for property investors in the South West.",
+    imageUrl: "/images/states/ondo.jpg",
   },
   {
     name: "Osun",
@@ -259,6 +284,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Osun's economy centres on agriculture (cocoa, kola nut, cashew), trade in Osogbo, and the significant academic economy around Obafemi Awolowo University (OAU) in Ile-Ife — one of Nigeria's premier universities. Tourism to the UNESCO-listed Osun-Osogbo Sacred Grove is a growing revenue source.",
     description: "Osun State, created in 1991 from Oyo State, is one of the most culturally distinctive states in Nigeria. Ile-Ife is regarded as the spiritual and ancestral homeland of the Yoruba people — the place where Oduduwa, the Yoruba progenitor, is said to have descended from the heavens. Osogbo hosts one of the world's great sacred forests and an internationally celebrated annual festival. Osun is also home to OAU, producing generations of Nigeria's leading intellectuals, scientists, and professionals.",
     propertyContext: "Osogbo and Ile-Ife are the main property markets in Osun State. The OAU campus area drives consistent demand for student housing and staff quarters. Osogbo's GRA and Oke-Fia areas serve the professional and government workforce. Land and property values remain moderate, offering value for buyers priced out of larger cities.",
+    imageUrl: "/images/states/osun.jpg",
   },
   {
     name: "Oyo",
@@ -274,6 +300,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Oyo State is a major hub for commerce, education, and agriculture in South West Nigeria. Ibadan, one of West Africa's largest cities, hosts a vibrant trading economy, several universities, and an expanding tech and creative sector. The state produces significant quantities of cocoa, yam, and maize. Its industrial estates are attracting manufacturing investment.",
     description: "Oyo State, home to the great Oyo Empire, is one of Nigeria's largest and most historically significant states. Ibadan — the state capital and largest city — is a teeming metropolis of over four million people, known for its characteristic red-roofed houses spreading across undulating hills. The state's universities — University of Ibadan, Ladoke Akintola University of Technology, and others — make it one of Nigeria's foremost educational centres. Oyo's Yoruba heritage, from the ancient Alaafin tradition to modern afrobeats culture, permeates daily life.",
     propertyContext: "Ibadan is one of Nigeria's fastest-growing property markets. Bodija, GRA, and Jericho are premium residential addresses, while Agodi Gate, Challenge, and Ring Road serve mid-market demand. The Ibadan-Lagos Expressway corridor is a hotspot for new residential developments as many Lagosians seek more affordable housing within commuting distance.",
+    imageUrl: "/images/states/oyo.jpg",
   },
 
   // ── NORTH CENTRAL ───────────────────────────────────────────────────────────
@@ -291,6 +318,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Benue is Nigeria's foremost food-producing state, earning the title 'Food Basket of the Nation' for its vast output of yam, cassava, sweet potato, soybean, and sorghum. The state feeds much of northern and central Nigeria. Large-scale mechanised farming, smallholder agriculture, and agro-processing form the backbone of the economy.",
     description: "Benue State, situated in the North Central geopolitical zone, is a predominantly agricultural state traversed by the Benue River — one of Nigeria's most important waterways. The Tiv, Idoma, and Igede peoples are the major ethnic groups, each with vibrant cultural traditions including music, dance, and masquerades. Despite its agricultural wealth, Benue has faced significant security challenges from farmer-herder conflicts, which the government is working to address through policy and reconciliation.",
     propertyContext: "Makurdi is Benue's primary property market, with growing demand from government workers, academics, and agribusiness professionals. Property prices remain relatively affordable by national standards. The development of Benue State University and government secretariats has driven demand for residential and commercial space in Makurdi's newer districts.",
+    imageUrl: "/images/states/benue.jpg",
   },
   {
     name: "Federal Capital Territory",
@@ -306,6 +334,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Abuja's economy is driven by government and public administration, which together employ the largest share of the workforce. A robust services sector encompasses banking, hospitality, real estate, retail, and technology. The FCT is Nigeria's most planned urban area, with regulated land use attracting premium real estate investment from across the country and abroad.",
     description: "The Federal Capital Territory (FCT) and its capital Abuja serve as the political and administrative heart of Nigeria. Abuja was purpose-built as a new federal capital in the 1980s to replace Lagos and was designed to reflect Nigerian unity — its central location was chosen to be equidistant from the country's main ethnic regions. Today, Abuja is a gleaming city of wide boulevards, embassies, modern towers, and carefully landscaped parks. It consistently ranks as Nigeria's most liveable and best-managed city.",
     propertyContext: "Abuja has Nigeria's most expensive real estate outside of parts of Lagos. Maitama, Asokoro, and Wuse 2 are among the most prestigious addresses in the country. The satellite towns of Gwarinpa, Lugbe, and Kubwa offer more affordable alternatives with growing infrastructure, making the FCT attractive at multiple price points.",
+    imageUrl: "/images/states/fct-abuja.jpg",
   },
   {
     name: "Kogi",
@@ -321,6 +350,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Kogi is resource-rich, with significant deposits of iron ore, coal, marble, and limestone. The Ajaokuta Steel Complex — one of the largest in Africa but chronically underutilised — represents the state's industrial potential. Lokoja's strategic location at the confluence of Nigeria's two great rivers has made it a historic trade and administrative centre.",
     description: "Kogi State, nicknamed the 'Confluence State', was created in 1991 and occupies a strategic central position in Nigeria. It is the only state that borders all other geopolitical zones. Lokoja, at the meeting of the Niger and Benue rivers, was the first colonial capital of Nigeria and retains historic significance. The Igala, Ebira, and Okun (Yoruba) peoples are the major ethnic groups, giving the state a fascinating cultural diversity bridging north and south.",
     propertyContext: "Lokoja's property market is growing steadily, driven by its administrative role and highway connectivity. The city's position on major north-south and east-west routes makes it attractive for commercial logistics and hospitality investment. Residential development is expanding in GRA and newer government-planned areas.",
+    imageUrl: "/images/states/kogi.jpg",
   },
   {
     name: "Kwara",
@@ -336,6 +366,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Kwara's economy is driven by agriculture, trade, and the large university sector around Ilorin. The state produces livestock, cotton, and tobacco. Ilorin is a major commercial city connecting the North and South West, and hosts a vibrant manufacturing and informal trade sector. University of Ilorin is one of Nigeria's largest universities and significantly shapes the local economy.",
     description: "Kwara State, the 'State of Harmony', occupies a transitional zone between northern and southern Nigeria, reflecting this in its culture, architecture, and cuisine — a unique blend of Yoruba, Fulani, and Nupe traditions. Ilorin, the state capital, has a long history as an emirate city and is today one of Nigeria's most important interior commercial cities. The state's relative tranquillity and connectivity make it an underrated destination for investment.",
     propertyContext: "Ilorin offers a healthy property market at significantly lower prices than Lagos or Abuja. GRA, Tanke, and Unity areas are popular residential addresses for professionals. University proximity drives rental demand, while the city's commercial activity sustains a growing commercial property sector.",
+    imageUrl: "/images/states/kwara.jpg",
   },
   {
     name: "Nasarawa",
@@ -351,6 +382,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Nasarawa is rich in solid minerals including tin, columbite, beryl, and quartz. Its proximity to Abuja (FCT) has made it a growing residential and commercial satellite, with many Abuja workers choosing to live in Keffi or Lafia. Agriculture, particularly yam and sorghum, is the main occupation for most of the population.",
     description: "Nasarawa State, carved from Plateau State in 1996, sits in Nigeria's geographic centre and shares a long border with the FCT. This proximity to Abuja has been transformative — Keffi, just 45 minutes from Abuja, has become effectively a commuter town for the capital. The state's diverse ethnic groups, including the Tiv, Eggon, Alago, and Mada peoples, contribute to a rich cultural landscape set against dramatic hills and valleys.",
     propertyContext: "Keffi is Nasarawa's most active property market due to its location on the Abuja–Keffi highway. Affordable land prices relative to the FCT attract buyers seeking cheaper alternatives. Lafia is developing steadily as an administrative hub. The entire state benefits from Abuja's overflow demand for residential land.",
+    imageUrl: "/images/states/nasarawa.jpg",
   },
   {
     name: "Niger",
@@ -366,6 +398,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Niger State's large landmass underpins a vast agricultural economy producing yam, millet, groundnut, and livestock. The Kainji and Shiroro dams generate significant electricity for Nigeria's national grid. Bida is an important craft centre, known for its traditional glass and brasswork. Suleja's proximity to Abuja has spurred industrial and residential development.",
     description: "Niger State, created in 1976, is Nigeria's largest state by land area and sits north of the FCT in the North Central zone. The state is traversed by two great rivers — the Niger and the Kaduna — and its landscape ranges from savanna to dense forest. The Nupe Kingdom, centred in Bida, is one of the great historical empires of the Middle Belt, known for its elaborate emir traditions and distinctive crafts. Suleja, on the Abuja border, is one of the fastest-growing towns in Nigeria.",
     propertyContext: "Suleja is Niger State's most dynamic property market, fuelled by proximity to Abuja. Land values have risen sharply along the Suleja-Abuja axis. Minna offers mid-range residential property in a calm environment. The state as a whole is attractive for agricultural land investment given its vast fertile landmass.",
+    imageUrl: "/images/states/niger.jpg",
   },
   {
     name: "Plateau",
@@ -381,6 +414,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Jos was historically one of Nigeria's most important tin-mining centres, giving it the nickname 'Tin City'. Today the economy has diversified into tourism, agriculture (vegetables, temperate fruits), and services. Jos's cool climate and scenic landscape make it a natural destination for domestic and international tourism. The University of Jos and several research institutes anchor the knowledge economy.",
     description: "Plateau State sits on the Jos Plateau, a high-altitude grassland at about 1,200 metres above sea level — making Jos one of Nigeria's coolest and most scenic cities. The state is home to over 40 ethnic groups, making it one of Nigeria's most diverse. Jos was once known for inter-communal harmony and is working to rebuild that reputation. The state's natural beauty, mild climate, and agricultural potential make it distinct from most of Nigeria's major cities.",
     propertyContext: "Jos offers some of the most pleasant living conditions in Nigeria's interior, with a cool climate year-round. Property prices are moderate, with strong demand in Rayfield, GRA, and the Tudun Wada areas. The state is attractive for retirees and people seeking relief from the heat of southern cities. Tourism infrastructure investment is creating new hospitality property opportunities.",
+    imageUrl: "/images/states/plateau.jpg",
   },
 
   // ── NORTH EAST ──────────────────────────────────────────────────────────────
@@ -398,6 +432,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Adamawa's economy is driven by agriculture and livestock — the state is one of Nigeria's leading cattle-producing areas. The Faro National Park and Mandara Mountains offer eco-tourism potential. Mubi is an important regional market for agricultural produce traded with Cameroon. The American University of Nigeria in Yola is a significant presence in the education sector.",
     description: "Adamawa State, located in the North East geopolitical zone, shares a long border with Cameroon and is named after the 19th-century Fulani emir Modibo Adama. The state's landscape is dominated by the Benue River valley, the Mandara Mountains, and vast savannas. Adamawa is home to a remarkable diversity of ethnic groups — over 60 languages are spoken. The state has been affected by insecurity in recent years but retains significant agricultural and natural resource potential.",
     propertyContext: "Yola and Jimeta form the main urban property market in Adamawa. The presence of the American University of Nigeria has spurred development in the Yola area. Property prices are generally affordable, with opportunities in residential and commercial segments as the security situation improves.",
+    imageUrl: "/images/states/adamawa.jpg",
   },
   {
     name: "Bauchi",
@@ -413,6 +448,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Bauchi is an important agricultural and mining state. Yankari National Park, home to elephant herds and the famous Wikki Warm Springs, is Nigeria's most significant wildlife conservation area and a major tourism asset. The state produces tin, tantalite, gold, and columbite. Agriculture includes groundnut, cotton, and livestock.",
     description: "Bauchi State, named for the Bauchi emirate and created in 1976, sits in the North East and is one of Nigeria's larger states. It is home to the legendary Tafawa Balewa — Nigeria's first Prime Minister — who hailed from Bauchi LGA. The state's landmark asset is Yankari National Park, which attracts thousands of tourists annually and harbours one of Nigeria's last significant elephant populations. The diverse ethnic mosaic includes Hausa-Fulani, Tangale, Tera, and many other groups.",
     propertyContext: "Bauchi city is the main property market in the state, with government workers and traders driving residential demand. Areas near the government house and Gubi Dam are considered premium locations. Property prices are among the most affordable in northern Nigeria. Yankari proximity has stimulated some eco-lodge and hospitality development.",
+    imageUrl: "/images/states/bauchi.jpg",
   },
   {
     name: "Borno",
@@ -428,6 +464,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Borno has historically been an important trade centre linking Nigeria to Central Africa via the trans-Saharan routes. Agriculture (millet, sorghum, livestock) and fishing on Lake Chad are the main economic activities. The state has faced economic disruption from security challenges, but the government and international organisations are actively rebuilding communities and infrastructure.",
     description: "Borno State, the largest state in North East Nigeria, is home to the ancient Borno Empire — one of the longest-lasting kingdoms in African history, dating back over 1,000 years. The Kanuri people, who founded the empire, maintain a proud cultural heritage centred on the Shehu of Borno. Maiduguri, the state capital, is a resilient city rebuilding its role as a regional commercial hub. Lake Chad, which borders the state, is one of Africa's most significant bodies of water and a lifeline for millions.",
     propertyContext: "Maiduguri's property market is recovering steadily, with government reconstruction programmes supporting new residential development. Old Maiduguri (around the Shehu's Palace) and Jere areas are established residential zones. Security improvements are gradually unlocking investment potential across the state.",
+    imageUrl: "/images/states/borno.jpg",
   },
   {
     name: "Gombe",
@@ -443,6 +480,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Gombe's economy is primarily agricultural, producing millet, sorghum, cotton, and livestock. The city of Gombe is an important trade hub for the North East, connecting Bauchi, Adamawa, Taraba, and Borno states. The state has significant untapped mineral resources. Gombe State University is a growing educational anchor for the region.",
     description: "Gombe State, carved from Bauchi State in 1996, is one of Nigeria's smallest states but occupies a strategically central position in the North East. The state is home to the Tangale, Waja, Tera, and Hausa-Fulani peoples. Gombe city is a transit and trading hub, lying at the crossroads of major North East highways. The Dadinkowa Dam provides water and electricity to the state and is an important infrastructure asset.",
     propertyContext: "Gombe city is the primary residential and commercial property market in the state. Areas around the Government House and Tudun Wada are considered prime addresses. Property prices are very affordable by national standards, offering good value for first-time buyers and investors in the emerging North East market.",
+    imageUrl: "/images/states/gombe.jpg",
   },
   {
     name: "Taraba",
@@ -458,6 +496,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Taraba is an agricultural state producing tea, coffee, cocoa, rubber, and livestock on the fertile Mambilla Plateau. Gashaka-Gumti National Park — Nigeria's largest — harbours important wildlife. The state has significant hydroelectric potential from the Donga and Taraba rivers. Tourism to the Mambilla Plateau is an emerging sector.",
     description: "Taraba State, known as the 'Nature's Gift to the Nation', is one of Nigeria's most ecologically diverse states, stretching from the Mambilla Plateau (at 1,600m the highest plateau in Nigeria) to lowland savannas. The state has over 80 ethnic groups and languages, making it one of Africa's most culturally diverse places. Gashaka-Gumti National Park, covering over 6,700 km², is a sanctuary for chimpanzees, lions, and hundreds of bird species.",
     propertyContext: "Jalingo is the main property market in Taraba State, driven by government and commercial activity. Gembu on the Mambilla Plateau attracts interest for its cool climate and tea-farming potential. Property prices across the state are very affordable, with significant untapped value in agricultural and eco-tourism land.",
+    imageUrl: "/images/states/taraba.jpg",
   },
   {
     name: "Yobe",
@@ -473,6 +512,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Yobe's economy is agrarian, with livestock (cattle, goats, camels), millet, sorghum, and gum arabic as the main products. Potiskum is the state's commercial hub and one of the largest livestock markets in West Africa. The Hadejia-Nguru Wetlands are an important biodiversity area and support fishing and agricultural activity.",
     description: "Yobe State, created in 1991 from the old Borno State, lies in the semi-arid zone of North East Nigeria, bordering Niger and Chad. The state's landscape ranges from the Sahel zone in the north to savanna in the south. The Kanuri, Fulani, and Shuwa Arab peoples are among the major groups, each with pastoral and agricultural traditions. Despite security challenges in recent years, the state is rebuilding with significant federal government investment in infrastructure.",
     propertyContext: "Damaturu and Potiskum are the primary property markets in Yobe State. Commercial property in Potiskum, driven by livestock trade, offers strong returns. Residential development in Damaturu is supported by government reconstruction programmes. Property values are among the most affordable in Nigeria.",
+    imageUrl: "/images/states/yobe.jpg",
   },
 
   // ── NORTH WEST ──────────────────────────────────────────────────────────────
@@ -490,6 +530,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Jigawa is an agricultural state producing groundnuts, cotton, millet, sorghum, and livestock. Shea butter processing is an important industry. The Hadejia and Jama'are rivers irrigate farming communities in the east. The state government has invested in rural roads and irrigation to boost agricultural output.",
     description: "Jigawa State, created in 1991 from Kano State, is a predominantly rural state in North West Nigeria with a young and growing population. The state is known for its traditional emirate system — Hadejia, Gumel, and Ringim are among its historic emirate capitals. Jigawa has some of Nigeria's highest population growth rates and is investing in education and rural development to match. The landscape is flat Sahel savanna, suitable for large-scale mechanised agriculture.",
     propertyContext: "Dutse, as the planned state capital, has seen steady institutional development but remains affordable. Hadejia is the state's commercial centre and has more active trading-related property demand. Land prices across Jigawa are among the lowest in the country, making the state attractive for agricultural land acquisition.",
+    imageUrl: "/images/states/jigawa.jpg",
   },
   {
     name: "Kaduna",
@@ -505,6 +546,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Kaduna is the North's most industrialised state, with a history of textile manufacturing, leather tanning, and food processing. Ahmadu Bello University in Zaria is one of Nigeria's largest and most respected universities. The state is attracting renewed investment in agro-processing, manufacturing, and services, and is home to a growing fintech ecosystem.",
     description: "Kaduna State, created in 1976, is one of Nigeria's most commercially and politically significant northern states. Kaduna city was the colonial capital of Northern Nigeria and retains its character as a cosmopolitan, multi-ethnic city. The state has a complex mix of ethnic and religious groups — Christian-majority south and Muslim-majority north — and has worked to build bridges across this diversity. Zaria, home to ABU, is another major urban centre with a rich pre-colonial and Islamic scholarly heritage.",
     propertyContext: "Kaduna has one of the most active property markets in northern Nigeria. Sabon Tasha, Ungwan Rimi, and GRA are popular residential areas. Commercial property demand is strong along Ahmadu Bello Way and Independence Way. Land prices are rising steadily as Kaduna attracts industry and investment from across the north.",
+    imageUrl: "/images/states/kaduna.jpg",
   },
   {
     name: "Kano",
@@ -520,6 +562,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Kano is northern Nigeria's commercial capital and one of Nigeria's largest economies. The city is a major hub for leather, textiles, groundnuts, and wholesale trade, with centuries-old trading networks stretching to North Africa and the Middle East. Kano's manufacturing sector — plastics, textiles, steel fabrication — is one of the most developed in northern Nigeria. Bayero University and other institutions anchor the knowledge economy.",
     description: "Kano, the ancient emirate city, is northern Nigeria's undisputed commercial and cultural capital. Founded over 1,000 years ago, Kano's old city contains one of Africa's best-preserved examples of medieval walled urban architecture, earning it UNESCO interest. The Emir of Kano is one of Nigeria's most important traditional rulers, and the emirate system permeates civic life. Modern Kano is a city of contrasts: ancient dye pits and leather tanners exist alongside shopping malls, technology companies, and Nollywood-North productions.",
     propertyContext: "Kano has a large and diverse property market. Nassarawa GRA, Bompai, and Naibawa are premium residential areas for professionals and business people. The old city (Fagge, Gwale) has dense commercial property with active trade. Residential demand is strong given Kano's large and growing population, making it one of northern Nigeria's most liquid property markets.",
+    imageUrl: "/images/states/kano.jpg",
   },
   {
     name: "Katsina",
@@ -535,6 +578,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Katsina is a predominantly agricultural state, producing large quantities of cotton, groundnuts, sorghum, and livestock. The state has significant wind power potential — the Zuba Wind Farm was one of Nigeria's first utility-scale renewable energy projects. Funtua is an important cotton-ginning centre. Katsina is a major livestock market connecting Northern Nigeria to international export routes.",
     description: "Katsina State, established in 1987, is an ancient emirate state in North West Nigeria. The city of Katsina was one of the seven original Hausa city-states (Hausa Bakwai) and an important centre of Islamic learning from the 16th century. Daura, in the north, is the site of the founding myth of the Hausa kingdoms, where the legendary Bayajidda slew a serpent and married Queen Daura. The state's large population and agricultural base make it a significant contributor to national food production.",
     propertyContext: "Katsina city has a modest but active property market centred around Kofar Kaura and the GRA. Property prices are among the most affordable in the country. Agricultural land is the state's most actively traded real estate, with large tracts sought by investors in cotton and groundnut farming.",
+    imageUrl: "/images/states/katsina.jpg",
   },
   {
     name: "Kebbi",
@@ -550,6 +594,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Kebbi is primarily agricultural, producing rice, onions, wheat, and sorghum along the River Niger corridor. The Argungu Fishing Festival is internationally famous and draws tourists from across the world each February. The river-irrigation schemes in the state support the rice paddies that make Kebbi one of Nigeria's top rice-producing states.",
     description: "Kebbi State, created in 1991 from Sokoto State, occupies the north-western corner of Nigeria along the River Niger. The state's identity is bound up with its ancient emirate traditions and the world-renowned Argungu Fishing Festival, in which thousands of fishermen simultaneously dive into the Matan Fada River to catch fish bare-handed in a spectacular annual event. The Kambari, Dukku, and Hausa-Fulani peoples share the state.",
     propertyContext: "Birnin Kebbi has a small but growing property market driven by state government activity. Property prices are among the lowest in Nigeria. Agricultural land along the River Niger corridor, particularly for rice farming, is the most actively sought real estate investment in the state.",
+    imageUrl: "/images/states/kebbi.jpg",
   },
   {
     name: "Sokoto",
@@ -565,6 +610,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Sokoto's economy centres on agriculture (millet, sorghum, cotton, livestock) and the traditional leather industry, which has operated for centuries and exports to Europe. The Sultan of Sokoto is the spiritual leader of Nigeria's Muslims, giving Sokoto unique religious-economic significance as a pilgrimage destination. The state government is investing in irrigation-fed agriculture and mineral exploration.",
     description: "Sokoto State is home to the Sokoto Caliphate — the most powerful Islamic polity in West Africa's history, founded by Usman Dan Fodio in 1804. The Sultan of Sokoto remains Nigeria's most revered Islamic authority, and the city draws Muslim pilgrims from across West and Central Africa. Sokoto sits at the edge of the Sahara, and its dry climate and historical connections to the trans-Saharan trade routes have shaped its culture and architecture. The state is known for its devout, scholarly Islamic tradition.",
     propertyContext: "Sokoto city offers affordable property in a traditionally organised urban environment. Areas around the Sultan's Palace, Mabera, and GRA are considered prime residential locations. The city's religious significance generates steady demand for accommodation from pilgrims and visitors. Commercial property near Sokoto Market is actively traded.",
+    imageUrl: "/images/states/sokoto.jpg",
   },
   {
     name: "Zamfara",
@@ -580,6 +626,7 @@ export const nigeriaStates: NigeriaStateData[] = [
     economy: "Zamfara is one of Nigeria's richest states in terms of mineral resources, particularly gold. The Anka gold field is one of Africa's most productive artisanal mining sites. Agriculture (millet, sorghum, groundnut) is the main occupation for most residents. The state government is working to formalise the mining sector and improve security to unlock its economic potential.",
     description: "Zamfara State, created in 1996 from Sokoto State, occupies the north-western corner of Nigeria and borders Niger Republic. The state is primarily rural with a predominantly Hausa-Fulani Muslim population. Zamfara has faced significant security challenges from banditry, but the government and federal authorities have undertaken extensive operations to restore peace. The state's gold deposits represent an enormous economic opportunity that is gradually being formalised.",
     propertyContext: "Gusau is Zamfara's main property market, dominated by government workers and traders. Property prices are among the lowest in Nigeria. As security conditions improve, the state's mineral wealth may attract increased investment in commercial and industrial real estate. Agricultural land remains the primary investment vehicle for most buyers.",
+    imageUrl: "/images/states/zamfara.jpg",
   },
 ];
 

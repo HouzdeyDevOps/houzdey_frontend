@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import Navbar from "@/components/navbar/Navbar";
-import { nigeriaStates } from "@/data/nigeria-states";
+import { nigeriaStates, zoneGradients } from "@/data/nigeria-states";
 import { MapPin } from "lucide-react";
 
 export const metadata: Metadata = {
@@ -77,32 +78,55 @@ export default function StateLandingIndex() {
                 <Link
                   key={state.slug}
                   href={`/state/${state.slug}`}
-                  className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 p-5 flex flex-col gap-3"
+                  className="group bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 overflow-hidden flex flex-col"
                 >
-                  <div className="flex items-start justify-between">
-                    <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
-                      {state.name}
-                    </h3>
-                    <span
-                      className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
-                        zoneColors[state.region] ?? "bg-gray-50 border-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {state.region.split(" ")[0]}
-                    </span>
+                  {/* Image / gradient banner */}
+                  <div className="relative h-32 w-full overflow-hidden">
+                    {state.imageUrl ? (
+                      <Image
+                        src={state.imageUrl}
+                        alt={`${state.name} landmark`}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                      />
+                    ) : (
+                      <div
+                        className={`w-full h-full bg-gradient-to-br ${
+                          zoneGradients[state.region] ?? "from-gray-400 to-gray-600"
+                        } flex items-end p-3`}
+                      >
+                        <span className="text-white/70 text-xs font-medium">{state.region}</span>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-sm text-gray-500">
-                    <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-                    <span>Capital: {state.capital}</span>
-                  </div>
+                  <div className="p-4 flex flex-col gap-2 flex-1">
+                    <div className="flex items-start justify-between">
+                      <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors">
+                        {state.name}
+                      </h3>
+                      <span
+                        className={`text-[11px] font-medium px-2 py-0.5 rounded-full border ${
+                          zoneColors[state.region] ?? "bg-gray-50 border-gray-200 text-gray-600"
+                        }`}
+                      >
+                        {state.region.split(" ")[0]}
+                      </span>
+                    </div>
 
-                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
-                    {state.knownFor.slice(0, 2).join(" · ")}
-                  </p>
+                    <div className="flex items-center gap-1.5 text-sm text-gray-500">
+                      <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Capital: {state.capital}</span>
+                    </div>
 
-                  <div className="mt-auto pt-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
-                    View properties →
+                    <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed">
+                      {state.knownFor.slice(0, 2).join(" · ")}
+                    </p>
+
+                    <div className="mt-auto pt-1 text-xs font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                      View properties →
+                    </div>
                   </div>
                 </Link>
               ))}

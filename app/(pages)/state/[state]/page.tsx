@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { nigeriaStates, statesBySlug } from "@/data/nigeria-states";
+import Image from "next/image";
+import Link from "next/link";
+import { nigeriaStates, statesBySlug, zoneGradients } from "@/data/nigeria-states";
 import StatePropertyListings from "@/components/state/StatePropertyListings";
 import Navbar from "@/components/navbar/Navbar";
-import { MapPin, Users, Square, Building2 } from "lucide-react";
+import { MapPin, Users, Square, Building2, ChevronRight } from "lucide-react";
 
 export async function generateStaticParams() {
   return nigeriaStates.map((s) => ({ state: s.slug }));
@@ -87,43 +89,68 @@ export default async function StateLandingPage({ params }: Props) {
       <main className="min-h-screen bg-gray-50">
         <Navbar showSearch={false} showPropertyTypeFilters={false} />
 
+        {/* Breadcrumb */}
+        <div className="pt-16 bg-white border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center gap-1.5 text-sm text-gray-500">
+            <Link href="/state" className="hover:text-primary transition-colors">All States</Link>
+            <ChevronRight className="w-3.5 h-3.5 flex-shrink-0" />
+            <span className="text-gray-800 font-medium">{data.name}</span>
+          </div>
+        </div>
+
         {/* Hero */}
-        <div className="bg-white border-b border-gray-100 pt-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-              <span>Nigeria</span>
-              <span>›</span>
-              <span className="text-gray-900 font-medium">{data.region}</span>
-              <span>›</span>
-              <span className="text-gray-900 font-medium">{data.name}</span>
+        <div>
+          {/* Landmark image / gradient banner */}
+          <div className="relative h-48 md:h-64 w-full overflow-hidden">
+            {data.imageUrl ? (
+              <Image
+                src={data.imageUrl}
+                alt={`${data.name} landmark`}
+                fill
+                priority
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : (
+              <div
+                className={`w-full h-full bg-gradient-to-br ${
+                  zoneGradients[data.region] ?? "from-gray-500 to-gray-700"
+                }`}
+              />
+            )}
+            <div className="absolute inset-0 bg-black/30" />
+            <div className="absolute bottom-4 left-4 sm:left-8">
+              <p className="text-white/80 text-sm font-medium">{data.region} · Nigeria</p>
+              <h1 className="text-2xl md:text-3xl font-bold text-white mt-0.5">
+                {data.name} State
+              </h1>
             </div>
+          </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              {data.name} State
-            </h1>
-            <p className="text-gray-500 text-base mb-6">{data.region} · Capital: {data.capital}</p>
-
-            {/* Stats bar */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {[
-                { icon: MapPin, label: "Capital", value: data.capital },
-                { icon: Users, label: "Population", value: data.population },
-                { icon: Square, label: "Area", value: data.area },
-                { icon: Building2, label: "LGAs", value: `${data.lgaCount} LGAs` },
-              ].map(({ icon: Icon, label, value }) => (
-                <div
-                  key={label}
-                  className="flex items-start gap-3 bg-gray-50 rounded-xl p-4 border border-gray-100"
-                >
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <Icon className="w-4 h-4 text-primary" />
+          <div className="bg-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
+              {/* Stats bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {[
+                  { icon: MapPin, label: "Capital", value: data.capital },
+                  { icon: Users, label: "Population", value: data.population },
+                  { icon: Square, label: "Area", value: data.area },
+                  { icon: Building2, label: "LGAs", value: `${data.lgaCount} LGAs` },
+                ].map(({ icon: Icon, label, value }) => (
+                  <div
+                    key={label}
+                    className="flex items-start gap-3 bg-gray-50 rounded-xl p-4 border border-gray-100"
+                  >
+                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                      <Icon className="w-4 h-4 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">{label}</p>
+                      <p className="text-sm font-semibold text-gray-800">{value}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-500">{label}</p>
-                    <p className="text-sm font-semibold text-gray-800">{value}</p>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
