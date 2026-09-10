@@ -1,28 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { locationService } from '@/services/locationService';
 
 export function useStates() {
-  return useQuery({
-    queryKey: ['states'],
-    queryFn: () => locationService.getStates(),
-    staleTime: Infinity, // Since this data rarely changes
-  });
+  const data = useMemo(() => locationService.getStates(), []);
+  return { data, isLoading: false };
 }
 
 export function useLGAs(state: string) {
-  return useQuery({
-    queryKey: ['lgas', state],
-    queryFn: () => locationService.getLGAs(state),
-    enabled: !!state,
-    staleTime: Infinity,
-  });
+  const data = useMemo(() => locationService.getLGAs(state), [state]);
+  return { data, isLoading: false };
 }
-
-export function useWards(state: string, lga: string) {
-  return useQuery({
-    queryKey: ['wards', state, lga],
-    queryFn: () => locationService.getWards(state, lga),
-    enabled: !!state && !!lga,
-    staleTime: Infinity,
-  });
-} 
