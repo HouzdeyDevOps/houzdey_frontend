@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { PropertyType, PropertyTypeArray } from "@/@types/create-listing";
 import { ChevronDown } from "lucide-react";
 
-const DEFAULT_VISIBLE_COUNT = 12;
+const DEFAULT_VISIBLE_COUNT = 10;
 
 export default function PropertyTypeNav({ visibleCount = DEFAULT_VISIBLE_COUNT }: { visibleCount?: number }) {
   const dispatch = useDispatch();
