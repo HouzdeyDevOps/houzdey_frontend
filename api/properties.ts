@@ -116,10 +116,7 @@ export const propertyApi = {
       }
 
       const response = await axiosInstance.post(`/properties`, form, {
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Accept": "application/json" },
       });
       return response.data;
     } catch (error: any) {

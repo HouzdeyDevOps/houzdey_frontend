@@ -34,6 +34,7 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
   const currentModal = useSelector(
     (state: RootState) => state.authModal.currentModal
   );
+  const reduxEmail = useSelector((state: RootState) => state.userAuth.email);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -247,9 +248,9 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
       <PersonalInfoModal
         isOpen={currentModal === "personalInfo"}
         onClose={() => {
-          dispatch(closeModal()); 
+          dispatch(closeModal());
         }}
-        email={formData.email}
+        email={formData.email || reduxEmail || ""}
       />
 
     
