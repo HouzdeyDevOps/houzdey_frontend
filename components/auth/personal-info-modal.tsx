@@ -48,6 +48,7 @@ export default function PersonalInfoModal({
   email,
 }: PersonalInfoModalProps) {
   const dispatch = useDispatch();
+  const currentUser = useSelector((state: RootState) => state.userAuth.user);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -85,7 +86,14 @@ export default function PersonalInfoModal({
       const response = await authApi.updatePersonalInfo(data);
       return response;
     },
-    onSuccess: (data) => {
+    onSuccess: () => {
+      if (currentUser) {
+        dispatch(updateUser({
+          ...currentUser,
+          phone_number: formData.phoneNumber,
+          phone_verified: false,
+        }));
+      }
       dispatch(setCurrentModal("success"));
       onClose();
     },
