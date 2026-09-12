@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Calendar } from "lucide-react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import Link from "next/link";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
@@ -10,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { authApi } from "@/api/auth";
 import { useMutation } from "@tanstack/react-query";
-import { login } from "@/store/slices/userAuthSlice";
+import { login, updateUser } from "@/store/slices/userAuthSlice";
 import ErrorModal from "./error-modal";
 import LoadingModal from "./loading-modal";
 import { personalInfoSchema } from "@/utils/validationSchema";
@@ -25,6 +27,20 @@ interface PersonalInfoModalProps {
   onClose: () => void;
   email: string;
 }
+
+const CustomDateInput = ({ value, onClick }: { value?: string; onClick?: () => void }) => (
+  <div className="relative">
+    <input
+      type="text"
+      value={value}
+      onClick={onClick}
+      readOnly
+      placeholder="Select date of birth"
+      className="w-full px-4 py-3 pr-11 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer bg-white"
+    />
+    <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+  </div>
+);
 
 export default function PersonalInfoModal({
   isOpen,
@@ -183,15 +199,22 @@ export default function PersonalInfoModal({
 
             <div>
               <label className="block text-gray-700 mb-2">Date of birth</label>
-              <input
-                type="date"
-                placeholder="DD/MM/YYYY"
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-600"
-                value={formData.dateOfBirth}
-                onChange={(e) =>
-                  setFormData({ ...formData, dateOfBirth: e.target.value })
-                }
-                required
+              <DatePicker
+                selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : null}
+                onChange={(date: Date | null) => {
+                  if (date) {
+                    setFormData({ ...formData, dateOfBirth: date.toISOString().split("T")[0] });
+                  }
+                }}
+                customInput={<CustomDateInput />}
+                dateFormat="MMMM d, yyyy"
+                showYearDropdown
+                scrollableYearDropdown
+                yearDropdownItemNumber={100}
+                maxDate={new Date()}
+                placeholderText="Select date of birth"
+                calendarClassName="!bg-white !border !border-gray-200 !rounded-lg !shadow-lg !font-sans"
+                wrapperClassName="w-full"
               />
             </div>
 

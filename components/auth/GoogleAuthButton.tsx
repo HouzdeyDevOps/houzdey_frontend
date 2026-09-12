@@ -3,8 +3,8 @@
 import { useGoogleLogin } from "@react-oauth/google";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
-import { login } from "@/store/slices/userAuthSlice";
-import { closeModal } from "@/store/slices/authModalSlice";
+import { login, setEmail } from "@/store/slices/userAuthSlice";
+import { closeModal, setCurrentModal } from "@/store/slices/authModalSlice";
 import { authApi } from "@/api/auth";
 import { useState } from "react";
 
@@ -33,7 +33,12 @@ export default function GoogleAuthButton({ onError }: GoogleAuthButtonProps) {
           token: result.access_token,
         }));
 
-        dispatch(closeModal());
+        if (!result.user.phone_number) {
+          dispatch(setEmail(result.user.email));
+          dispatch(setCurrentModal("personalInfo"));
+        } else {
+          dispatch(closeModal());
+        }
         
       } catch (error: any) {
         onError(error.message || "Google sign in failed");
