@@ -9,7 +9,7 @@ export default function SupportLayout({
   return (
     <>
       <Navbar showSearch={false} showPropertyTypeFilters={false} />
-      <div className="w-full mx-auto mt-24">
+      <div className="max-w-7xl mx-auto mt-24 px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1">
             <SupportSidebar />

@@ -89,7 +89,7 @@ export default function Footer() {
           </p>
           <p className="flex items-center gap-1">
             <MapPin className="w-3 h-3" />
-            Plot 123, Example Street, Abuja, FCT, Nigeria
+            Plot 519 Biejina Street, Thinkers Corner, Enugu State
           </p>
         </div>
       </div>

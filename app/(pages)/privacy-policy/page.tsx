@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { ChevronLeft, Shield, Eye, Lock, Database, Mail, Phone } from 'lucide-react';
+import { ChevronLeft, Shield, Eye, Lock, Database, Mail } from 'lucide-react';
 import Navbar from "@/components/navbar/Navbar";
 
 export const metadata: Metadata = {
@@ -313,19 +313,8 @@ export default function PrivacyPolicyPage() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Email us</p>
-                    <a href="mailto:privacy@houzdey.com" className="font-medium text-indigo-600 hover:text-indigo-700">
-                      privacy@houzdey.com
-                    </a>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="bg-white p-3 rounded-lg">
-                    <Phone className="w-6 h-6 text-indigo-600" />
-                  </div>
-                  <div>
-                    <p className="text-sm text-gray-600">Call us</p>
-                    <a href="tel:+2341234567890" className="font-medium text-indigo-600 hover:text-indigo-700">
-                      +234 (0) 123 456 7890
+                    <a href="mailto:Houzdey@gmail.com" className="font-medium text-indigo-600 hover:text-indigo-700">
+                      Houzdey@gmail.com
                     </a>
                   </div>
                 </div>
