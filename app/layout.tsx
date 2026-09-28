@@ -4,6 +4,7 @@ import "../styles/globals.css";
 import { AppProviders } from "./providers/providers";
 import HydrationFix from "@/components/HydrationFix";
 import { Toaster } from "sonner";
+import { safeJsonLdString } from "@/lib/safeJsonLd";
 
 export const viewport = {
   width: "device-width",
@@ -152,13 +153,13 @@ export default function RootLayout({
         {/* SEO: Add WebSite JSON-LD structured data */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: safeJsonLdString(websiteJsonLd) }}
         />
         {/* SEO: Add Organization JSON-LD structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
+            __html: safeJsonLdString(organizationJsonLd),
           }}
         />
         <AppProviders>

@@ -6,6 +6,7 @@ import { nigeriaStates, statesBySlug, zoneGradients } from "@/data/nigeria-state
 import StatePropertyListings from "@/components/state/StatePropertyListings";
 import Navbar from "@/components/navbar/Navbar";
 import { MapPin, Users, Square, Building2, ChevronRight } from "lucide-react";
+import { safeJsonLdString } from "@/lib/safeJsonLd";
 
 export async function generateStaticParams() {
   return nigeriaStates.map((s) => ({ state: s.slug }));
@@ -83,7 +84,7 @@ export default async function StateLandingPage({ params }: Props) {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(jsonLd) }}
       />
 
       <main className="min-h-screen bg-gray-50">
