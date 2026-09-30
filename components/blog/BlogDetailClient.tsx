@@ -11,6 +11,7 @@ import { format } from 'date-fns';
 import { toast } from 'sonner';
 import BlogCard from './BlogCard';
 import { optimizeCloudinaryImage } from '@/utils/cloudinaryOptimize';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface BlogDetailClientProps {
   blog: Blog;
@@ -149,7 +150,7 @@ export default function BlogDetailClient({ blog }: BlogDetailClientProps) {
               prose-li:text-gray-700
               prose-blockquote:border-l-4 prose-blockquote:border-blue-600 prose-blockquote:pl-4 prose-blockquote:italic
               prose-img:rounded-lg"
-            dangerouslySetInnerHTML={{ __html: blog.content }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
           />
 
           {/* Share Buttons */}
