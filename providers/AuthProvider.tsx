@@ -1,8 +1,9 @@
 'use client';
 
+import '@/lib/axiosDefaults';
 import { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { login, setInitialized } from '@/store/slices/userAuthSlice';
+import { login, logout, setInitialized } from '@/store/slices/userAuthSlice';
 import { setWishlistItems } from '@/store/slices/wishlistSlice';
 import { authApi } from '@/api/auth';
 import { wishlistApi } from '@/api/wishlist';
@@ -20,33 +21,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isMounted) return;
 
     const initializeAuth = async () => {
-      const token = localStorage.getItem('token');
-      
-      if (token) {
-        try {
-          const user = await authApi.getCurrentUser();
-          
-          dispatch(login({
-            user,
-            token
-          }));
+      try {
+        // The httpOnly access_token cookie (if any) is sent automatically with this request.
+        const user = await authApi.getCurrentUser();
+        dispatch(login({ user }));
 
-          // Initialize wishlist for authenticated user
-          try {
-            const wishlistData = await wishlistApi.getWishlistIds();
-            const propertyIds = wishlistData.items || [];
-            dispatch(setWishlistItems(propertyIds));
-          } catch (wishlistError) {
-            // Don't fail auth if wishlist fails to load
-          }
-        } catch (error) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('refresh_token');
-          dispatch(setWishlistItems([]));
+        // Initialize wishlist for authenticated user
+        try {
+          const wishlistData = await wishlistApi.getWishlistIds();
+          const propertyIds = wishlistData.items || [];
+          dispatch(setWishlistItems(propertyIds));
+        } catch (wishlistError) {
+          // Don't fail auth if wishlist fails to load
         }
+      } catch (error) {
+        // Not signed in (no cookie, or expired): stay logged out
+        dispatch(logout());
+        dispatch(setWishlistItems([]));
       }
-      
-      // Set initialized to true whether we have a token or not
+
       dispatch(setInitialized(true));
       setIsInitialized(true);
     };
@@ -60,4 +53,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return <>{children}</>;
-} 
+}

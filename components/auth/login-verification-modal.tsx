@@ -43,7 +43,7 @@ export default function LoginVerificationModal({
       
       setTimeout(() => {
         // Login user
-        dispatch(login({ token: data.access_token, user: data.user }));
+        dispatch(login({ user: data.user }));
         dispatch(closeModal());
         showSuccessToast("Successfully signed in!");
       }, 1500);

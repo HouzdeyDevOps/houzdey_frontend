@@ -17,6 +17,7 @@ import CreateListingModal from "../properties/create-listing-modal/create-listin
 import NotificationDropdown from "./NotificationDropdown";
 import { getOptimizedImageUrl } from "@/utils/imageUtils";
 import { propertyApi } from "@/api/properties";
+import { authApi } from "@/api/auth";
 
 export default function ProfileDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -55,7 +56,10 @@ export default function ProfileDropdown() {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
+    // httpOnly cookies can only be cleared by the server, so call the backend before clearing client state.
+    authApi.logout().finally(() => {
+      dispatch(logout());
+    });
     setIsOpen(false);
   };
 

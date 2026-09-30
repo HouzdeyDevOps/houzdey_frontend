@@ -19,6 +19,7 @@ import { PropertyFilters } from "@/@types/property";
 import { useRouter } from "next/navigation";
 import PhoneVerificationModal from "@/components/modals/PhoneVerificationModal";
 import { User, logout } from "@/store/slices/userAuthSlice";
+import { authApi } from "@/api/auth";
 import ForgotPasswordModal from "../auth/forgot-password-modal";
 import ResetPasswordModal from "../auth/reset-password-modal";
 
@@ -187,7 +188,9 @@ const Navbar = ({
               </Link>
               <button
                 onClick={() => {
-                  dispatch(logout());
+                  authApi.logout().finally(() => {
+                    dispatch(logout());
+                  });
                   toggleMobileMenu();
                 }}
                 className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 rounded-lg text-red-600 w-full"

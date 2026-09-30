@@ -1,7 +1,7 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userAuthSlice from "./slices/userAuthSlice";
 import authModalSlice from "./slices/authModalSlice";
-import { authMiddleware, initializeAuth } from './middleware/authMiddleware';
+import { authMiddleware } from './middleware/authMiddleware';
 import propertySlice from "./slices/propertySlice";
 import wishlistSlice from './slices/wishlistSlice';
 
@@ -11,7 +11,6 @@ const preloadedState = {
     isAuthenticated: false,
     isLoading: false,
     isInitialized: false,
-    token: initializeAuth(),
     email: null,
     verificationCode: null,
   }

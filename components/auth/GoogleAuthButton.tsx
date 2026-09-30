@@ -30,7 +30,6 @@ export default function GoogleAuthButton({ onError }: GoogleAuthButtonProps) {
 
         dispatch(login({
           user: result.user,
-          token: result.access_token,
         }));
 
         if (!result.user.phone_number) {

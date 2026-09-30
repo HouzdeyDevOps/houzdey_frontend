@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { FaGoogle, FaFacebook, FaApple } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/api/auth";
+import { useDispatch } from "react-redux";
+import { logout } from "@/store/slices/userAuthSlice";
 import { toast } from "sonner";
 import { Eye, EyeOff, X, AlertTriangle } from "lucide-react";
 
@@ -16,6 +18,7 @@ interface SocialAccount {
 
 export default function SecurityForm() {
   const router = useRouter();
+  const dispatch = useDispatch();
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
@@ -105,8 +108,9 @@ export default function SecurityForm() {
       await authApi.deactivateAccount(deactivatePassword);
       toast.success("Account deactivated successfully");
       
-      // Clear local storage and redirect to home
-      localStorage.removeItem("token");
+      // Clear the server-side session cookies and client auth state, then redirect home
+      await authApi.logout();
+      dispatch(logout());
       router.push("/");
     } catch (error: any) {
       toast.error(error.message || "Failed to deactivate account");
