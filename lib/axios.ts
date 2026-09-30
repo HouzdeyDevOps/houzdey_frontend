@@ -80,6 +80,13 @@ axiosInstance.interceptors.response.use(
       console.error(`Max retries (${MAX_RETRIES}) exceeded for request`);
     }
 
+    // Auth-bootstrap calls must fail quietly: an anonymous visitor's /users/me 401 is normal,
+    // and refreshing/redirecting here would reload the page forever.
+    const requestUrl = originalRequest?.url || '';
+    if (/\/users\/(me|refresh|logout)(\?|$)/.test(requestUrl)) {
+      return Promise.reject(error);
+    }
+
     // Check if the error is due to an expired token (401 or 403)
     if (
       (error.response?.status === 401 || error.response?.status === 403) &&
@@ -109,11 +116,7 @@ axiosInstance.interceptors.response.use(
         console.error('Token refresh failed:', refreshError);
         processQueue(refreshError);
 
-        // Redirect to home page (signin modal will open)
-        if (typeof window !== 'undefined') {
-          window.location.href = '/';
-        }
-
+        // No forced page reload: ProtectedRoute handles redirecting signed-out users.
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

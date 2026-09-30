@@ -32,6 +32,11 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
+    // Auth-bootstrap calls must fail quietly (see lib/axios.ts).
+    if (/\/users\/(me|refresh|logout)(\?|$)/.test(originalRequest?.url || '')) {
+      return Promise.reject(error);
+    }
+
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -55,7 +60,6 @@ axiosInstance.interceptors.response.use(
         processQueue(refreshError);
         isRefreshing = false;
 
-        window.location.href = '/';
         return Promise.reject(refreshError);
       }
     }
