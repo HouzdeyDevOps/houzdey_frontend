@@ -8,6 +8,7 @@ import PropertyContactSection from "@/components/properties/PropertyContactSecti
 import { getAmenityIcon } from "@/utils/iconUtils";
 import { formatLocation } from "@/utils/formatLocation";
 import { generateGoogleMapsEmbedUrl } from "@/utils/mapUtils";
+import { safeJsonLdString } from "@/lib/safeJsonLd";
 import { getPropertyByIdServer } from "@/lib/server-api";
 import { PropertyDetail } from "@/@types/property";
 
@@ -183,11 +184,11 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(propertyJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(propertyJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(breadcrumbJsonLd) }}
       />
 
       <div className="min-h-screen bg-white">

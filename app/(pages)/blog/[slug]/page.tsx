@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import BlogDetailClient from '@/components/blog/BlogDetailClient';
 import Navbar from '@/components/navbar/Navbar';
+import { safeJsonLdString } from '@/lib/safeJsonLd';
 
 // Server-side API call
 async function getBlogBySlug(slug: string) {
@@ -116,11 +117,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(jsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(breadcrumbJsonLd) }}
       />
       
       {/* Navigation */}

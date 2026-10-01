@@ -12,6 +12,7 @@ interface RetryConfig extends InternalAxiosRequestConfig {
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 second timeout
+  withCredentials: true,
 });
 
 // Retry configuration
@@ -24,14 +25,14 @@ const isRetryableError = (error: AxiosError): boolean => {
     // Network error, timeout, or connection refused
     return true;
   }
-  
+
   // Retry on 5xx server errors (but not 4xx client errors)
   const status = error.response.status;
   return status >= 500 && status < 600;
 };
 
 // Delay helper with exponential backoff
-const delay = (ms: number, attempt: number) => 
+const delay = (ms: number, attempt: number) =>
   new Promise(resolve => setTimeout(resolve, ms * Math.pow(2, attempt - 1)));
 
 // Flag to prevent multiple simultaneous refresh attempts
@@ -41,28 +42,20 @@ let failedQueue: Array<{
   reject: (reason: any) => void;
 }> = [];
 
-const processQueue = (error: any = null, token: string | null = null) => {
+const processQueue = (error: any = null) => {
   failedQueue.forEach(prom => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve(null);
     }
   });
-  
+
   failedQueue = [];
 };
 
-// Request interceptor to add token
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Response interceptor to handle token refresh and retries
+// Response interceptor to handle token refresh and retries.
+// Auth travels in httpOnly cookies, so there is no token to read or attach here.
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -71,20 +64,27 @@ axiosInstance.interceptors.response.use(
     // Handle retries for cold starts and network errors
     if (isRetryableError(error) && !originalRequest._isRetry) {
       const retryCount = originalRequest._retryCount || 0;
-      
+
       if (retryCount < MAX_RETRIES) {
         originalRequest._retryCount = retryCount + 1;
         originalRequest._isRetry = true;
-        
+
         console.log(`Retrying request (attempt ${retryCount + 1}/${MAX_RETRIES})...`, error.message);
-        
+
         // Wait before retrying with exponential backoff
         await delay(RETRY_DELAY, retryCount + 1);
-        
+
         return axiosInstance(originalRequest);
       }
-      
+
       console.error(`Max retries (${MAX_RETRIES}) exceeded for request`);
+    }
+
+    // Auth-bootstrap calls must fail quietly: an anonymous visitor's /users/me 401 is normal,
+    // and refreshing/redirecting here would reload the page forever.
+    const requestUrl = originalRequest?.url || '';
+    if (/\/users\/(me|refresh|logout)(\?|$)/.test(requestUrl)) {
+      return Promise.reject(error);
     }
 
     // Check if the error is due to an expired token (401 or 403)
@@ -97,66 +97,26 @@ axiosInstance.interceptors.response.use(
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axiosInstance(originalRequest);
-          })
+          .then(() => axiosInstance(originalRequest))
           .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
-
-      if (!refreshToken) {
-        // No refresh token, redirect to login
-        isRefreshing = false;
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/';
-        return Promise.reject(error);
-      }
-
       try {
-        // Call refresh token endpoint
-        const refreshUrl = `${API_BASE_URL}/users/refresh`;
-        console.log('Attempting token refresh at:', refreshUrl);
-        
-        const response = await axios.post(
-          refreshUrl,
-          { refresh_token: refreshToken }
-        );
+        // The refresh_token cookie is sent automatically; the response sets a new access_token cookie.
+        await axios.post(`${API_BASE_URL}/users/refresh`, {}, { withCredentials: true });
 
-        const newAccessToken = response.data.access_token;
-        
-        console.log('Token refresh successful');
-        
-        // Store new token
-        localStorage.setItem('token', newAccessToken);
-        
-        // Update the authorization header
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-        // Process the queued requests
-        processQueue(null, newAccessToken);
+        processQueue(null);
 
         // Retry the original request
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, clear tokens and redirect to login
         console.error('Token refresh failed:', refreshError);
-        processQueue(refreshError, null);
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        delete axiosInstance.defaults.headers.common['Authorization'];
-        
-        // Redirect to home page (signin modal will open)
-        if (typeof window !== 'undefined') {
-          window.location.href = '/';
-        }
-        
+        processQueue(refreshError);
+
+        // No forced page reload: ProtectedRoute handles redirecting signed-out users.
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
@@ -167,4 +127,4 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-export default axiosInstance; 
+export default axiosInstance;

@@ -2,6 +2,7 @@ import { Metadata, ResolvingMetadata } from "next";
 import { notFound } from "next/navigation";
 import { getPropertyBySlugServer } from "@/lib/server-api";
 import PropertyDetailsClient from "@/components/properties/PropertyDetailsClient";
+import { safeJsonLdString } from "@/lib/safeJsonLd";
 
 interface PageProps {
   params: Promise<{
@@ -288,15 +289,15 @@ export default async function PropertyDetailsPage({ params }: PageProps) {
       {/* JSON-LD Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(propertyJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(propertyJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(breadcrumbJsonLd) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: safeJsonLdString(faqJsonLd) }}
       />
       
       <PropertyDetailsClient property={property} />

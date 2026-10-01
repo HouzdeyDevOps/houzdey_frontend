@@ -34,19 +34,15 @@ export const authApi = {
   // async signin(data: UserSignInParams) {
   async signin(data: UserSignInParams): Promise<SignInResponse> {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/login`, {
-        email: data.email,
-        password: data.password,
-      });
-
-      // Store both access and refresh tokens
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-
-      // Set default authorization header
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access_token}`;
+      // The backend sets the httpOnly access/refresh cookies on this response.
+      const response = await axios.post(
+        `${API_BASE_URL}/users/login`,
+        {
+          email: data.email,
+          password: data.password,
+        },
+        { withCredentials: true }
+      );
 
       return response.data;
     } catch (error: any) {
@@ -114,8 +110,11 @@ export const authApi = {
     try {
       const response = await axiosInstance.get(`/users/me`);
       return response.data;
-    } catch (error) {
-      throw new Error("Failed to fetch user data");
+    } catch (error: any) {
+      // Keep the HTTP status so callers can tell "not signed in" (401/403) from a temporary failure.
+      throw Object.assign(new Error("Failed to fetch user data"), {
+        status: error?.response?.status as number | undefined,
+      });
     }
   },
 
@@ -135,15 +134,14 @@ export const authApi = {
 
   async updatePersonalInfo(formData: FormData) {
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.put(
         `${API_BASE_URL}/users/me`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            "Authorization": `Bearer ${token}`
           },
+          withCredentials: true,
         }
       );
       return response.data;
@@ -194,15 +192,9 @@ export const authApi = {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users/social/google/callback`,
-        { code: code }
+        { code: code },
+        { withCredentials: true }
       );
-
-      // Store both access and refresh tokens
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      
-      // Set token in axios defaults
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch (error: any) {
@@ -219,16 +211,9 @@ export const authApi = {
           headers: {
             Authorization: token,
           },
+          withCredentials: true,
         }
       );
-
-      // Store both access and refresh tokens
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch (error: any) {
@@ -264,15 +249,9 @@ export const authApi = {
     try {
       const response = await axios.post(
         `${API_BASE_URL}/users/social/apple/callback`,
-        { code }
+        { code },
+        { withCredentials: true }
       );
-
-      // Store both access and refresh tokens
-      localStorage.setItem("token", response.data.access_token);
-      localStorage.setItem("refresh_token", response.data.refresh_token);
-      
-      // Set token in axios defaults
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
       return response.data;
     } catch (error: any) {
@@ -393,60 +372,29 @@ export const authApi = {
 
   async refreshAccessToken(): Promise<string> {
     try {
-      const refreshToken = localStorage.getItem("refresh_token");
-      
-      if (!refreshToken) {
-        throw new Error("No refresh token available");
-      }
-
+      // The refresh_token cookie is sent automatically; the response sets a fresh access_token cookie.
       const response = await axios.post(
         `${API_BASE_URL}/users/refresh`,
-        { refresh_token: refreshToken }
+        {},
+        { withCredentials: true }
       );
-
-      // Store new access token
-      localStorage.setItem("token", response.data.access_token);
-      
-      // Update axios default header
-      axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access_token}`;
 
       return response.data.access_token;
     } catch (error: any) {
-      // If refresh fails, clear tokens and redirect to login
-      localStorage.removeItem("token");
-      localStorage.removeItem("refresh_token");
-      delete axios.defaults.headers.common["Authorization"];
-      
       throw new Error("Session expired. Please login again.");
     }
   },
 
   async logout(): Promise<void> {
     try {
-      const token = localStorage.getItem("token");
-      
-      if (token) {
-        // Call backend logout to blacklist the token
-        await axios.post(
-          `${API_BASE_URL}/users/logout`,
-          {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        );
-      }
+      // The backend blacklists the access token and clears the httpOnly cookies.
+      await axios.post(
+        `${API_BASE_URL}/users/logout`,
+        {},
+        { withCredentials: true }
+      );
     } catch (error) {
-      // Even if backend call fails, still clear local storage
       console.error("Logout error:", error);
-    } finally {
-      // Clear tokens from storage
-      localStorage.removeItem("token");
-      localStorage.removeItem("refresh_token");
-      
-      // Remove authorization header
-      delete axios.defaults.headers.common["Authorization"];
     }
   },
 };

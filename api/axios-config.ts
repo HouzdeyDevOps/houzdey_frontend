@@ -7,102 +7,63 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // Flag to prevent multiple refresh attempts
 let isRefreshing = false;
 let failedQueue: any[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: any) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
     } else {
-      prom.resolve(token);
+      prom.resolve(null);
     }
   });
-  
+
   failedQueue = [];
 };
 
-// Add auth token to requests
-axiosInstance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-// Add response interceptor to handle token refresh
+// Auth travels in httpOnly cookies; on 401/403 try one cookie-based refresh.
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // If error is 401 or 403 (unauthorized/forbidden) and we haven't tried to refresh yet
+    // Auth-bootstrap calls must fail quietly (see lib/axios.ts).
+    if (/\/users\/(me|refresh|logout)(\?|$)/.test(originalRequest?.url || '')) {
+      return Promise.reject(error);
+    }
+
     if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
       if (isRefreshing) {
-        // If already refreshing, queue this request
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then((token) => {
-            originalRequest.headers.Authorization = `Bearer ${token}`;
-            return axiosInstance(originalRequest);
-          })
+          .then(() => axiosInstance(originalRequest))
           .catch((err) => Promise.reject(err));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = localStorage.getItem('refresh_token');
-
-      if (!refreshToken) {
-        // No refresh token, redirect to login
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/';
-        return Promise.reject(error);
-      }
-
       try {
-        const response = await axios.post(
-          `${API_BASE_URL}/users/refresh`,
-          { refresh_token: refreshToken }
-        );
+        await axios.post(`${API_BASE_URL}/users/refresh`, {}, { withCredentials: true });
 
-        const { access_token } = response.data;
-
-        // Store new access token
-        localStorage.setItem('token', access_token);
-        
-        // Update default header
-        axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
-        originalRequest.headers.Authorization = `Bearer ${access_token}`;
-
-        // Process queued requests
-        processQueue(null, access_token);
-        
+        processQueue(null);
         isRefreshing = false;
 
-        // Retry original request
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        // Refresh failed, clear tokens and redirect to login
-        processQueue(refreshError, null);
+        processQueue(refreshError);
         isRefreshing = false;
-        
-        localStorage.removeItem('token');
-        localStorage.removeItem('refresh_token');
-        delete axiosInstance.defaults.headers.common['Authorization'];
-        
-        window.location.href = '/';
+
         return Promise.reject(refreshError);
       }
     }
 
     return Promise.reject(error);
   }
-); 
+);

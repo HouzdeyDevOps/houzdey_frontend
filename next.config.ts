@@ -1,6 +1,30 @@
 // next.config.js
 import type { NextConfig } from 'next';
 
+const apiOrigin = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').origin;
+  } catch {
+    return 'http://localhost:8000';
+  }
+})();
+
+// 'unsafe-inline' stays for scripts because Next's runtime and the inline JSON-LD/analytics
+// snippets are not nonce'd; the CSP still blocks script loading from any other origin.
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com",
+  "media-src 'self' blob: https://res.cloudinary.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  `connect-src 'self' ${apiOrigin} https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://res.cloudinary.com https://api.cloudinary.com https://accounts.google.com`,
+  "frame-src 'self' https://accounts.google.com https://www.google.com https://maps.google.com",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "frame-ancestors 'self'",
+].join('; ');
+
 const nextConfig: NextConfig = {
   // IMPORTANT: Remove 'standalone' output to reduce serverless functions
   // Use default output mode which creates fewer functions
@@ -66,6 +90,20 @@ const nextConfig: NextConfig = {
           {
             key: 'X-Frame-Options',
             value: 'SAMEORIGIN'
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff'
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'strict-origin-when-cross-origin'
+          },
+          // Report-Only first: check the browser console for violations on real pages
+          // (sign-in, maps, video, analytics), then rename to 'Content-Security-Policy' to enforce.
+          {
+            key: 'Content-Security-Policy-Report-Only',
+            value: contentSecurityPolicy,
           },
         ],
       },

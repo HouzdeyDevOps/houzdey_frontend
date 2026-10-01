@@ -19,7 +19,6 @@ interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   isInitialized: boolean;
-  token: string | null;
   email: string | null;
   verificationCode: string | null;
 }
@@ -29,38 +28,29 @@ const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
   isInitialized: false,
-  token: null,
   email: null,
   verificationCode: null,
 };
 
+// The auth token lives only in httpOnly cookies; it is never held in Redux or browser storage.
 const userAuthSlice = createSlice({
   name: "userAuth",
   initialState,
   reducers: {
-    login: (state, action: PayloadAction<{ user: User; token: string }>) => {
+    login: (state, action: PayloadAction<{ user: User }>) => {
       state.user = action.payload.user;
-      state.token = action.payload.token;
       state.isAuthenticated = true;
       state.isInitialized = true;
-
-     // Store in localStorage for persistence
-     localStorage.setItem('token', JSON.stringify(action.payload));
     },
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('token');
-      localStorage.removeItem('wishlist');
     },
     setInitialized: (state, action: PayloadAction<boolean>) => {
       state.isInitialized = action.payload;
     },
     updateUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
-      const auth = JSON.parse(localStorage.getItem('auth') || '{}');
-      localStorage.setItem('auth', JSON.stringify({ ...auth, user: action.payload }));
     },
     setEmail: (state, action: PayloadAction<string>) => {
       state.email = action.payload;

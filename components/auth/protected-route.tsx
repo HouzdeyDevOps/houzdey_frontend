@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth'; // You'll need to create this hook
+import { useAuth } from '@/hooks/useAuth';
 import { setCurrentModal } from '@/store/slices/authModalSlice';
 import { useDispatch } from 'react-redux';
 import ProfilePageSkeleton from '@/components/ui/profile-page-skeleton';
@@ -14,25 +14,19 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { isAuthenticated, isLoading } = useAuth();
-  const [hasCheckedStorage, setHasCheckedStorage] = useState(false);
+  const { isAuthenticated, isInitialized } = useAuth();
 
   useEffect(() => {
-    // Check if there's a token in localStorage
-    const token = localStorage.getItem('token');
-    setHasCheckedStorage(true);
+    // Wait for the cookie-based /users/me check before deciding the visitor is signed out.
+    if (!isInitialized) return;
 
-    // Only show signup modal if:
-    // 1. We're not loading
-    // 2. User is not authenticated
-    // 3. There's no token in localStorage
-    if (!isLoading && !isAuthenticated && !token && hasCheckedStorage) {
+    if (!isAuthenticated) {
       router.push('/');
       dispatch(setCurrentModal("signup"));
     }
-  }, [isAuthenticated, isLoading, router, dispatch, hasCheckedStorage]);
+  }, [isAuthenticated, isInitialized, router, dispatch]);
 
-  if (isLoading || !hasCheckedStorage) {
+  if (!isInitialized) {
     return <ProfilePageSkeleton />;
   }
 

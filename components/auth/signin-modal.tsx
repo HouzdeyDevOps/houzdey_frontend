@@ -53,7 +53,7 @@ export default function SignInModal({
       token_type: string;
       user: any;
     }) => {
-      dispatch(login({ token: data.access_token, user: data.user }));
+      dispatch(login({ user: data.user }));
       dispatch(closeModal());
       showSuccessToast("Successfully signed in!");
     },
