@@ -110,8 +110,11 @@ export const authApi = {
     try {
       const response = await axiosInstance.get(`/users/me`);
       return response.data;
-    } catch (error) {
-      throw new Error("Failed to fetch user data");
+    } catch (error: any) {
+      // Keep the HTTP status so callers can tell "not signed in" (401/403) from a temporary failure.
+      throw Object.assign(new Error("Failed to fetch user data"), {
+        status: error?.response?.status as number | undefined,
+      });
     }
   },
 

@@ -34,10 +34,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (wishlistError) {
           // Don't fail auth if wishlist fails to load
         }
-      } catch (error) {
-        // Not signed in (no cookie, or expired): stay logged out
-        dispatch(logout());
-        dispatch(setWishlistItems([]));
+      } catch (error: any) {
+        // Only a 401/403 means "not signed in". A temporary failure (5xx, network) must not
+        // clear the session UI; the cookies are still valid and the next request will recover.
+        if (error?.status === 401 || error?.status === 403) {
+          dispatch(logout());
+          dispatch(setWishlistItems([]));
+        }
       }
 
       dispatch(setInitialized(true));
