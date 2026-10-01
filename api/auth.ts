@@ -119,9 +119,16 @@ export const authApi = {
   },
 
   async verifyEmail(token: string) {
+    // The token comes from the page URL; it must never be able to change the request path
+    // (e.g. "../logout" would otherwise POST to another endpoint with the user's cookies).
+    if (!/^[A-Za-z0-9_.-]{1,512}$/.test(token) || /^\.+$/.test(token)) {
+      throw new Error("Invalid verification link.");
+    }
     try {
       const response = await axios.post(
-        `${API_BASE_URL}/users/verify-email/${token}`
+        `${API_BASE_URL}/users/verify-email/${encodeURIComponent(token)}`,
+        undefined,
+        { withCredentials: true }
       );
       return response.data;
     } catch (error: any) {
