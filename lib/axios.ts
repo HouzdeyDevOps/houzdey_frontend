@@ -21,6 +21,13 @@ const RETRY_DELAY = 2000; // 2 seconds
 
 // Function to check if error is retryable (cold start, timeout, network error)
 const isRetryableError = (error: AxiosError): boolean => {
+  // Only idempotent requests are safe to repeat. Retrying a POST/PUT that timed out (but actually
+  // succeeded on the server) would create duplicate listings.
+  const method = (error.config?.method || 'get').toLowerCase();
+  if (!['get', 'head', 'options'].includes(method)) {
+    return false;
+  }
+
   if (!error.response) {
     // Network error, timeout, or connection refused
     return true;
