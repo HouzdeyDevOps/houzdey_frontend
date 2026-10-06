@@ -15,7 +15,6 @@ export const amenities = [
     { name: "Security House", icon: "security" },
     { name: "All Room Ensuite", icon: "door" },
     { name: "C of O", icon: "file" },
-    { name: "Elevator", icon: "elevator" },
     { name: "24 Hours Security", icon: "shield" },
     { name: "CCTV Cameras", icon: "camera" },
     { name: "Swimming Pool", icon: "pool" },
@@ -23,5 +22,4 @@ export const amenities = [
     { name: "Governor's Consent", icon: "stamp" },
     { name: "Jacuzzi", icon: "hot-tub" },
     { name: "Gym", icon: "dumbbell" },
-    { name: "Pets allowed", icon: "pets" },
   ];
