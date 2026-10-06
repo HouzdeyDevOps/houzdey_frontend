@@ -9,16 +9,26 @@ const apiOrigin = (() => {
   }
 })();
 
+// Public origin of the Cloudflare R2 media bucket (e.g. https://media.houzdey.com). Set it at build time.
+const mediaUrl = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_MEDIA_URL ? new URL(process.env.NEXT_PUBLIC_MEDIA_URL) : null;
+  } catch {
+    return null;
+  }
+})();
+const mediaOrigin = mediaUrl ? ` ${mediaUrl.origin}` : '';
+
 // 'unsafe-inline' stays for scripts because Next's runtime and the inline JSON-LD/analytics
 // snippets are not nonce'd; the CSP still blocks script loading from any other origin.
 const contentSecurityPolicy = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com",
+  "script-src 'self' 'unsafe-inline' https://accounts.google.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' data: blob: https://res.cloudinary.com https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com",
-  "media-src 'self' blob: https://res.cloudinary.com",
+  `img-src 'self' data: blob: https://res.cloudinary.com${mediaOrigin} https://lh3.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com`,
+  `media-src 'self' blob: https://res.cloudinary.com${mediaOrigin}`,
   "font-src 'self' data: https://fonts.gstatic.com",
-  `connect-src 'self' ${apiOrigin} https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://res.cloudinary.com https://api.cloudinary.com https://accounts.google.com`,
+  `connect-src 'self' data: blob: ${apiOrigin}${mediaOrigin} https://cloudflareinsights.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://res.cloudinary.com https://api.cloudinary.com https://accounts.google.com`,
   "frame-src 'self' https://accounts.google.com https://www.google.com https://maps.google.com",
   "object-src 'none'",
   "base-uri 'self'",
@@ -41,6 +51,9 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'res.cloudinary.com',
       },
+      ...(mediaUrl
+        ? [{ protocol: mediaUrl.protocol.replace(':', '') as 'http' | 'https', hostname: mediaUrl.hostname }]
+        : []),
       {
         protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
