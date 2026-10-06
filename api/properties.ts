@@ -117,6 +117,8 @@ export const propertyApi = {
 
       const response = await axiosInstance.post(`/properties`, form, {
         headers: { "Accept": "application/json" },
+        // Image/video uploads are slower than ordinary calls.
+        timeout: 120000,
       });
       return response.data;
     } catch (error: any) {
@@ -287,6 +289,7 @@ export const propertyApi = {
           "Accept": "application/json",
           "Content-Type": "multipart/form-data",
         },
+        timeout: 120000,
       });
       return response.data;
     } catch (error: any) {
